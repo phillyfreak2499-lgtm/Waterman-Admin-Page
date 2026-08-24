@@ -8,7 +8,7 @@
 <meta name="description" content="Internal operations deck for The Waterman Group.">
 <title>Waterman Ops Deck</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Ops Deck">
@@ -306,6 +306,33 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
 .who-other input{width:120px;font-size:15px;letter-spacing:.15em;text-transform:uppercase}
 
 
+
+
+/* ---------- DM MONTHLY ROUND ---------- */
+.dm-who{display:flex;align-items:center;gap:9px;border:1px solid var(--line);background:var(--panel);
+  padding:12px 16px;margin-bottom:20px;flex-wrap:wrap}
+.dm-who label{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-3)}
+.dm-who input{font-family:"IBM Plex Mono",monospace;font-size:14px;letter-spacing:.14em;text-transform:uppercase;
+  width:92px;padding:7px 10px;background:var(--panel-2);color:var(--ink);border:1px solid var(--line)}
+.dm-who .hint{font-size:13px;color:var(--ink-3);flex:1;min-width:180px}
+.dmcard{background:var(--panel);border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  padding:16px;display:flex;flex-direction:column;gap:12px;min-height:186px}
+.dm-rows{display:flex;flex-direction:column;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft)}
+.dm-row{background:var(--panel-2);border:0;padding:11px 12px;cursor:pointer;text-align:left;
+  display:flex;align-items:center;gap:9px;transition:background .12s ease;font:inherit;color:inherit}
+.dm-row:hover{background:var(--panel)}
+.dm-row .box{width:17px;height:17px;flex:none;border:1.5px solid var(--ink-3);display:flex;align-items:center;justify-content:center}
+.dm-row .box svg{width:12px;height:12px;stroke-width:3;display:none}
+.dm-row[aria-pressed="true"]{background:var(--ok-bg)}
+.dm-row[aria-pressed="true"] .box{border-color:var(--ok);background:var(--ok)}
+.dm-row[aria-pressed="true"] .box svg{display:block;stroke:var(--panel)}
+.dm-row .lb{font-size:13.5px;flex:1;min-width:0}
+.dm-row[aria-pressed="true"] .lb{color:var(--ok)}
+.dm-row .stamp{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.05em;color:var(--ink-3);white-space:nowrap}
+.dm-open{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--brand);text-decoration:none;margin-top:auto;display:inline-block}
+.dm-open:hover{text-decoration:underline}
 
 /* ---------- PACE ---------- */
 .pace{display:flex;align-items:center;gap:11px;margin-top:8px;flex-wrap:wrap}
@@ -640,6 +667,10 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
         <div class="sub" id="distDate">&mdash;</div>
       </div>
       <div class="sched-nav">
+        <span class="period" id="viewSel">
+          <button type="button" data-view="stores" aria-pressed="true">Stores</button>
+          <button type="button" data-view="dm" aria-pressed="false">DM month</button>
+        </span>
         <span class="period" id="periodSel">
           <button type="button" data-period="day" aria-pressed="true">Day</button>
           <button type="button" data-period="week" aria-pressed="false">Week</button>
@@ -754,6 +785,9 @@ const CONFIG = {
   /* Defaults the Admin page can override, and the shared log then pushes to every
      store. Anything left here is the fallback when the log is unreachable. */
   features: { pace: true },
+
+  /* Manager tools — the DM's monthly round. Not shown on any store's deck. */
+  dm: { storeVisitUrl: "https://docs.google.com/forms/d/e/1FAIpQLSe5RPPJlMfC_rM305gBY2-pQO3JkSZdMiiI9QwPKzhaDh1dFA/viewform" },
 
   // Shared tick log. Paste the Apps Script web-app URL from apps-script.gs here.
   // Leave "" and the deck still works: ticks stay on the tablet and the district
@@ -1706,9 +1740,17 @@ function openDist(){
   distISO = todayISO();
   distScope = "all";
   distPeriod = "day";
+  distView = "stores";
   $("dist").classList.add("on");
   syncScopeButtons();
-  renderDist();
+  renderView();
+}
+
+function renderView(){
+  const dm = distView === "dm";
+  $("periodSel").style.display = dm ? "none" : "";
+  $("distExport").style.display = dm ? "none" : "";
+  return dm ? renderDM() : renderDist();
 }
 function closeDist(){ $("dist").classList.remove("on"); }
 
@@ -1719,6 +1761,8 @@ function syncScopeButtons(){
     b.setAttribute("aria-pressed", b.dataset.scope === distScope ? "true" : "false"));
   $("periodSel").querySelectorAll("button").forEach(b =>
     b.setAttribute("aria-pressed", b.dataset.period === distPeriod ? "true" : "false"));
+  $("viewSel").querySelectorAll("button").forEach(b =>
+    b.setAttribute("aria-pressed", b.dataset.view === distView ? "true" : "false"));
 }
 
 function scoreClass(n){ return n === TASKS.length ? "full" : (n === 0 ? "none" : "part"); }
@@ -1874,6 +1918,11 @@ function periodLabel(){
 }
 
 function stepPeriod(dir){
+  if(distView === "dm"){
+    const [y,m] = distISO.split("-").map(Number);
+    distISO = isoOf(new Date(y, m - 1 + dir, 1));
+    return;
+  }
   if(distPeriod === "day"){ distISO = shiftISO(distISO, dir); return; }
   if(distPeriod === "week"){ distISO = shiftISO(mondayOf(distISO), dir * 7); return; }
   const [y,m] = distISO.split("-").map(Number);
@@ -1886,6 +1935,196 @@ function atLatest(){
   if(distPeriod === "day") return distISO >= t;
   if(distPeriod === "week") return mondayOf(distISO) >= mondayOf(t);
   return distISO.slice(0,7) >= t.slice(0,7);
+}
+
+
+/* ================= DM MONTHLY ROUND =================
+   Every month a DM walks each store: one Store Visit Checklist, and one PE with that
+   store's manager. Twenty-two things across eleven stores, currently tracked in
+   somebody's head. This is the same tick machinery the stores use, keyed to the first
+   of the month instead of to a day, so it rides the shared log without any new plumbing. */
+const DM_TASKS = [
+  { id: "dmVisit", full: "Store visit checklist" },
+  { id: "dmPE",    full: "PE with the manager" }
+];
+
+let distView = "stores";
+
+function monthStart(iso){ return iso.slice(0, 7) + "-01"; }
+function dmKeyFor(store, iso){ return "wg-ops-done-" + store + "-" + monthStart(iso); }
+function dmLoad(store, iso){
+  try{ return JSON.parse(localStorage.getItem(dmKeyFor(store, iso)) || "{}"); }catch(e){ return {}; }
+}
+function dmSave(store, iso, o){
+  try{ localStorage.setItem(dmKeyFor(store, iso), JSON.stringify(o)); }catch(e){}
+}
+
+function getDM(){ try{ return localStorage.getItem("wg-ops-dm") || ""; }catch(e){ return ""; } }
+function setDM(v){ try{ localStorage.setItem("wg-ops-dm", v); }catch(e){} }
+
+function dmToggle(store, taskId){
+  const who = getDM();
+  if(!who){ say("Put your initials in at the top first, so the round has a name on it."); 
+            const f = $("dmWho"); if(f){ f.focus(); } return; }
+
+  const iso = monthStart(distISO);
+  const o = dmLoad(store, distISO);
+  let action;
+  if(o[taskId]){ delete o[taskId]; action = "clear"; }
+  else { o[taskId] = { at: new Date().toISOString(), by: who }; action = "set"; }
+  dmSave(store, distISO, o);
+
+  if(syncOn()){
+    const t = DM_TASKS.find(x => x.id === taskId);
+    try{
+      fetch(CONFIG.sync.url, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ date: iso, store: store, task: taskId,
+                               label: t ? t.full : taskId, by: who, action: action,
+                               at: new Date().toISOString() })
+      }).catch(() => {});
+    }catch(e){}
+  }
+  distCache = {};
+  renderDM();
+}
+
+function visitLink(){
+  return setting("link.storeVisit", (CONFIG.dm && CONFIG.dm.storeVisitUrl) || "");
+}
+
+function daysLeftInMonth(){
+  const [y, m] = distISO.split("-").map(Number);
+  const end = new Date(y, m, 0).getDate();
+  const today = new Date();
+  const sameMonth = (today.getFullYear() === y && today.getMonth() + 1 === m);
+  if(!sameMonth) return null;
+  return end - today.getDate();
+}
+
+async function renderDM(){
+  $("distDate").textContent = periodLabel();
+  $("distTitle").textContent = distScope === "all" ? "DM month — company" : "DM month — " + distScope;
+  $("distNext").disabled = distISO.slice(0,7) >= todayISO().slice(0,7);
+
+  const host = $("distContent");
+  host.innerHTML = "";
+
+  // who is walking the round
+  const whoBox = document.createElement("div");
+  whoBox.className = "dm-who";
+  whoBox.innerHTML = '<label for="dmWho">Recording as</label>';
+  const inp = document.createElement("input");
+  inp.id = "dmWho"; inp.maxLength = 4; inp.placeholder = "ABC"; inp.value = getDM();
+  inp.addEventListener("input", () => setDM(inp.value.trim().toUpperCase()));
+  whoBox.appendChild(inp);
+  const hint = document.createElement("span");
+  hint.className = "hint";
+  hint.textContent = "Your initials go on every box you tick this month. Set once on this device.";
+  whoBox.appendChild(hint);
+  host.appendChild(whoBox);
+
+  // pull the month from the shared log so a round started on another device shows up
+  let remote = null;
+  if(syncOn()){
+    try{
+      const sep = CONFIG.sync.url.includes("?") ? "&" : "?";
+      const r = await fetch(CONFIG.sync.url + sep + "date=" + monthStart(distISO));
+      if(r.ok){ const j = await r.json(); if(j.ok) remote = j.stores || {}; }
+    }catch(e){}
+  }
+
+  const recFor = (store, taskId) => {
+    if(remote && remote[store] && remote[store][taskId]) return remote[store][taskId];
+    return dmLoad(store, distISO)[taskId] || null;
+  };
+
+  const inScope = STORES.filter(s => distScope === "all" || s.district === distScope);
+  let visits = 0, pes = 0;
+  inScope.forEach(s => {
+    if(recFor(s.name, "dmVisit")) visits++;
+    if(recFor(s.name, "dmPE")) pes++;
+  });
+
+  const tally = document.createElement("div");
+  tally.className = "tally";
+  const left = daysLeftInMonth();
+  [[visits + "/" + inScope.length, "store visits done"],
+   [pes + "/" + inScope.length, "manager PEs done"],
+   [left === null ? "—" : String(left), left === null ? "not this month" : (left === 1 ? "day left" : "days left")]]
+    .forEach(([n,k]) => {
+      const d = document.createElement("div");
+      d.innerHTML = '<span class="n"></span><span class="k"></span>';
+      d.querySelector(".n").textContent = n;
+      d.querySelector(".k").textContent = k;
+      tally.appendChild(d);
+    });
+  host.appendChild(tally);
+
+  const groups = distScope === "all" ? ["West","East"] : [distScope];
+  groups.forEach(g => {
+    if(distScope === "all"){
+      const head = document.createElement("div");
+      head.className = "sec-sub";
+      head.innerHTML = '<span class="eyebrow"></span><span class="rule"></span>';
+      head.querySelector(".eyebrow").textContent = g + " District";
+      host.appendChild(head);
+    }
+    const grid = document.createElement("div");
+    grid.className = "store-cards";
+    STORES.filter(s => s.district === g).forEach(s => {
+      const card = document.createElement("div");
+      card.className = "dmcard";
+
+      const done = DM_TASKS.filter(t => recFor(s.name, t.id)).length;
+      const h = document.createElement("div");
+      h.className = "scard-h";
+      h.innerHTML = '<div><div class="nm"></div><div class="cd"></div></div><span class="score"></span>';
+      h.querySelector(".nm").textContent = s.name;
+      h.querySelector(".cd").textContent = s.code + " · " + s.district;
+      const sc = h.querySelector(".score");
+      sc.classList.add(done === 2 ? "full" : (done ? "part" : "none"));
+      sc.textContent = done + "/2";
+      card.appendChild(h);
+
+      const rows = document.createElement("div");
+      rows.className = "dm-rows";
+      DM_TASKS.forEach(t => {
+        const rec = recFor(s.name, t.id);
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "dm-row";
+        b.setAttribute("aria-pressed", rec ? "true" : "false");
+        b.innerHTML = '<span class="box">' + TICK + '</span><span class="lb"></span><span class="stamp"></span>';
+        b.querySelector(".lb").textContent = t.full;
+        if(rec){
+          const at = new Date(rec.at || rec);
+          b.querySelector(".stamp").textContent =
+            (rec.by ? rec.by + " · " : "") + at.toLocaleDateString([], {month:"numeric", day:"numeric"});
+        }
+        b.addEventListener("click", () => dmToggle(s.name, t.id));
+        rows.appendChild(b);
+      });
+      card.appendChild(rows);
+
+      const link = visitLink();
+      if(link){
+        const a = document.createElement("a");
+        a.className = "dm-open"; a.href = link; a.target = "_blank"; a.rel = "noopener";
+        a.textContent = "Open store visit checklist →";
+        card.appendChild(a);
+      }
+      grid.appendChild(card);
+    });
+    host.appendChild(grid);
+  });
+
+  const note = document.createElement("div");
+  note.className = "dist-note";
+  note.innerHTML = "<h3>Your round, not the stores'</h3>" +
+    "<p>This tab is yours. Stores never see it, and nothing here appears on their deck.</p>" +
+    "<p>Ticking a box records that you did it — it does not submit the checklist. Open the form, fill it in, then tick.</p>";
+  host.appendChild(note);
 }
 
 async function renderDist(){
@@ -2085,6 +2324,12 @@ async function renderAdmin(){
   urlRow("resp.closing",  "Closing — responses",  "Responses sheet for the Closing Daily Check List.", {});
   urlRow("resp.workshop", "Workshop — responses", "Responses sheet for the Weekly Training Recap.", {});
 
+  // ---- manager tools -------------------------------------------------------
+  section("Manager tools", "Used only in the DM month tab. Stores never see this.");
+  urlRow("link.storeVisit", "Store Visit Checklist",
+    "The form a DM fills in on each store's monthly walk.",
+    { fallback: (CONFIG.dm && CONFIG.dm.storeVisitUrl) || "" });
+
   // ---- options ------------------------------------------------------------
   section("Options", "");
 
@@ -2231,23 +2476,32 @@ $("mgrCancel").addEventListener("click", () => {
 });
 $("distClose").addEventListener("click", closeDist);
 $("distExport").addEventListener("click", exportCSV);
-$("distPrev").addEventListener("click", () => { stepPeriod(-1); renderDist(); });
-$("distNext").addEventListener("click", () => { if(!atLatest()){ stepPeriod(1); renderDist(); } });
+$("distPrev").addEventListener("click", () => { stepPeriod(-1); renderView(); });
+$("distNext").addEventListener("click", () => { if(!atLatest()){ stepPeriod(1); renderView(); } });
+$("viewSel").addEventListener("click", e => {
+  const b = e.target.closest("button[data-view]");
+  if(!b) return;
+  distView = b.dataset.view;
+  if(distView === "dm") distPeriod = "month";
+  distISO = todayISO();
+  syncScopeButtons();
+  renderView();
+});
 $("periodSel").addEventListener("click", e => {
   const b = e.target.closest("button[data-period]");
   if(!b) return;
   distPeriod = b.dataset.period;
   distISO = todayISO();
   syncScopeButtons();
-  renderDist();
+  renderView();
 });
-$("distToday").addEventListener("click", () => { distISO = todayISO(); renderDist(); });
+$("distToday").addEventListener("click", () => { distISO = todayISO(); renderView(); });
 $("scopeSel").addEventListener("click", e => {
   const b = e.target.closest("button[data-scope]");
   if(!b) return;
   distScope = b.dataset.scope;
   syncScopeButtons();
-  renderDist();
+  renderView();
 });
 
 /* remember the store on this tablet */
