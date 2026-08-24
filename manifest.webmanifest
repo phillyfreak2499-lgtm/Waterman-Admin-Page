@@ -1,0 +1,16 @@
+{
+  "name": "Waterman Ops Deck",
+  "short_name": "Ops Deck",
+  "description": "Opening and closing checklists, banking, end of day, schedule and workshop for The Waterman Group.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1c3250",
+  "theme_color": "#1c3250",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

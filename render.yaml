@@ -1,0 +1,20 @@
+# Render Blueprint — deploy straight from this repo.
+# Render > New > Blueprint > pick this repo, and it configures itself.
+# By hand instead: New > Static Site, build command blank, publish directory "." (a dot).
+services:
+  - type: web
+    name: waterman-ops-deck
+    runtime: static
+    staticPublishPath: .
+    buildCommand: ""
+    pullRequestPreviewsEnabled: false
+    headers:
+      - path: /*
+        name: X-Robots-Tag
+        value: noindex, nofollow
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
