@@ -910,7 +910,7 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
    employee never has to pick their store twice.
    ===================================================================== */
 
-const BUILD = "2026-08-25-c";
+const BUILD = "2026-08-25-e";
 
 const CONFIG = {
   // Set to false to let anyone straight in without a code.
@@ -952,7 +952,7 @@ const CONFIG = {
   // Shared tick log. Paste the Apps Script web-app URL from apps-script.gs here.
   // Leave "" and the deck still works: ticks stay on the tablet and the district
   // view explains that it isn't connected yet.
-  sync: { url: "https://script.google.com/macros/s/AKfycbwCUK8C_OeSLskXOLx8s7sIhJqUXF3I1TDArlmvcq85N2TEW9xwO8bwTTVr-Nz5lSZigg/exec" },
+  sync: { url: "https://script.google.com/macros/s/AKfycbxXJrsbNPCDqq33bvv2f4JnEV6iAHgVThAy4_AGm0itEdhQnzQ5HOnprOutX9Q6KuSvaQ/exec" },
 
   modules: {
     opening: {
@@ -2509,7 +2509,37 @@ async function renderDiag(host){
     pending.querySelector(".val").textContent = "answering — " + Object.keys(j.settings || {}).length + " setting(s) stored";
   }catch(e){
     pending.className = "diag-row bad";
-    pending.querySelector(".val").textContent = "no usable reply (" + e.message + ") — every store is running on its own device only";
+    pending.querySelector(".val").textContent = "no usable reply (" + e.message + ")";
+
+    /* "Failed to fetch" is the browser refusing to tell us why. An opaque no-cors probe
+       can at least separate "the host is unreachable from here" from "the host answered
+       but wouldn't let this page read it", which point at completely different fixes. */
+    const verdict = row("What that means", "narrowing it down…", "");
+    let opaqueOK = false;
+    try{
+      await fetch(url, { mode: "no-cors", cache: "no-store" });
+      opaqueOK = true;
+    }catch(e2){}
+
+    if(opaqueOK){
+      verdict.className = "diag-row warn";
+      verdict.querySelector(".val").textContent =
+        "Google answered but blocked this page from reading it. Almost always the web app's access setting: it must be Anyone, not Anyone with a Google account. Ticks may still be saving; nothing can be read back.";
+    } else {
+      verdict.className = "diag-row bad";
+      verdict.querySelector(".val").textContent =
+        "script.google.com could not be reached from this device at all — network, wifi filter, VPN or an extension. Try the same URL in a browser tab; if that works too, it is this page being blocked, not the script.";
+    }
+
+    const openIt = row("Check it by hand", "", "");
+    const a = document.createElement("a");
+    a.href = url + (url.includes("?") ? "&" : "?") + "settings=1";
+    a.target = "_blank"; a.rel = "noopener";
+    a.textContent = "Open the endpoint in a new tab";
+    a.style.cssText = "color:var(--brand);font-size:13px";
+    openIt.querySelector(".val").textContent = "";
+    openIt.querySelector(".val").appendChild(a);
+    openIt.querySelector(".lbl").textContent = "Check it by hand";
   }
   if(!reachable) return;
 
