@@ -309,6 +309,26 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
 
 
 
+
+/* ---------- CONNECTION CHECK ---------- */
+.diag{border:1px solid var(--line);background:var(--panel);margin-bottom:20px}
+.diag-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line-soft);flex-wrap:wrap}
+.diag-row:last-child{border-bottom:0}
+.diag-row .dot{width:9px;height:9px;flex:none;background:var(--ink-3)}
+.diag-row.ok .dot{background:var(--ok)}
+.diag-row.bad .dot{background:var(--stop)}
+.diag-row.warn .dot{background:var(--warn)}
+.diag-row .lbl{font-size:14px;min-width:190px}
+.diag-row .val{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-2);flex:1;min-width:180px;word-break:break-all}
+.seen{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:1px;background:var(--line-soft);
+  border:1px solid var(--line-soft)}
+.seen div{background:var(--panel-2);padding:9px 12px;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.seen .s{font-family:"Archivo",sans-serif;font-weight:600;font-size:13.5px}
+.seen .t{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3)}
+.seen div.never{background:var(--panel)}
+.seen div.never .s{color:var(--stop)}
+.seen div.never .t{color:var(--stop)}
+
 /* ---------- IN-PAGE VIEWER ---------- */
 .viewer{position:fixed;inset:0;z-index:58;background:var(--ground);display:none;flex-direction:column}
 .viewer.on{display:flex}
@@ -794,6 +814,8 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
    Store field, put the prefilled URL in byStore for each store and the
    employee never has to pick their store twice.
    ===================================================================== */
+
+const BUILD = "2026-08-24-h";
 
 const CONFIG = {
   // Set to false to let anyone straight in without a code.
@@ -1347,7 +1369,7 @@ function tick(){
   const day = d.getDay();
   $("clockT").textContent = d.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
   $("clockD").textContent = d.toLocaleDateString([], {weekday:"long", month:"short", day:"numeric"});
-  $("footStamp").textContent = d.toLocaleDateString([], {year:"numeric", month:"2-digit", day:"2-digit"});
+  $("footStamp").textContent = d.toLocaleDateString([], {year:"numeric", month:"2-digit", day:"2-digit"}) + "  ·  build " + BUILD;
 
   const crew = crewOn(active.name, todayISO());
   let line = $("todayLine");
@@ -2002,6 +2024,101 @@ function atLatest(){
 
 
 
+
+/* ================= CONNECTION CHECK =================
+   When a store goes missing from the company view there are only a few possible
+   reasons, and guessing between them is miserable. This asks the endpoint directly and
+   reports which stores have ever reached it. */
+async function renderDiag(host){
+  const box = document.createElement("div");
+  box.className = "diag";
+  host.appendChild(box);
+
+  const row = (label, value, state) => {
+    const d = document.createElement("div");
+    d.className = "diag-row" + (state ? " " + state : "");
+    d.innerHTML = '<span class="dot"></span><span class="lbl"></span><span class="val"></span>';
+    d.querySelector(".lbl").textContent = label;
+    d.querySelector(".val").textContent = value;
+    box.appendChild(d);
+    return d;
+  };
+
+  row("This page", "build " + BUILD, "ok");
+
+  const url = (CONFIG.sync && CONFIG.sync.url) || "";
+  if(!url){
+    row("Shared log", "no URL set in CONFIG.sync.url — nothing is being shared", "bad");
+    return;
+  }
+  row("Shared log", url.length > 72 ? url.slice(0, 72) + "…" : url, "ok");
+
+  const pending = row("Endpoint", "checking…", "");
+  let reachable = false;
+  try{
+    const sep = url.includes("?") ? "&" : "?";
+    const r = await fetch(url + sep + "settings=1");
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    const j = await r.json();
+    if(!j || j.ok !== true) throw new Error("unexpected reply");
+    reachable = true;
+    pending.className = "diag-row ok";
+    pending.querySelector(".val").textContent = "answering — " + Object.keys(j.settings || {}).length + " setting(s) stored";
+  }catch(e){
+    pending.className = "diag-row bad";
+    pending.querySelector(".val").textContent = "no usable reply (" + e.message + ") — every store is running on its own device only";
+  }
+  if(!reachable) return;
+
+  // which stores have actually reached the log in the last two weeks
+  const to = todayISO();
+  const from = shiftISO(to, -13);
+  const seenRow = row("Stores reporting", "checking the last 14 days…", "");
+  let days = {};
+  try{
+    const sep = url.includes("?") ? "&" : "?";
+    const r = await fetch(url + sep + "from=" + from + "&to=" + to);
+    const j = await r.json();
+    days = (j && j.days) || {};
+  }catch(e){
+    seenRow.className = "diag-row bad";
+    seenRow.querySelector(".val").textContent = "couldn't read the range";
+    return;
+  }
+
+  const last = {};
+  Object.keys(days).forEach(d => Object.keys(days[d] || {}).forEach(store => {
+    if(!last[store] || d > last[store]) last[store] = d;
+  }));
+
+  const known = STORES.map(s => s.name);
+  const reporting = known.filter(n => last[n]).length;
+  const strangers = Object.keys(last).filter(n => known.indexOf(n) < 0);
+
+  seenRow.className = "diag-row " + (reporting === known.length ? "ok" : "warn");
+  seenRow.querySelector(".val").textContent =
+    reporting + " of " + known.length + " have posted since " + from +
+    (strangers.length ? "  ·  unrecognised names in the log: " + strangers.join(", ") : "");
+
+  const grid = document.createElement("div");
+  grid.className = "seen";
+  STORES.forEach(s => {
+    const d = document.createElement("div");
+    if(!last[s.name]) d.className = "never";
+    d.innerHTML = '<span class="s"></span><span class="t"></span>';
+    d.querySelector(".s").textContent = s.name;
+    d.querySelector(".t").textContent = last[s.name] ? "last " + fmtShort(last[s.name]) : "never";
+    grid.appendChild(d);
+  });
+  host.appendChild(grid);
+
+  const note = document.createElement("p");
+  note.className = "legend";
+  note.style.marginTop = "12px";
+  note.textContent = "A store reading \u201cnever\u201d has not reached this log at all. Either nobody has ticked anything there, or that tablet is on an older copy of the page — open the deck on it and check the build number in the footer against the one above.";
+  host.appendChild(note);
+}
+
 /* ================= IN-PAGE VIEWER =================
    Google Forms allow themselves to be embedded, so opening/closing/workshop and the DM's
    store visit all run inside the deck. Google Sheets refuse to be framed when they're
@@ -2348,14 +2465,7 @@ async function renderAdmin(){
   const st = document.createElement("div");
   st.className = "status";
   st.innerHTML = '<span class="dot"></span><p></p>';
-  host.appendChild(st);
   const setStatus = (kind, html) => { st.className = "status " + kind; st.querySelector("p").innerHTML = html; };
-  setStatus("", "Checking the shared log…");
-
-  const state = await loadSettings();
-  if(state === "live")         setStatus("live", "<b>Connected.</b> Anything you save here reaches every store the next time a tablet loads the deck.");
-  else if(state === "offline") setStatus("offline", "<b>Can't reach the shared log.</b> Saving still works on this device, but other stores won't get it.");
-  else                         setStatus("offline", "<b>Not connected.</b> <code>CONFIG.sync.url</code> is empty, so a save only changes this device. Deploy <code>apps-script.gs</code> to push to every store.");
 
   const inputs = {};
 
@@ -2419,7 +2529,19 @@ async function renderAdmin(){
     host.appendChild(row);
   };
 
+  // ---- connection ---------------------------------------------------------
+  section("Connection", "Whether the shared log is answering, and which stores have reached it.");
+  await renderDiag(host);
+
   // ---- links -------------------------------------------------------------
+  section("Links & settings", "");
+  host.appendChild(st);
+  setStatus("", "Checking…");
+  const state = await loadSettings();
+  if(state === "live")         setStatus("live", "<b>Connected.</b> Anything you save here reaches every store the next time a tablet loads the deck.");
+  else if(state === "offline") setStatus("offline", "<b>Can't reach the shared log.</b> Saving still works on this device, but other stores won't get it.");
+  else                         setStatus("offline", "<b>Not connected.</b> <code>CONFIG.sync.url</code> is empty, so a save only changes this device.");
+
   section("Module links", "Paste a new URL over the old one when a workbook or form is replaced.");
   MODULES.forEach(m => {
     urlRow("link." + m.key, m.title,
