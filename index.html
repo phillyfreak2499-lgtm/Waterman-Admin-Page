@@ -308,6 +308,23 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
 
 
 
+
+/* ---------- IN-PAGE VIEWER ---------- */
+.viewer{position:fixed;inset:0;z-index:58;background:var(--ground);display:none;flex-direction:column}
+.viewer.on{display:flex}
+.viewer-bar{background:var(--panel);border-bottom:1px solid var(--line);padding:11px 16px;flex:none}
+.viewer-bar-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.viewer-bar h2{font-size:17px;font-weight:700}
+.viewer-bar .sub{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-3)}
+.viewer-nav{display:flex;gap:6px;margin-left:auto;align-items:center;flex-wrap:wrap}
+.viewer-frame{flex:1;border:0;width:100%;background:var(--panel)}
+.viewer-foot{background:var(--panel);border-top:1px solid var(--line);padding:12px 16px;flex:none}
+.viewer-foot-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.viewer-foot p{margin:0;font-size:13.5px;color:var(--ink-2);flex:1;min-width:200px}
+.opens-out{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-3);border:1px solid var(--line);padding:2px 6px;white-space:nowrap}
+
 /* ---------- DM MONTHLY ROUND ---------- */
 .dm-who{display:flex;align-items:center;gap:9px;border:1px solid var(--line);background:var(--panel);
   padding:12px 16px;margin-bottom:20px;flex-wrap:wrap}
@@ -626,7 +643,7 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
 
       <div style="height:28px"></div>
 
-      <div class="sec-head"><span class="eyebrow">Weekly & Reference</span><span class="rule"></span></div>
+      <div class="sec-head"><span class="eyebrow">Weekly &amp; Reference</span><span class="rule"></span></div>
       <div class="deck" id="deckWeekly"></div>
     </div>
   </main>
@@ -691,6 +708,32 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
   </div>
   <div class="dist-body">
     <div class="wrap" id="distContent"></div>
+  </div>
+</div>
+
+
+<!-- ============================ VIEWER ============================ -->
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Form">
+  <div class="viewer-bar">
+    <div class="viewer-bar-in">
+      <div>
+        <h2 id="vwTitle">&mdash;</h2>
+        <div class="sub" id="vwSub">&mdash;</div>
+      </div>
+      <div class="viewer-nav">
+        <a class="nav-btn" id="vwOut" href="#" target="_blank" rel="noopener" style="text-decoration:none">Open in new tab &#8599;</a>
+        <button class="nav-btn" id="vwClose">Close</button>
+      </div>
+    </div>
+  </div>
+  <iframe class="viewer-frame" id="vwFrame" title="Form" src="about:blank"
+          referrerpolicy="no-referrer-when-downgrade"></iframe>
+  <div class="viewer-foot" id="vwFoot" style="display:none">
+    <div class="viewer-foot-in">
+      <p id="vwAsk">Submitted it?</p>
+      <button class="btn" id="vwDone">Mark done &amp; close</button>
+      <button class="btn btn-ghost" id="vwSkip">Close without ticking</button>
+    </div>
   </div>
 </div>
 
@@ -1166,19 +1209,32 @@ function tileFor(m){
   const wrap = document.createElement("div");
   wrap.className = "tile" + (unset ? " unset" : "") + (allDone ? " done" : "");
 
-  const main = document.createElement(href ? "a" : "button");
+  const embeds = href && isEmbeddable(href);
+  const main = document.createElement((href && !embeds) ? "a" : "button");
   main.className = "tile-main";
-  if(href){ main.href = href; main.target = "_blank"; main.rel = "noopener"; }
+  if(href && !embeds){ main.href = href; main.target = "_blank"; main.rel = "noopener"; }
   else {
     main.type = "button";
-    main.addEventListener("click", m.internal ? openSched : () => {
-      say(m.title + " isn't linked yet — send Zach the Google Form or Sheet link."); });
+    main.addEventListener("click",
+      m.internal ? openSched
+      : embeds ? () => openViewer(m.title, href, (mine[0] || {}).id)
+      : () => say(m.title + " isn't linked yet — send Zach the Google Form or Sheet link."));
   }
+  const goLabel = m.internal ? "View schedule →"
+    : !href ? "Link not set yet"
+    : embeds ? "Open here →" : "Open →";
   main.innerHTML =
     '<div class="tile-top">' + ICONS[m.key] + '<span class="tag">' + m.tag + '</span></div>' +
-    '<h3></h3><p></p><span class="go">' + (m.internal ? "View schedule →" : (href ? "Open →" : "Link not set yet")) + '</span>';
+    '<h3></h3><p></p><span class="go">' + goLabel + '</span>';
   main.querySelector("h3").textContent = m.title;
   main.querySelector("p").textContent = m.desc;
+  if(href && !embeds && !m.internal){
+    const badge = document.createElement("span");
+    badge.className = "opens-out";
+    badge.textContent = "Opens in Google";
+    badge.title = "Google Sheets won't run inside another page while they're editable, so this one opens in its own tab.";
+    main.querySelector(".tile-top").appendChild(badge);
+  }
   wrap.appendChild(main);
 
   if(mine.length){
@@ -1231,6 +1287,13 @@ function nowAction(key, label){
     return b;
   }
   const href = linkFor(key);
+  if(href && isEmbeddable(href)){
+    const b = document.createElement("button");
+    b.className = "btn"; b.textContent = label;
+    const t = TASKS.find(x => x.module === key);
+    b.addEventListener("click", () => openViewer(label, href, t ? t.id : null));
+    return b;
+  }
   if(href){
     const a = document.createElement("a");
     a.className = "btn"; a.href = href; a.target = "_blank"; a.rel = "noopener";
@@ -1938,6 +2001,48 @@ function atLatest(){
 }
 
 
+
+/* ================= IN-PAGE VIEWER =================
+   Google Forms allow themselves to be embedded, so opening/closing/workshop and the DM's
+   store visit all run inside the deck. Google Sheets refuse to be framed when they're
+   editable — banking, EOD and the master schedule set frame-ancestors, so those still
+   have to open in a tab. The tiles say which is which rather than letting a blank frame
+   make it look broken. */
+function isEmbeddable(url){
+  return /\/forms\/|docs\.google\.com\/forms/i.test(url || "");
+}
+function embedURL(url){
+  if(!url) return "";
+  return url + (url.includes("?") ? "&" : "?") + "embedded=true";
+}
+
+let viewerTask = null;      // task id to offer a tick for on close
+
+function openViewer(title, url, taskId){
+  if(!url){ say(title + " isn't linked yet."); return; }
+  viewerTask = taskId || null;
+
+  $("vwTitle").textContent = title;
+  $("vwSub").textContent = active ? active.name : "";
+  $("vwOut").href = url;
+  $("vwFrame").src = embedURL(url);
+
+  const foot = $("vwFoot");
+  if(viewerTask && active && !loadDone()[viewerTask]){
+    $("vwAsk").textContent = "When the form says your response is recorded, tick it off here.";
+    foot.style.display = "";
+  } else {
+    foot.style.display = "none";
+  }
+  $("viewer").classList.add("on");
+}
+
+function closeViewer(){
+  $("viewer").classList.remove("on");
+  $("vwFrame").src = "about:blank";     // stop it running in the background
+  viewerTask = null;
+}
+
 /* ================= DM MONTHLY ROUND =================
    Every month a DM walks each store: one Store Visit Checklist, and one PE with that
    store's manager. Twenty-two things across eleven stores, currently tracked in
@@ -2110,8 +2215,15 @@ async function renderDM(){
       const link = visitLink();
       if(link){
         const a = document.createElement("a");
-        a.className = "dm-open"; a.href = link; a.target = "_blank"; a.rel = "noopener";
-        a.textContent = "Open store visit checklist →";
+        a.className = "dm-open"; a.href = link;
+        if(isEmbeddable(link)){
+          a.href = "#";
+          a.addEventListener("click", e => { e.preventDefault(); openViewer("Store visit checklist — " + s.name, link, null); });
+          a.textContent = "Open store visit checklist →";
+        } else {
+          a.target = "_blank"; a.rel = "noopener";
+          a.textContent = "Open store visit checklist ↗";
+        }
         card.appendChild(a);
       }
       grid.appendChild(card);
@@ -2435,7 +2547,7 @@ $("schPrev").addEventListener("click", () => { weekPtr--; renderSched(); });
 $("schNext").addEventListener("click", () => { weekPtr++; renderSched(); });
 $("schToday").addEventListener("click", () => { weekPtr = findWeekFor(todayISO()); renderSched(); });
 document.addEventListener("keydown", e => {
-  if(e.key === "Escape"){ closeSched(); closeDist(); closeAdmin(); $("whoAsk").classList.remove("on"); }
+  if(e.key === "Escape"){ closeViewer(); closeSched(); closeDist(); closeAdmin(); $("whoAsk").classList.remove("on"); }
 });
 
 $("whoGo").addEventListener("click", () => {
@@ -2460,6 +2572,13 @@ $("admCancel").addEventListener("click", () => {
   $("pinErr").textContent = "";
 });
 $("admClose").addEventListener("click", closeAdmin);
+$("vwClose").addEventListener("click", closeViewer);
+$("vwSkip").addEventListener("click", closeViewer);
+$("vwDone").addEventListener("click", () => {
+  const t = viewerTask;
+  closeViewer();
+  if(t && active && !loadDone()[t]) toggleTask(t);
+});
 $("installBtn").addEventListener("click", async () => {
   if(!installEvent) return;
   installEvent.prompt();
