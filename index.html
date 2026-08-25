@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#1c3250">
 <meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="description" content="Internal operations deck for The Waterman Group.">
 <title>Waterman Ops Deck</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -835,7 +836,7 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
    employee never has to pick their store twice.
    ===================================================================== */
 
-const BUILD = "2026-08-24-h";
+const BUILD = "2026-08-25-a";
 
 const CONFIG = {
   // Set to false to let anyone straight in without a code.
@@ -2776,6 +2777,21 @@ async function renderAdmin(){
   nrow.appendChild(nf);
   host.appendChild(nrow);
 
+  const srow = document.createElement("div");
+  srow.className = "lrow";
+  srow.innerHTML = '<div class="lrow-h"><h3>Stores in the pilot</h3><span class="tagline">pilot.stores</span></div>';
+  const sin = document.createElement("input");
+  sin.type = "text"; sin.className = "urlin"; sin.spellcheck = false;
+  sin.placeholder = "Waco, Southlake, Alliance";
+  sin.value = SETTINGS["pilot.stores"] || "";
+  inputs["pilot.stores"] = sin;
+  srow.appendChild(sin);
+  const sf = document.createElement("div");
+  sf.className = "lrow-f";
+  sf.innerHTML = '<span class="hint">Comma-separated. Limits the reminder emails to the stores actually testing, so a pilot does not send you nine false alarms a day. Leave blank once every store is live.</span>';
+  srow.appendChild(sf);
+  host.appendChild(srow);
+
   const prow = document.createElement("div");
   prow.className = "lrow";
   prow.innerHTML = '<div class="lrow-h"><h3>Show sales pace to stores</h3><span class="tagline">feature.pace</span></div>';
@@ -2825,7 +2841,7 @@ async function renderAdmin(){
     Object.keys(inputs).forEach(k => {
       const v = inputs[k].value.trim();
       if(!v) return;
-      if(k !== "nudge.to" && !/^https?:\/\//i.test(v)) bad = bad || k;
+      if(k !== "nudge.to" && k !== "pilot.stores" && !/^https?:\/\//i.test(v)) bad = bad || k;
       if(k.indexOf("link.") === 0 && v === builtInLink(k.slice(5))) return;   // unchanged
       map[k] = v;
     });
