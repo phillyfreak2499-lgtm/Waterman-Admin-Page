@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#1c3250">
 <meta name="robots" content="noindex, nofollow, noarchive">
-<meta name="description" content="Internal operations deck for The Waterman Group.">
 <title>Waterman Ops Deck</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -309,6 +308,26 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
 
 
 
+
+
+/* ---------- TICK VS FORM ---------- */
+.cmp{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:0;
+  border:1px solid var(--line);border-right:0;border-bottom:0}
+.cmpcard{background:var(--panel);border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  padding:16px;display:flex;flex-direction:column;gap:11px;min-height:180px}
+.cmp-lines{display:flex;flex-direction:column;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft)}
+.cmp-line{background:var(--panel-2);padding:9px 11px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.cmp-line .nm{font-size:13px;flex:1;min-width:96px}
+.cmp-line .tm{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);white-space:nowrap}
+.cmp-line .gap{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  padding:2px 6px;border:1px solid currentColor;white-space:nowrap}
+.cmp-line .gap.good{color:var(--ok)}
+.cmp-line .gap.wide{color:var(--warn)}
+.cmp-line .gap.none{color:var(--stop)}
+.cmp-line .gap.only{color:var(--ink-3)}
+.cmp-key{display:flex;gap:16px;flex-wrap:wrap;margin-top:16px;font-family:"IBM Plex Mono",monospace;
+  font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.cmp-key b{font-weight:500}
 
 /* ---------- CONNECTION CHECK ---------- */
 .diag{border:1px solid var(--line);background:var(--panel);margin-bottom:20px}
@@ -707,6 +726,7 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
         <span class="period" id="viewSel">
           <button type="button" data-view="stores" aria-pressed="true">Stores</button>
           <button type="button" data-view="dm" aria-pressed="false">DM month</button>
+          <button type="button" data-view="compare" aria-pressed="false">Tick vs form</button>
         </span>
         <span class="period" id="periodSel">
           <button type="button" data-period="day" aria-pressed="true">Day</button>
@@ -1834,8 +1854,10 @@ function openDist(){
 function renderView(){
   const dm = distView === "dm";
   $("periodSel").style.display = dm ? "none" : "";
-  $("distExport").style.display = dm ? "none" : "";
-  return dm ? renderDM() : renderDist();
+  $("distExport").style.display = (distView === "stores") ? "" : "none";
+  if(dm) return renderDM();
+  if(distView === "compare") return renderCompare();
+  return renderDist();
 }
 function closeDist(){ $("dist").classList.remove("on"); }
 
@@ -2023,6 +2045,178 @@ function atLatest(){
 }
 
 
+
+
+
+/* ================= TICK VS FORM =================
+   A tick says somebody pressed a button. A form response says Google recorded a
+   submission. Where both exist for the same store and day, the gap between them is the
+   honest measure of whether the ticks mean anything. A tick with no submission behind it
+   is the one worth looking at. */
+const FORM_TASKS = [
+  { id: "opening",  full: "Opening checklist" },
+  { id: "closing",  full: "Closing checklist" },
+  { id: "workshop", full: "Saturday workshop" }
+];
+
+async function fetchCompare(dates){
+  const out = { ticks: {}, forms: {}, ok: false, note: "" };
+  if(!syncOn()){ out.note = "no shared log configured"; return out; }
+  const from = dates[0], to = dates[dates.length - 1];
+  const sep = CONFIG.sync.url.includes("?") ? "&" : "?";
+  try{
+    const [rt, rf] = await Promise.all([
+      fetch(CONFIG.sync.url + sep + "from=" + from + "&to=" + to),
+      fetch(CONFIG.sync.url + sep + "forms=1&from=" + from + "&to=" + to)
+    ]);
+    const jt = await rt.json();
+    out.ticks = (jt && jt.days) || {};
+    const jf = await rf.json();
+    out.forms = (jf && jf.days) || {};
+    out.tasksWired = (jf && jf.tasks) || [];
+    out.problems = (jf && jf.problems) || [];
+    out.ok = true;
+  }catch(e){ out.note = "couldn't reach the shared log"; }
+  return out;
+}
+
+function minutesBetween(a, b){
+  return Math.round((new Date(b).getTime() - new Date(a).getTime()) / 60000);
+}
+
+async function renderCompare(){
+  $("distDate").textContent = periodLabel();
+  $("distTitle").textContent = "Tick vs form" + (distScope === "all" ? "" : " — " + distScope);
+  $("distNext").disabled = atLatest();
+
+  const host = $("distContent");
+  host.innerHTML = "";
+  const loading = document.createElement("p");
+  loading.className = "legend"; loading.textContent = "Reading ticks and form responses…";
+  host.appendChild(loading);
+
+  const dates = datesForPeriod();
+  const res = await fetchCompare(dates);
+  host.innerHTML = "";
+
+  if(!res.ok){
+    const n = document.createElement("div");
+    n.className = "dist-note";
+    n.innerHTML = "<h3>Nothing to compare yet</h3><p>" + (res.note || "The shared log didn't answer.") + "</p>";
+    host.appendChild(n);
+    return;
+  }
+
+  if(!res.tasksWired || !res.tasksWired.length){
+    const n = document.createElement("div");
+    n.className = "dist-note";
+    n.innerHTML = "<h3>No forms connected yet</h3>" +
+      "<p>Put the Opening, Closing and Workshop forms into the <b>Form responses</b> section of the Admin page. Either the form's own edit URL or its linked responses sheet will do.</p>" +
+      "<p>Until then there is nothing to check a tick against.</p>";
+    host.appendChild(n);
+    return;
+  }
+
+  const inScope = STORES.filter(s => distScope === "all" || s.district === distScope);
+  let both = 0, tickOnly = 0, formOnly = 0, gaps = [];
+
+  const cards = document.createElement("div");
+  cards.className = "cmp";
+
+  inScope.forEach(s => {
+    const lines = [];
+    dates.forEach(d => {
+      FORM_TASKS.forEach(t => {
+        const tick = res.ticks[d] && res.ticks[d][s.name] && res.ticks[d][s.name][t.id];
+        const form = res.forms[d] && res.forms[d][s.name] && res.forms[d][s.name][t.id];
+        if(!tick && !form) return;
+        let state, gapMin = null;
+        if(tick && form){
+          gapMin = minutesBetween(tick.at, form.at);
+          gaps.push(Math.abs(gapMin));
+          state = Math.abs(gapMin) <= 30 ? "good" : "wide";
+          both++;
+        } else if(tick && !form){ state = "none"; tickOnly++; }
+        else { state = "only"; formOnly++; }
+        lines.push({ d, t, tick, form, state, gapMin });
+      });
+    });
+    if(!lines.length) return;
+
+    const card = document.createElement("div");
+    card.className = "cmpcard";
+    const h = document.createElement("div");
+    h.className = "scard-h";
+    h.innerHTML = '<div><div class="nm"></div><div class="cd"></div></div>';
+    h.querySelector(".nm").textContent = s.name;
+    h.querySelector(".cd").textContent = s.code + " · " + s.district;
+    card.appendChild(h);
+
+    const box = document.createElement("div");
+    box.className = "cmp-lines";
+    lines.forEach(l => {
+      const row = document.createElement("div");
+      row.className = "cmp-line";
+      const nm = document.createElement("span");
+      nm.className = "nm";
+      nm.textContent = l.t.full + (dates.length > 1 ? " · " + fmtShort(l.d) : "");
+      row.appendChild(nm);
+
+      const tm = document.createElement("span");
+      tm.className = "tm";
+      const fmt = x => new Date(x).toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+      tm.textContent = (l.tick ? "tick " + fmt(l.tick.at) : "no tick") + "  ·  " +
+                       (l.form ? "form " + fmt(l.form.at) : "no form");
+      row.appendChild(tm);
+
+      const g = document.createElement("span");
+      g.className = "gap " + l.state;
+      g.textContent = l.state === "none" ? "no submission"
+        : l.state === "only" ? "not ticked"
+        : (l.gapMin === 0 ? "same minute"
+           : (l.gapMin > 0 ? "form " + l.gapMin + "m later" : "form " + Math.abs(l.gapMin) + "m earlier"));
+      row.appendChild(g);
+      box.appendChild(row);
+    });
+    card.appendChild(box);
+    cards.appendChild(card);
+  });
+
+  const median = gaps.length ? gaps.slice().sort((a,b)=>a-b)[Math.floor(gaps.length/2)] : null;
+  const tally = document.createElement("div");
+  tally.className = "tally";
+  [[String(both), "matched up"],
+   [String(tickOnly), tickOnly === 1 ? "tick with no form" : "ticks with no form"],
+   [median === null ? "—" : median + "m", "typical gap"]]
+    .forEach(([n,k]) => {
+      const d = document.createElement("div");
+      d.innerHTML = '<span class="n"></span><span class="k"></span>';
+      d.querySelector(".n").textContent = n;
+      d.querySelector(".k").textContent = k;
+      tally.appendChild(d);
+    });
+  host.appendChild(tally);
+  host.appendChild(cards);
+
+  const key = document.createElement("div");
+  key.className = "cmp-key";
+  key.innerHTML = '<span><b style="color:var(--ok)">within 30m</b> — tick tracks the work</span>' +
+    '<span><b style="color:var(--warn)">wider gap</b> — ticked at a different time than submitted</span>' +
+    '<span><b style="color:var(--stop)">no submission</b> — ticked, but Google has no form</span>' +
+    '<span><b>not ticked</b> — form submitted, nobody ticked</span>';
+  host.appendChild(key);
+
+  const note = document.createElement("div");
+  note.className = "dist-note";
+  let body = "<h3>How to read this</h3>" +
+    "<p><b>Ticks with no form</b> is the number that matters. One or two is noise — someone ticked, then got pulled onto the floor. A pattern at the same store means the tick has become the ritual and the form has been dropped.</p>" +
+    "<p>A wide gap is not automatically bad. Ticking on arrival and submitting an hour later is still an honest day's work. What you're looking for is whether the two numbers move together at all.</p>";
+  if(res.problems && res.problems.length){
+    body += "<p><b>Couldn't read:</b> " + res.problems.join("; ") + "</p>";
+  }
+  note.innerHTML = body;
+  host.appendChild(note);
+}
 
 
 /* ================= CONNECTION CHECK =================
@@ -2553,10 +2747,10 @@ async function renderAdmin(){
 
   // ---- form response sheets ----------------------------------------------
   section("Form responses",
-    "Opening, closing and workshop already record every submission in a Google Sheet. Point at those sheets and the company view scores them on real submissions instead of on ticks.");
-  urlRow("resp.opening",  "Opening — responses",  "Responses sheet for the Opening Daily Check List.", {});
-  urlRow("resp.closing",  "Closing — responses",  "Responses sheet for the Closing Daily Check List.", {});
-  urlRow("resp.workshop", "Workshop — responses", "Responses sheet for the Weekly Training Recap.", {});
+    "Every submission is already recorded by Google. Point at each form and the company view scores it on real submissions rather than on ticks — and the Tick vs form tab can check one against the other. Paste either the form's EDIT url (the one ending /edit, not /viewform) or its linked responses spreadsheet.");
+  urlRow("resp.opening",  "Opening — responses",  "Opening Daily Check List — form edit URL or its responses sheet.", {});
+  urlRow("resp.closing",  "Closing — responses",  "Closing Daily Check List — form edit URL or its responses sheet.", {});
+  urlRow("resp.workshop", "Workshop — responses", "Weekly Training Recap — form edit URL or its responses sheet.", {});
 
   // ---- manager tools -------------------------------------------------------
   section("Manager tools", "Used only in the DM month tab. Stores never see this.");
@@ -2724,6 +2918,7 @@ $("viewSel").addEventListener("click", e => {
   if(!b) return;
   distView = b.dataset.view;
   if(distView === "dm") distPeriod = "month";
+  if(distView === "compare" && distPeriod === "month") distPeriod = "week";
   distISO = todayISO();
   syncScopeButtons();
   renderView();
