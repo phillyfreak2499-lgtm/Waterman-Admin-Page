@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#1c3250">
 <meta name="robots" content="noindex, nofollow, noarchive">
-<meta name="description" content="Internal operations deck for The Waterman Group.">
 <title>Waterman Ops Deck</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -310,6 +309,65 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
 
 
 
+
+
+/* ---------- HANDOVER NOTE ---------- */
+.handover{border:1px solid var(--warm);background:var(--panel);margin:0 0 24px}
+.handover-h{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line-soft);flex-wrap:wrap}
+.handover-h .flag{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--warm);border:1px solid currentColor;padding:3px 7px}
+.handover-h .who{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);letter-spacing:.05em}
+.handover-h .x{margin-left:auto;background:transparent;border:1px solid var(--line);padding:5px 11px;
+  cursor:pointer;font-size:12.5px;color:var(--ink-2)}
+.handover-h .x:hover{background:var(--panel-2);color:var(--ink)}
+.handover p{margin:0;padding:14px 16px;font-size:15px;line-height:1.55;white-space:pre-wrap}
+
+.notebox{border:1px solid var(--line);background:var(--panel);margin-top:28px}
+.notebox-h{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line-soft);flex-wrap:wrap}
+.notebox-h h3{font-size:16px;font-weight:600}
+.notebox-h .hint{font-size:13px;color:var(--ink-3);flex:1;min-width:200px}
+.notebox textarea{width:100%;min-height:82px;border:0;border-bottom:1px solid var(--line-soft);
+  padding:13px 16px;background:var(--panel);color:var(--ink);font:inherit;font-size:14.5px;resize:vertical}
+.notebox textarea:focus{outline:none;background:var(--panel-2)}
+.notebox-f{display:flex;gap:10px;align-items:center;padding:11px 16px;flex-wrap:wrap}
+.notebox-f .saved{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ok);letter-spacing:.05em}
+
+/* ---------- PUSHED TASKS ---------- */
+.pushed{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line)}
+.push-item{background:var(--panel);padding:0;display:flex;flex-direction:column}
+.push-main{display:flex;align-items:flex-start;gap:11px;padding:15px 16px;cursor:pointer;background:transparent;
+  border:0;font:inherit;color:inherit;text-align:left;width:100%}
+.push-main:hover{background:var(--panel-2)}
+.push-main .box{width:19px;height:19px;flex:none;border:1.5px solid var(--ink-3);margin-top:1px;
+  display:flex;align-items:center;justify-content:center}
+.push-main .box svg{width:13px;height:13px;stroke-width:3;display:none}
+.push-item.done .push-main{background:var(--ok-bg)}
+.push-item.done .box{border-color:var(--ok);background:var(--ok)}
+.push-item.done .box svg{display:block;stroke:var(--panel)}
+.push-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.push-body .t{font-family:"Archivo",sans-serif;font-weight:600;font-size:15.5px}
+.push-body .d{font-size:14px;color:var(--ink-2);line-height:1.45}
+.push-body .m{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.06em;color:var(--ink-3)}
+.push-item.overdue .m{color:var(--stop)}
+.push-item.done .push-body .t{color:var(--ok)}
+
+.newtask{border:1px solid var(--line);background:var(--panel);padding:16px;margin-bottom:20px}
+.newtask h3{font-size:16px;font-weight:600;margin-bottom:10px}
+.newtask input[type="text"],.newtask textarea,.newtask select{
+  width:100%;padding:10px 12px;background:var(--panel-2);color:var(--ink);border:1px solid var(--line);
+  font:inherit;font-size:14px;margin-bottom:9px;letter-spacing:0}
+.newtask textarea{min-height:60px;resize:vertical}
+.newtask .row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.newtask .row > *{flex:1;min-width:130px}
+.tk{border:1px solid var(--line);background:var(--panel);margin-bottom:1px;padding:14px 16px}
+.tk-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.tk-h .t{font-family:"Archivo",sans-serif;font-weight:600;font-size:15.5px}
+.tk-h .m{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.07em;color:var(--ink-3)}
+.tk-h .score{margin-left:auto}
+.tk-stores{display:flex;flex-wrap:wrap;gap:5px}
+.tk-store{font-family:"IBM Plex Mono",monospace;font-size:11px;padding:4px 8px;border:1px solid var(--line-soft);
+  background:var(--panel-2);color:var(--ink-3)}
+.tk-store.yes{color:var(--ok);border-color:var(--ok)}
 
 /* ---------- TICK VS FORM ---------- */
 .cmp{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:0;
@@ -678,6 +736,8 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
 
   <main>
     <div class="wrap">
+      <div id="handoverSlot"></div>
+      <div id="pushedSlot"></div>
       <div class="sec-head"><span class="eyebrow">Daily</span><span class="rule"></span></div>
       <div class="deck" id="deckDaily"></div>
 
@@ -685,6 +745,18 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
 
       <div class="sec-head"><span class="eyebrow">Weekly &amp; Reference</span><span class="rule"></span></div>
       <div class="deck" id="deckWeekly"></div>
+
+      <div class="notebox">
+        <div class="notebox-h">
+          <h3>Note for tomorrow</h3>
+          <span class="hint">Anything the next shift needs to know. They see it when they open.</span>
+        </div>
+        <textarea id="noteText" placeholder="Card reader was playing up all afternoon. Rep from Bread is calling back Tuesday."></textarea>
+        <div class="notebox-f">
+          <button class="btn" id="noteSave">Save note</button>
+          <span class="saved" id="noteSaved"></span>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -728,6 +800,7 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
           <button type="button" data-view="stores" aria-pressed="true">Stores</button>
           <button type="button" data-view="dm" aria-pressed="false">DM month</button>
           <button type="button" data-view="compare" aria-pressed="false">Tick vs form</button>
+          <button type="button" data-view="tasks" aria-pressed="false">Send a task</button>
         </span>
         <span class="period" id="periodSel">
           <button type="button" data-period="day" aria-pressed="true">Day</button>
@@ -836,7 +909,7 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
    employee never has to pick their store twice.
    ===================================================================== */
 
-const BUILD = "2026-08-25-a";
+const BUILD = "2026-08-25-b";
 
 const CONFIG = {
   // Set to false to let anyone straight in without a code.
@@ -1033,6 +1106,11 @@ function toggleTask(id){
 }
 
 function commitTask(id){
+  if(String(id).indexOf("push:") === 0){
+    const t = PUSHED.find(x => ("push:" + x.id) === id);
+    if(t) togglePushed(t);
+    return;
+  }
   const o = loadDone();
   let action;
   if(o[id]){ delete o[id]; action = "clear"; }
@@ -1229,6 +1307,12 @@ function unlock(s){
   $("gate").style.display = "none";
   $("app").classList.add("on");
   render();
+  showHandover();
+  try{
+    const mine = localNote(s.name, todayISO());
+    if(mine && mine.text) $("noteText").value = mine.text;
+  }catch(e){}
+  loadPushed().then(renderPushed);
 }
 
 function relock(){
@@ -1314,6 +1398,7 @@ function render(){
   }
   $("hdrStore").textContent = active.name;
   $("hdrMeta").textContent = active.code + " · " + active.district + " District";
+  renderPushed();
   $("deckDaily").innerHTML = "";
   $("deckWeekly").innerHTML = "";
   MODULES.forEach(m => {
@@ -1854,10 +1939,11 @@ function openDist(){
 
 function renderView(){
   const dm = distView === "dm";
-  $("periodSel").style.display = dm ? "none" : "";
+  $("periodSel").style.display = (dm || distView === "tasks") ? "none" : "";
   $("distExport").style.display = (distView === "stores") ? "" : "none";
   if(dm) return renderDM();
   if(distView === "compare") return renderCompare();
+  if(distView === "tasks") return renderTasks();
   return renderDist();
 }
 function closeDist(){ $("dist").classList.remove("on"); }
@@ -2047,6 +2133,150 @@ function atLatest(){
 
 
 
+
+
+
+/* ================= SEND A TASK ================= */
+async function renderTasks(){
+  $("distDate").textContent = "Open tasks";
+  $("distTitle").textContent = "Send a task";
+  $("distPrev").disabled = true;
+  $("distNext").disabled = true;
+
+  const host = $("distContent");
+  host.innerHTML = "";
+
+  if(!syncOn()){
+    const n = document.createElement("div");
+    n.className = "dist-note";
+    n.innerHTML = "<h3>Needs the shared log</h3><p>A task you send has to reach other people's tablets, so this only works once <code>CONFIG.sync.url</code> is set.</p>";
+    host.appendChild(n);
+    return;
+  }
+
+  // composer
+  const box = document.createElement("div");
+  box.className = "newtask";
+  box.innerHTML =
+    "<h3>New task</h3>" +
+    '<input type="text" id="ntTitle" maxlength="90" placeholder="What needs doing? e.g. Photograph your window display">' +
+    '<textarea id="ntDetail" maxlength="300" placeholder="Any detail they need (optional)"></textarea>' +
+    '<div class="row">' +
+      '<select id="ntScope">' +
+        '<option value="all">Every store</option>' +
+        '<option value="West">West district</option>' +
+        '<option value="East">East district</option>' +
+      '</select>' +
+      '<input type="date" id="ntDue">' +
+      '<input type="text" id="ntBy" maxlength="20" placeholder="From (your name)">' +
+      '<button class="btn" id="ntSend">Send it</button>' +
+    '</div>';
+  host.appendChild(box);
+  $("ntDue").value = todayISO();
+  try{ $("ntBy").value = localStorage.getItem("wg-ops-dm") || ""; }catch(e){}
+
+  $("ntSend").addEventListener("click", async () => {
+    const title = $("ntTitle").value.trim();
+    if(!title){ say("Give the task a title first."); $("ntTitle").focus(); return; }
+    const by = $("ntBy").value.trim();
+    if(!by){ say("Put your name on it so stores know who's asking."); $("ntBy").focus(); return; }
+    try{ localStorage.setItem("wg-ops-dm", by); }catch(e){}
+
+    $("ntSend").disabled = true;
+    try{
+      await fetch(CONFIG.sync.url, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ kind: "task", title: title, detail: $("ntDetail").value.trim(),
+                               scope: $("ntScope").value, due: $("ntDue").value, by: by })
+      });
+      say("Sent. Stores see it the next time their deck loads.");
+    }catch(e){ say("Couldn't reach the shared log — nothing was sent."); }
+    $("ntSend").disabled = false;
+    await loadPushed();
+    renderTasks();
+  });
+
+  // what's already out there
+  await loadPushed();
+  if(!PUSHED.length){
+    const n = document.createElement("div");
+    n.className = "dist-note";
+    n.innerHTML = "<h3>Nothing outstanding</h3><p>Tasks you send appear here with who has ticked them off, until you close them.</p>";
+    host.appendChild(n);
+    return;
+  }
+
+  const head = document.createElement("div");
+  head.className = "sec-sub";
+  head.innerHTML = '<span class="eyebrow">Out there now</span><span class="rule"></span>';
+  host.appendChild(head);
+
+  PUSHED.forEach(t => {
+    const targets = STORES.filter(s => taskAppliesTo(t, s.name));
+    const doneN = targets.filter(s => t.done && t.done[s.name]).length;
+
+    const card = document.createElement("div");
+    card.className = "tk";
+    const h = document.createElement("div");
+    h.className = "tk-h";
+    h.innerHTML = '<span class="t"></span><span class="m"></span><span class="score"></span>';
+    h.querySelector(".t").textContent = t.title;
+    h.querySelector(".m").textContent =
+      (t.scope === "all" ? "every store" : t.scope) +
+      (t.due ? " · due " + fmtShort(t.due) : "") + (t.by ? " · " + t.by : "");
+    const sc = h.querySelector(".score");
+    sc.className = "score " + (doneN === targets.length ? "full" : (doneN ? "part" : "none"));
+    sc.textContent = doneN + "/" + targets.length;
+    card.appendChild(h);
+
+    if(t.detail){
+      const d = document.createElement("p");
+      d.style.cssText = "margin:0 0 10px;font-size:14px;color:var(--ink-2)";
+      d.textContent = t.detail;
+      card.appendChild(d);
+    }
+
+    const chips = document.createElement("div");
+    chips.className = "tk-stores";
+    targets.forEach(s => {
+      const rec = t.done && t.done[s.name];
+      const c = document.createElement("span");
+      c.className = "tk-store" + (rec ? " yes" : "");
+      c.textContent = s.name + (rec && rec.by ? " · " + rec.by : "");
+      if(rec) c.title = "Ticked " + new Date(rec.at).toLocaleString();
+      chips.appendChild(c);
+    });
+    card.appendChild(chips);
+
+    const close = document.createElement("button");
+    close.className = "mini";
+    close.style.marginTop = "12px";
+    close.textContent = doneN === targets.length ? "Close it out" : "Close early";
+    close.addEventListener("click", async () => {
+      close.disabled = true;
+      try{
+        await fetch(CONFIG.sync.url, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ kind: "task_close", id: t.id, by: $("ntBy").value.trim() })
+        });
+        say("Closed. It drops off the stores' decks.");
+      }catch(e){ say("Couldn't reach the shared log."); }
+      await loadPushed();
+      renderTasks();
+    });
+    card.appendChild(close);
+    host.appendChild(card);
+  });
+
+  const note = document.createElement("div");
+  note.className = "dist-note";
+  note.innerHTML = "<h3>How stores see it</h3>" +
+    "<p>A task shows up under <b>From your manager</b> at the top of their deck, above the daily list, with a box to tick. It stays there until they tick it or you close it.</p>" +
+    "<p>Ticks land in the same log as everything else, so they come out in the CSV export too.</p>";
+  host.appendChild(note);
+}
 
 
 /* ================= TICK VS FORM =================
@@ -2313,6 +2543,177 @@ async function renderDiag(host){
   note.textContent = "A store reading \u201cnever\u201d has not reached this log at all. Either nobody has ticked anything there, or that tablet is on an older copy of the page — open the deck on it and check the build number in the footer against the one above.";
   host.appendChild(note);
 }
+
+
+/* ================= HANDOVER NOTE =================
+   The closing form already ends with "anything you need, problems you had" — and that
+   text goes into a response sheet nobody opens again. This is the same thought, put
+   where it is actually useful: in front of whoever opens next. */
+function prevTradingDay(iso){
+  let d = shiftISO(iso, -1);
+  const dow = new Date(d + "T00:00:00").getDay();
+  if(dow === 0) d = shiftISO(d, -1);          // Sunday — skip back to Saturday
+  return d;
+}
+function noteKey(store, iso){ return "wg-ops-note-" + store + "-" + iso; }
+function seenKey(store, iso){ return "wg-ops-noteseen-" + store + "-" + iso; }
+
+function localNote(store, iso){
+  try{ return JSON.parse(localStorage.getItem(noteKey(store, iso)) || "null"); }catch(e){ return null; }
+}
+
+async function saveNote(){
+  const text = $("noteText").value.trim();
+  const iso = todayISO();
+  const rec = { date: iso, store: active.name, text: text, by: getWho() || "", at: new Date().toISOString() };
+  try{ localStorage.setItem(noteKey(active.name, iso), JSON.stringify(rec)); }catch(e){}
+
+  $("noteSaved").textContent = "Saved on this tablet";
+  if(syncOn()){
+    try{
+      const r = await fetch(CONFIG.sync.url, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ kind: "note", date: iso, store: active.name, text: text, by: rec.by })
+      });
+      if(r.ok) $("noteSaved").textContent = text ? "Saved — tomorrow's shift will see it" : "Note cleared";
+    }catch(e){
+      $("noteSaved").textContent = "Saved here, but it didn't reach the log";
+    }
+  }
+  setTimeout(() => { $("noteSaved").textContent = ""; }, 6000);
+}
+
+async function showHandover(){
+  const slot = $("handoverSlot");
+  slot.innerHTML = "";
+  const from = prevTradingDay(todayISO());
+
+  let note = localNote(active.name, from);
+  if(syncOn()){
+    try{
+      const sep = CONFIG.sync.url.includes("?") ? "&" : "?";
+      const r = await fetch(CONFIG.sync.url + sep + "notes=1&store=" + encodeURIComponent(active.name) +
+                            "&from=" + from + "&to=" + from);
+      const j = await r.json();
+      if(j && j.ok && j.notes && j.notes.length) note = j.notes[0];
+    }catch(e){}
+  }
+  if(!note || !note.text) return;
+  try{ if(localStorage.getItem(seenKey(active.name, from))) return; }catch(e){}
+
+  const box = document.createElement("div");
+  box.className = "handover";
+  box.innerHTML =
+    '<div class="handover-h"><span class="flag">Left for you</span>' +
+    '<span class="who"></span><button class="x" type="button">Got it</button></div><p></p>';
+  box.querySelector(".who").textContent =
+    prettyISO(from).replace(/,.*/, "") + (note.by ? " · " + note.by : "");
+  box.querySelector("p").textContent = note.text;
+  box.querySelector(".x").addEventListener("click", () => {
+    try{ localStorage.setItem(seenKey(active.name, from), "1"); }catch(e){}
+    box.remove();
+  });
+  slot.appendChild(box);
+}
+
+/* ================= PUSHED TASKS =================
+   A one-off job a manager sends out — "photograph your window display", "count the
+   demo socks". It rides the ordinary tick log under the id push:<id>, so it needs no
+   separate bookkeeping and lands in the CSV export like everything else. */
+let PUSHED = [];
+
+async function loadPushed(){
+  if(!syncOn()){ PUSHED = []; return; }
+  try{
+    const sep = CONFIG.sync.url.includes("?") ? "&" : "?";
+    const r = await fetch(CONFIG.sync.url + sep + "tasks=1");
+    const j = await r.json();
+    PUSHED = (j && j.tasks) || [];
+  }catch(e){ PUSHED = []; }
+}
+
+function taskAppliesTo(t, store){
+  if(!t.scope || t.scope === "all") return true;
+  if(t.scope === "West" || t.scope === "East"){
+    const s = STORES.find(x => x.name === store);
+    return s && s.district === t.scope;
+  }
+  return t.scope.split(",").map(x => x.trim()).indexOf(store) >= 0;
+}
+
+function pushDoneLocally(id){
+  try{ return !!JSON.parse(localStorage.getItem("wg-ops-push-" + active.name + "-" + id) || "null"); }
+  catch(e){ return false; }
+}
+
+async function togglePushed(t){
+  const already = (t.done && t.done[active.name]) || pushDoneLocally(t.id);
+  const who = getWho();
+  if(!already && !who){ askWho("push:" + t.id); return; }
+
+  const key = "wg-ops-push-" + active.name + "-" + t.id;
+  try{
+    if(already) localStorage.removeItem(key);
+    else localStorage.setItem(key, JSON.stringify({ at: new Date().toISOString(), by: who }));
+  }catch(e){}
+
+  if(already && t.done) delete t.done[active.name];
+  else { t.done = t.done || {}; t.done[active.name] = { at: new Date().toISOString(), by: who }; }
+
+  if(syncOn()){
+    try{
+      fetch(CONFIG.sync.url, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ date: todayISO(), store: active.name, task: "push:" + t.id,
+                               label: t.title, by: who, action: already ? "clear" : "set",
+                               at: new Date().toISOString() })
+      }).catch(() => {});
+    }catch(e){}
+  }
+  renderPushed();
+}
+
+function renderPushed(){
+  const slot = $("pushedSlot");
+  slot.innerHTML = "";
+  const mine = PUSHED.filter(t => taskAppliesTo(t, active.name));
+  if(!mine.length) return;
+
+  const head = document.createElement("div");
+  head.className = "sec-head";
+  head.innerHTML = '<span class="eyebrow">From your manager</span><span class="rule"></span>';
+  slot.appendChild(head);
+
+  const list = document.createElement("div");
+  list.className = "pushed";
+  mine.forEach(t => {
+    const done = (t.done && t.done[active.name]) || pushDoneLocally(t.id);
+    const overdue = !done && t.due && t.due < todayISO();
+
+    const item = document.createElement("div");
+    item.className = "push-item" + (done ? " done" : "") + (overdue ? " overdue" : "");
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "push-main";
+    b.innerHTML = '<span class="box">' + TICK + '</span><span class="push-body">' +
+                  '<span class="t"></span><span class="d"></span><span class="m"></span></span>';
+    b.querySelector(".t").textContent = t.title;
+    b.querySelector(".d").textContent = t.detail || "";
+    if(!t.detail) b.querySelector(".d").style.display = "none";
+    const rec = t.done && t.done[active.name];
+    b.querySelector(".m").textContent = done
+      ? ("Done" + (rec && rec.by ? " by " + rec.by : "") +
+         (rec && rec.at ? " · " + new Date(rec.at).toLocaleDateString([], {month:"numeric", day:"numeric"}) : ""))
+      : ((t.due ? (overdue ? "Was due " : "Due ") + fmtShort(t.due) : "No date") +
+         (t.by ? " · from " + t.by : ""));
+    b.addEventListener("click", () => togglePushed(t));
+    item.appendChild(b);
+    list.appendChild(item);
+  });
+  slot.appendChild(list);
+}
+
 
 /* ================= IN-PAGE VIEWER =================
    Google Forms allow themselves to be embedded, so opening/closing/workshop and the DM's
@@ -2874,6 +3275,7 @@ $("cancelBtn").addEventListener("click", () => { $("pinRow").classList.add("hidd
   document.querySelectorAll(".store-btn").forEach(x => x.setAttribute("aria-pressed","false")); });
 $("pin").addEventListener("keydown", e => { if(e.key === "Enter") tryPin(); });
 $("swapBtn").addEventListener("click", relock);
+$("noteSave").addEventListener("click", saveNote);
 $("schClose").addEventListener("click", closeSched);
 $("schPrev").addEventListener("click", () => { weekPtr--; renderSched(); });
 $("schNext").addEventListener("click", () => { weekPtr++; renderSched(); });
