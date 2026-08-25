@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#1c3250">
 <meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="description" content="Internal operations deck for The Waterman Group.">
 <title>Waterman Ops Deck</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -909,7 +910,7 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
    employee never has to pick their store twice.
    ===================================================================== */
 
-const BUILD = "2026-08-25-b";
+const BUILD = "2026-08-25-c";
 
 const CONFIG = {
   // Set to false to let anyone straight in without a code.
@@ -2162,16 +2163,31 @@ async function renderTasks(){
     '<input type="text" id="ntTitle" maxlength="90" placeholder="What needs doing? e.g. Photograph your window display">' +
     '<textarea id="ntDetail" maxlength="300" placeholder="Any detail they need (optional)"></textarea>' +
     '<div class="row">' +
-      '<select id="ntScope">' +
-        '<option value="all">Every store</option>' +
-        '<option value="West">West district</option>' +
-        '<option value="East">East district</option>' +
-      '</select>' +
+      '<select id="ntScope"></select>' +
       '<input type="date" id="ntDue">' +
       '<input type="text" id="ntBy" maxlength="20" placeholder="From (your name)">' +
       '<button class="btn" id="ntSend">Send it</button>' +
     '</div>';
   host.appendChild(box);
+
+  /* Everyone, a district, or a single store. The backend already accepts a
+     comma-separated list, so one store is just a list of one. */
+  const scope = $("ntScope");
+  const opt = (value, label) => {
+    const o = document.createElement("option");
+    o.value = value; o.textContent = label;
+    return o;
+  };
+  scope.appendChild(opt("all", "Every store"));
+  scope.appendChild(opt("West", "West district — " + STORES.filter(s => s.district === "West").length + " stores"));
+  scope.appendChild(opt("East", "East district — " + STORES.filter(s => s.district === "East").length + " stores"));
+  ["West","East"].forEach(d => {
+    const g = document.createElement("optgroup");
+    g.label = d + " — one store";
+    STORES.filter(s => s.district === d).forEach(s => g.appendChild(opt(s.name, s.name)));
+    scope.appendChild(g);
+  });
+
   $("ntDue").value = todayISO();
   try{ $("ntBy").value = localStorage.getItem("wg-ops-dm") || ""; }catch(e){}
 
@@ -2223,7 +2239,9 @@ async function renderTasks(){
     h.innerHTML = '<span class="t"></span><span class="m"></span><span class="score"></span>';
     h.querySelector(".t").textContent = t.title;
     h.querySelector(".m").textContent =
-      (t.scope === "all" ? "every store" : t.scope) +
+      (t.scope === "all" ? "every store"
+        : (t.scope === "West" || t.scope === "East") ? t.scope + " district"
+        : t.scope) +
       (t.due ? " · due " + fmtShort(t.due) : "") + (t.by ? " · " + t.by : "");
     const sc = h.querySelector(".score");
     sc.className = "score " + (doneN === targets.length ? "full" : (doneN ? "part" : "none"));
