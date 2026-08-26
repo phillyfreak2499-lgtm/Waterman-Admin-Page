@@ -910,7 +910,7 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
    employee never has to pick their store twice.
    ===================================================================== */
 
-const BUILD = "2026-08-25-e";
+const BUILD = "2026-08-26-a";
 
 const CONFIG = {
   // Set to false to let anyone straight in without a code.
@@ -1046,6 +1046,18 @@ const SCHEDULE = {"periods":{"8":{"weeks":[{"days":[{"d":"","label":""},{"d":"20
 /* ---------------------------------------------------------------- */
 const $ = id => document.getElementById(id);
 
+/* Every optional section of the deck runs inside this. A store tapping a checkbox must
+   never depend on the schedule, the pace strip or a pushed task rendering cleanly — one
+   bad row used to throw, abort the redraw, and leave the tick invisible while it had in
+   fact been saved. People then tapped again, and again, toggling it on and off. */
+function safe(label, fn){
+  try{ return fn(); }
+  catch(e){
+    try{ console.error("Ops Deck: " + label + " failed —", e); }catch(_){}
+    return null;
+  }
+}
+
 /* Sandboxed frames block alert/confirm/prompt, so the page says things itself. */
 let toastTimer = null;
 function say(msg){
@@ -1106,19 +1118,50 @@ function toggleTask(id){
   commitTask(id);
 }
 
+/* Two taps on the same box inside this window are one tap that bounced. */
+const TAP_GUARD_MS = 600;
+const lastTap = {};
+
 function commitTask(id){
   if(String(id).indexOf("push:") === 0){
     const t = PUSHED.find(x => ("push:" + x.id) === id);
     if(t) togglePushed(t);
     return;
   }
+
+  const now = Date.now();
+  if(lastTap[id] && now - lastTap[id] < TAP_GUARD_MS) return;
+  lastTap[id] = now;
+
   const o = loadDone();
   let action;
   if(o[id]){ delete o[id]; action = "clear"; }
   else { o[id] = { at: new Date().toISOString(), by: getWho() }; action = "set"; }
   saveDone(o);
+
+  paintTask(id);            // the box changes now, whatever else happens next
   pushTick(id, action);
-  render();
+  safe("redraw", render);
+}
+
+/* Update just this checkbox, straight from stored state. No dependencies. */
+function paintTask(id){
+  const done = loadDone();
+  const on = !!done[id];
+  const t = TASKS.find(x => x.id === id);
+  document.querySelectorAll('.chk[data-task="' + id + '"]').forEach(b => {
+    b.setAttribute("aria-pressed", on ? "true" : "false");
+    const lbl = b.querySelector(".lbl");
+    if(lbl){
+      const by = doneBy(id);
+      lbl.textContent = on ? ((doneAt(id) || "Done") + (by ? " · " + by : "")) : (t ? t.short : "Done");
+    }
+    const tile = b.closest(".tile");
+    if(tile){
+      const mine = TASKS.filter(x => x.module === (t && t.module));
+      tile.classList.toggle("done", mine.length > 0 && mine.every(x => done[x.id]));
+    }
+  });
 }
 
 /* ---- shared tick log (optional) ---- */
@@ -1372,6 +1415,7 @@ function tileFor(m){
       const b = document.createElement("button");
       b.type = "button";
       b.className = "chk";
+      b.dataset.task = t.id;
       const on = !!done[t.id];
       b.setAttribute("aria-pressed", on ? "true" : "false");
       b.setAttribute("aria-label", t.full + (on ? " — done" : " — not done yet"));
@@ -1399,13 +1443,16 @@ function render(){
   }
   $("hdrStore").textContent = active.name;
   $("hdrMeta").textContent = active.code + " · " + active.district + " District";
-  renderPushed();
+  safe("manager tasks", renderPushed);
+
   $("deckDaily").innerHTML = "";
   $("deckWeekly").innerHTML = "";
   MODULES.forEach(m => {
-    (m.group === "daily" ? $("deckDaily") : $("deckWeekly")).appendChild(tileFor(m));
+    safe("tile:" + m.key, () => {
+      (m.group === "daily" ? $("deckDaily") : $("deckWeekly")).appendChild(tileFor(m));
+    });
   });
-  tick();
+  safe("status band", tick);
 }
 
 function nowAction(key, label){
@@ -1478,7 +1525,7 @@ function tick(){
   $("clockD").textContent = d.toLocaleDateString([], {weekday:"long", month:"short", day:"numeric"});
   $("footStamp").textContent = d.toLocaleDateString([], {year:"numeric", month:"2-digit", day:"2-digit"}) + "  ·  build " + BUILD;
 
-  const crew = crewOn(active.name, todayISO());
+  const crew = safe("crew", () => crewOn(active.name, todayISO()));
   let line = $("todayLine");
   if(!line){
     line = document.createElement("div");
@@ -1518,8 +1565,8 @@ function tick(){
     acts.appendChild(nowAction("banking","Banking sheet"));
     acts.appendChild(nowAction("eod","End of day form"));
   }
-  progressStrip();
-  paceStrip();
+  safe("progress", progressStrip);
+  safe("pace", paceStrip);
 }
 
 /* Where this store stands against goal. Hidden unless the numbers are actually there,
@@ -2708,6 +2755,7 @@ async function togglePushed(t){
 
   if(already && t.done) delete t.done[active.name];
   else { t.done = t.done || {}; t.done[active.name] = { at: new Date().toISOString(), by: who }; }
+  safe("manager task redraw", renderPushed);
 
   if(syncOn()){
     try{
@@ -2720,7 +2768,7 @@ async function togglePushed(t){
       }).catch(() => {});
     }catch(e){}
   }
-  renderPushed();
+  safe("manager task redraw", renderPushed);
 }
 
 function renderPushed(){
