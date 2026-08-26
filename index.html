@@ -910,7 +910,7 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
    employee never has to pick their store twice.
    ===================================================================== */
 
-const BUILD = "2026-08-26-a";
+const BUILD = "2026-08-26-b";
 
 const CONFIG = {
   // Set to false to let anyone straight in without a code.
@@ -923,8 +923,8 @@ const CONFIG = {
     "Waxahachie": "9486",
     "Arlington": "9646",
     "Southlake": "3566",
-    "Alliance": "4764",
-    "Fort Worth": "9144",
+    "Fort Worth - Alliance": "4764",
+    "Fort Worth - Hulen": "9144",
     "Plano": "5824",
     "Rockwall": "9475",
     "Temple": "1995",
@@ -994,8 +994,8 @@ const STORES = [
   {name:"Waxahachie",    district:"West", code:"WAX"},
   {name:"Arlington",     district:"West", code:"ARL"},
   {name:"Southlake",     district:"West", code:"SLK"},
-  {name:"Alliance",      district:"West", code:"ALL"},
-  {name:"Fort Worth",    district:"West", code:"FTW"},
+  {name:"Fort Worth - Alliance", district:"West", code:"ALL"},
+  {name:"Fort Worth - Hulen",    district:"West", code:"FTW"},
   {name:"Plano",         district:"East", code:"PLN"},
   {name:"Rockwall",      district:"East", code:"RKW"},
   {name:"Temple",        district:"East", code:"TMP"},
@@ -1003,6 +1003,31 @@ const STORES = [
   {name:"College Station",district:"East",code:"CST"},
   {name:"Waco",          district:"East", code:"WCO"}
 ];
+
+/* These two stores were renamed in Aug 2026. Everything already in the shared log,
+   and every schedule tab, still says the old name — so anything read back gets mapped
+   forward. Without this, Alliance's history would simply vanish from the views. */
+const STORE_RENAMES = {
+  "Alliance": "Fort Worth - Alliance",
+  "Alliance- FW": "Fort Worth - Alliance",
+  "Alliance-FW": "Fort Worth - Alliance",
+  "Fort Worth": "Fort Worth - Hulen",
+  "Ft. Worth": "Fort Worth - Hulen"
+};
+function canonStoreName(name){
+  const n = String(name || "").trim();
+  return STORE_RENAMES[n] || n;
+}
+/* Re-key a {store: …} map coming back from the log. */
+function canonStores(obj){
+  if(!obj) return obj;
+  const out = {};
+  Object.keys(obj).forEach(k => {
+    const c = canonStoreName(k);
+    out[c] = out[c] ? Object.assign({}, out[c], obj[k]) : obj[k];
+  });
+  return out;
+}
 
 const ICONS = {
   opening:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>',
@@ -1868,7 +1893,7 @@ async function fetchSpan(dates){
     if(!r.ok) throw new Error("http " + r.status);
     const j = await r.json();
     const days = j.days || {};
-    dates.forEach(d => { out[d] = days[d] || {}; });
+    dates.forEach(d => { out[d] = canonStores(days[d] || {}); });
 
     /* A real form submission beats a tick. Opening, closing and workshop already
        produce a response row; the tick for those is only a convenience copy. */
@@ -1877,7 +1902,7 @@ async function fetchSpan(dates){
         const jf = await rf.json();
         const fdays = (jf && jf.days) || {};
         dates.forEach(d => {
-          const src = fdays[d]; if(!src) return;
+          const src = canonStores(fdays[d]); if(!src) return;
           Object.keys(src).forEach(store => {
             if(!out[d][store]) out[d][store] = {};
             Object.keys(src[store]).forEach(task => { out[d][store][task] = src[store][task]; });
@@ -1904,7 +1929,7 @@ async function fetchDay(iso){
     const r = await fetch(CONFIG.sync.url + (CONFIG.sync.url.includes("?") ? "&" : "?") + "date=" + iso);
     if(!r.ok) throw new Error("http " + r.status);
     const j = await r.json();
-    distCache[iso] = j.stores || {};
+    distCache[iso] = canonStores(j.stores || {});
     return distCache[iso];
   }catch(e){ return "error"; }
 }
@@ -2366,9 +2391,11 @@ async function fetchCompare(dates){
       fetch(CONFIG.sync.url + sep + "forms=1&from=" + from + "&to=" + to)
     ]);
     const jt = await rt.json();
-    out.ticks = (jt && jt.days) || {};
+    out.ticks = {};
+    Object.keys((jt && jt.days) || {}).forEach(d => { out.ticks[d] = canonStores(jt.days[d]); });
     const jf = await rf.json();
-    out.forms = (jf && jf.days) || {};
+    out.forms = {};
+    Object.keys((jf && jf.days) || {}).forEach(d => { out.forms[d] = canonStores(jf.days[d]); });
     out.tasksWired = (jf && jf.tasks) || [];
     out.problems = (jf && jf.problems) || [];
     out.ok = true;
@@ -2945,7 +2972,7 @@ async function renderDM(){
     try{
       const sep = CONFIG.sync.url.includes("?") ? "&" : "?";
       const r = await fetch(CONFIG.sync.url + sep + "date=" + monthStart(distISO));
-      if(r.ok){ const j = await r.json(); if(j.ok) remote = j.stores || {}; }
+      if(r.ok){ const j = await r.json(); if(j.ok) remote = canonStores(j.stores || {}); }
     }catch(e){}
   }
 
