@@ -215,6 +215,48 @@ input[type="password"],input[type="text"]{
 .now-text strong{font-family:"Archivo",sans-serif;font-weight:600;display:block;font-size:17px}
 .now-text span{color:var(--ink-2);font-size:14px}
 
+.now-flag.clear{color:var(--ok)}
+.now-flag.due{color:var(--stop)}
+.now-text strong{font-size:20px}
+.now-actions .btn{min-height:44px;padding:10px 16px;font-size:15px}
+.today-line{display:none}
+
+.brief{
+  border:1px solid var(--line);background:var(--panel);margin:0 0 22px;
+  padding:14px 16px 12px;
+}
+.brief-h{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-2);margin:0 0 10px;
+}
+.brief-row{display:flex;gap:12px;padding:8px 0;border-top:1px solid var(--line);align-items:flex-start}
+.brief-row:first-of-type{border-top:0;padding-top:0}
+.brief-k{
+  flex:none;width:92px;font-family:"IBM Plex Mono",monospace;font-size:11px;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);padding-top:2px;
+}
+.brief-v{flex:1;font-size:15px;line-height:1.35}
+.brief-v.muted{color:var(--ink-2)}
+
+.sat-path{margin:0 0 24px}
+.sat-step{
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+  border:1px solid var(--line);background:var(--panel);padding:12px 14px;margin:0 0 8px;
+}
+.sat-step .n{
+  flex:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;
+}
+.sat-step.now{border-color:var(--brand)}
+.sat-step.now .n{background:var(--brand);color:#fff;border-color:var(--brand)}
+.sat-step.done{opacity:.62}
+.sat-step.done .n{background:var(--ok);color:#fff;border-color:var(--ok)}
+.sat-step .sat-body{flex:1;min-width:180px}
+.sat-step .sat-body strong{display:block;font-family:"Archivo",sans-serif;font-weight:600;font-size:16px}
+.sat-step .sat-body p{margin:2px 0 0;color:var(--ink-2);font-size:13px}
+
+
 .period-chip{
   display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:8px;
 }
@@ -772,6 +814,9 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
       <div id="handoverSlot"></div>
       <div id="pushedSlot"></div>
       <div id="supplySlot"></div>
+      <div id="meetSlot"></div>
+      <div id="briefSlot"></div>
+      <div id="satPath"></div>
       <div class="sec-head"><span class="eyebrow">Daily</span><span class="rule"></span></div>
       <div class="deck" id="deckDaily"></div>
 
@@ -813,6 +858,18 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:20px 0;m
     <div class="acts">
       <a class="btn" id="supplyAskOpen" target="_blank" rel="noopener">Open the order</a>
       <button class="btn ghost" type="button" id="supplyAskLater">I'll do it later</button>
+    </div>
+  </div>
+</div>
+
+<div class="supply-ask" id="meetAsk" role="dialog" aria-modal="true" aria-label="Meeting today">
+  <div class="card">
+    <div class="eyebrow" id="meetAskFlag">Meeting today</div>
+    <h2 id="meetAskTitle">Join the 9 AM meeting</h2>
+    <p id="meetAskBody"></p>
+    <div class="acts">
+      <a class="btn" id="meetAskOpen" target="_blank" rel="noopener">Join now</a>
+      <button class="btn ghost" type="button" id="meetAskLater">I will join at 9</button>
     </div>
   </div>
 </div>

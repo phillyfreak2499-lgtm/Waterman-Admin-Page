@@ -15,7 +15,7 @@
    employee never has to pick their store twice.
    ===================================================================== */
 
-const BUILD = "2026-08-31-d";
+const BUILD = "2026-08-31-e";
 
 const CONFIG = {
   // Set to false to let anyone straight in without a code.
@@ -659,7 +659,7 @@ function unlock(s){
     const mine = localNote(s.name, todayISO());
     if(mine && mine.text) $("noteText").value = mine.text;
   }catch(e){}
-  loadPushed().then(() => { renderPushed(); renderSupply(); renderMeeting(); maybeSupplyPopup(); maybeMeetPopup(); });
+  loadPushed().then(() => { renderPushed(); renderSupply(); renderMeeting(); renderBrief(); renderSatPath(); maybeSupplyPopup(); maybeMeetPopup(); });
 }
 
 function relock(){
@@ -784,6 +784,8 @@ function render(){
   safe("manager tasks", renderPushed);
   safe("supply order", renderSupply);
   safe("meeting today", renderMeeting);
+  safe("opening brief", renderBrief);
+  safe("saturday path", renderSatPath);
 
   $("deckDaily").innerHTML = "";
   $("deckWeekly").innerHTML = "";
@@ -857,6 +859,26 @@ function progressStrip(){
     " ticked off today" + (open.length ? "  ·  still open: " + open.map(x => x.full).join(", ") : "  ·  all clear")));
 }
 
+function taskDone(id){
+  return !!loadDone()[id];
+}
+function amClear(){ return taskDone("opening") && taskDone("bankAM"); }
+function pmClear(){ return taskDone("closing") && taskDone("bankPM") && taskDone("eod"); }
+
+function joinMeetBtn(meet){
+  if(!meet || !meet.url) return null;
+  const a = document.createElement("a");
+  a.className = "btn"; a.href = meet.url; a.target = "_blank"; a.rel = "noopener";
+  a.textContent = "Join 9 AM";
+  a.style.textDecoration = "none";
+  return a;
+}
+
+function lastNightNoteSync(){
+  if(!active) return null;
+  return localNote(active.name, prevTradingDay(todayISO()));
+}
+
 function tick(){
   const d = new Date();
   const hh = d.getHours();
@@ -868,73 +890,84 @@ function tick(){
     (pNow ? "  ·  P" + pNow.n + " D" + pNow.day + "/" + pNow.len : "") +
     "  ·  build " + BUILD;
 
-  const crew = safe("crew", () => crewOn(active.name, todayISO()));
-  let line = $("todayLine");
-  if(!line){
-    line = document.createElement("div");
-    line.className = "today-line"; line.id = "todayLine";
-    $("nowSub").parentNode.appendChild(line);
-  }
-  line.textContent = crew ? "On today: " + crew.split("/").map(s=>s.trim()).filter(Boolean).join("  ·  ")
-                          : (crew === "" ? "On today: nobody scheduled" : "");
+  const line = $("todayLine");
+  if(line) line.textContent = "";
 
   const flag = $("nowFlag"), title = $("nowTitle"), sub = $("nowSub"), acts = $("nowActions");
   acts.innerHTML = "";
   flag.className = "now-flag";
 
   const meet = meetingToday();
-  function addMeetJoin(){
-    if(!meet || !meet.url) return;
-    const a = document.createElement("a");
-    a.className = "btn"; a.href = meet.url; a.target = "_blank"; a.rel = "noopener";
-    a.textContent = "Join 9 AM meeting";
-    a.style.textDecoration = "none";
-    acts.appendChild(a);
-  }
+  const sInfo = supplyInfo(todayISO());
+  const supplyDue = !!(sInfo && sInfo.url && !loadSupplyTick() && (sInfo.open || sInfo.overdue));
+  const join = joinMeetBtn(meet);
 
-  if(meet && day === 2 && hh < CONFIG.hours.pmStarts){
+  function add(el){ if(el) acts.appendChild(el); }
+
+  if(supplyDue && sInfo.overdue){
+    flag.classList.add("due"); flag.textContent = "Overdue";
+    title.textContent = "Supply order is late";
+    sub.textContent = "Due the first Thursday of the period. Open the sheet and submit it.";
+    add(nowAction("supply", "Open the order"));
+  } else if(day === 6 && hh < CONFIG.hours.pmStarts){
+    flag.classList.add("work"); flag.textContent = "Saturday";
+    if(meet){
+      title.textContent = meet.title + " · 9 AM";
+      sub.textContent = "Join, run training on the floor, then submit the recap.";
+      add(join);
+    } else {
+      title.textContent = "Saturday path";
+      sub.textContent = "Run training on the floor, then submit the Weekly Training Recap.";
+    }
+    add(nowAction("workshop", "Submit recap"));
+    if(!taskDone("opening")) add(nowAction("opening", "Opening checklist"));
+  } else if(meet && day === 2 && hh < CONFIG.hours.pmStarts){
     flag.classList.add("work"); flag.textContent = "Tuesday";
     title.textContent = meet.title + " · 9 AM";
     sub.textContent = meet.url
-      ? "Managers-only meeting. Join from this button — the link is set in Admin."
-      : "Managers meeting this morning. Paste the join link in Admin so stores can tap it here.";
-    addMeetJoin();
-    acts.appendChild(nowAction("opening","Opening checklist"));
-  } else if(day === 6 && hh < CONFIG.hours.pmStarts){
-    flag.classList.add("work"); flag.textContent = "Saturday";
-    title.textContent = "Training recap day";
-    sub.textContent = "Run Saturday training, then submit the Weekly Training Recap the same day — the compliance report only counts what's submitted.";
-    if(meet){
-      title.textContent = meet.title + " · 9 AM";
-      sub.textContent = (meet.url ? meet.blurb + " " : "Paste today's join link in Admin. ") +
-        "Then run Saturday training and submit the Weekly Training Recap.";
-      addMeetJoin();
+      ? "Managers-only. Join, then finish opening."
+      : "Paste the join link in Admin so stores can tap it here.";
+    add(join);
+    if(!amClear()){
+      if(!taskDone("opening")) add(nowAction("opening", "Opening checklist"));
+      else add(nowAction("banking", "AM banking"));
     }
-    acts.appendChild(nowAction("workshop","Submit recap"));
-    acts.appendChild(nowAction("opening","Opening checklist"));
   } else if(hh < CONFIG.hours.amEnds){
-    flag.classList.add("open"); flag.textContent = "Opening";
-    title.textContent = "Start the day";
-    sub.textContent = "Opening checklist and the morning banking entry before the first appointment.";
-    acts.appendChild(nowAction("opening","Opening checklist"));
-    acts.appendChild(nowAction("banking","Banking sheet"));
+    if(amClear()){
+      flag.classList.add("clear"); flag.textContent = "Clear";
+      title.textContent = "Opening is marked";
+      sub.textContent = "Banking AM is in. Floor is yours until close.";
+    } else {
+      flag.classList.add("open"); flag.textContent = "Opening";
+      title.textContent = "Start the day";
+      sub.textContent = taskDone("opening")
+        ? "Opening is marked. Log the morning bank next."
+        : "Opening checklist, then the morning bank.";
+      if(!taskDone("opening")) add(nowAction("opening", "Opening checklist"));
+      if(!taskDone("bankAM")) add(nowAction("banking", "AM banking"));
+    }
   } else if(hh < CONFIG.hours.pmStarts){
     flag.classList.add("work"); flag.textContent = "Mid-day";
     title.textContent = "On the floor";
-    sub.textContent = "Keep the end of day form current as sales come in. Closing tasks open at " + CONFIG.hours.pmStarts + ":00.";
-    acts.appendChild(nowAction("eod","End of day form"));
-    acts.appendChild(nowAction("schedule","Schedule"));
+    sub.textContent = "Keep the end of day form current. Closing opens at " + CONFIG.hours.pmStarts + ":00.";
+    add(nowAction("eod", "End of day form"));
+    add(nowAction("schedule", "Schedule"));
   } else {
-    flag.classList.add("close"); flag.textContent = "Closing";
-    title.textContent = "Close it out";
-    sub.textContent = "Closing checklist, the afternoon banking entry, and the end of day form before you leave.";
-    acts.appendChild(nowAction("closing","Closing checklist"));
-    acts.appendChild(nowAction("banking","Banking sheet"));
-    acts.appendChild(nowAction("eod","End of day form"));
+    if(pmClear()){
+      flag.classList.add("clear"); flag.textContent = "Clear";
+      title.textContent = "Day is marked";
+      sub.textContent = "Closing, PM bank, and EOD are in. Leave a note if the opener needs it.";
+    } else {
+      flag.classList.add("close"); flag.textContent = "Closing";
+      title.textContent = "Finish the day";
+      sub.textContent = "Closing checklist, afternoon bank, then EOD before you leave.";
+      if(!taskDone("closing")) add(nowAction("closing", "Closing checklist"));
+      if(!taskDone("bankPM")) add(nowAction("banking", "PM banking"));
+      if(!taskDone("eod")) add(nowAction("eod", "End of day form"));
+    }
   }
-  const sInfo = supplyInfo(todayISO());
-  if(sInfo && sInfo.url && !loadSupplyTick() && (sInfo.open || sInfo.overdue)){
-    acts.appendChild(nowAction("supply", sInfo.overdue ? "Supply order overdue" : "Supply order"));
+  if(supplyDue && !sInfo.overdue){
+    add(nowAction("supply", "Supply order"));
   }
   safe("progress", progressStrip);
   safe("period", periodStrip);
@@ -2658,6 +2691,134 @@ function renderMeeting(){
     acts.appendChild(a);
   }
   slot.appendChild(box);
+}
+
+function prettyCrew(raw){
+  if(raw == null) return null;
+  const parts = String(raw).split("/").map(s => s.trim()).filter(Boolean);
+  return parts.length ? parts.join("  ·  ") : "";
+}
+
+function renderBrief(){
+  const slot = $("briefSlot");
+  if(!slot || !active) return;
+  slot.innerHTML = "";
+  const day = new Date().getDay();
+  const hh = new Date().getHours();
+  if(day === 6 && hh < CONFIG.hours.pmStarts) return;   // Saturday path owns the morning
+
+  const box = document.createElement("div");
+  box.className = "brief";
+  const h = document.createElement("div");
+  h.className = "brief-h";
+  h.textContent = "Opening brief";
+  box.appendChild(h);
+
+  function row(k, v, muted){
+    const r = document.createElement("div");
+    r.className = "brief-row";
+    const kk = document.createElement("div"); kk.className = "brief-k"; kk.textContent = k;
+    const vv = document.createElement("div"); vv.className = "brief-v" + (muted ? " muted" : "");
+    vv.textContent = v;
+    r.appendChild(kk); r.appendChild(vv);
+    box.appendChild(r);
+  }
+
+  const crewRaw = safe("crew", () => crewOn(active.name, todayISO()));
+  const crew = prettyCrew(crewRaw);
+  if(crewRaw == null) row("On today", "Schedule not loaded.", true);
+  else if(!crew) row("On today", "Nobody on the book — check the schedule.", true);
+  else row("On today", crew, false);
+
+  const from = prevTradingDay(todayISO());
+  const note = lastNightNoteSync();
+  if(note && note.text){
+    row("Last night", (note.by ? note.by + " — " : "") + note.text, false);
+  } else {
+    row("Last night", "No note from last night.", true);
+  }
+
+  if(hh < CONFIG.hours.pmStarts){
+    if(taskDone("opening")){
+      const rec = loadDone().opening;
+      row("First job", "Opening marked" + (getWho() ? " · " + getWho() : "") + ".", false);
+    } else {
+      row("First job", "Opening Checklist is still open.", false);
+    }
+  } else {
+    if(pmClear()) row("First job", "Closing, PM bank, and EOD are marked.", false);
+    else if(!taskDone("closing")) row("First job", "Closing Checklist is still open.", false);
+    else if(!taskDone("bankPM")) row("First job", "PM banking is still open.", false);
+    else row("First job", "End of Day form is still open.", false);
+  }
+
+  slot.appendChild(box);
+
+  if(syncOn()){
+    const sep = CONFIG.sync.url.includes("?") ? "&" : "?";
+    fetch(CONFIG.sync.url + sep + "notes=1&store=" + encodeURIComponent(active.name) +
+          "&from=" + from + "&to=" + from)
+      .then(r => r.json())
+      .then(j => {
+        if(!(j && j.ok && j.notes && j.notes.length && j.notes[0].text)) return;
+        const n = j.notes[0];
+        const rows = slot.querySelectorAll(".brief-row");
+        if(rows[1]){
+          rows[1].querySelector(".brief-v").classList.remove("muted");
+          rows[1].querySelector(".brief-v").textContent =
+            (n.by ? n.by + " — " : "") + n.text;
+        }
+      })
+      .catch(() => {});
+  }
+}
+
+function renderSatPath(){
+  const slot = $("satPath");
+  if(!slot) return;
+  slot.innerHTML = "";
+  const d = new Date();
+  if(d.getDay() !== 6 || d.getHours() >= CONFIG.hours.pmStarts) return;
+
+  const meet = meetingToday();
+  const steps = [];
+  if(meet){
+    steps.push({
+      now: true,
+      title: meet.title + " · 9 AM",
+      body: meet.url ? meet.blurb : "Paste the join link in Admin.",
+      action: meet.url ? joinMeetBtn(meet) : null
+    });
+  }
+  steps.push({
+    now: !meet,
+    title: "Run Saturday training",
+    body: "On the floor with the team. No form on this step.",
+    action: null
+  });
+  const recap = nowAction("workshop", "Submit recap");
+  steps.push({
+    now: !meet,
+    title: "Weekly Training Recap",
+    body: "Submit the same day. Company view only counts what's submitted.",
+    action: recap
+  });
+  if(steps[0]) steps[0].now = true;
+  if(steps.length > 1){ steps[1].now = false; steps[2].now = false; }
+
+  steps.forEach((s, i) => {
+    const row = document.createElement("div");
+    row.className = "sat-step" + (s.now && i === 0 ? " now" : "");
+    const n = document.createElement("span"); n.className = "n"; n.textContent = String(i + 1);
+    const body = document.createElement("div"); body.className = "sat-body";
+    body.innerHTML = "<strong></strong><p></p>";
+    body.querySelector("strong").textContent = s.title;
+    body.querySelector("p").textContent = s.body;
+    row.appendChild(n);
+    row.appendChild(body);
+    if(s.action) row.appendChild(s.action);
+    slot.appendChild(row);
+  });
 }
 
 function renderSupply(){
