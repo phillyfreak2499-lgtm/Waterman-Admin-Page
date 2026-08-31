@@ -15,7 +15,7 @@
    employee never has to pick their store twice.
    ===================================================================== */
 
-const BUILD = "2026-08-31-c";
+const BUILD = "2026-08-31-d";
 
 const CONFIG = {
   // Set to false to let anyone straight in without a code.
@@ -98,6 +98,14 @@ const CONFIG = {
       url: "https://docs.google.com/spreadsheets/d/1wwZLB6qxvv0CRJQxunQj2OI1lizP79mL_5Dd5VffqBE/edit",
       byStore: {}
     }
+  },
+
+  /* Meeting join links. Paste the Zoom / Meet / Teams URL in Admin.
+     The deck only shows the matching one on that meeting's day. */
+  meetings: {
+    managers: { url: "" },
+    allHands: { url: "" },
+    training: { url: "" }
   }
 };
 
@@ -211,6 +219,69 @@ function periodPhrase(p){
 function fmtPeriodEnd(iso){
   const d = dateFromISO(iso);
   return d.toLocaleDateString([], {month:"short", day:"numeric"});
+}
+
+function nthSaturdayInPeriod(iso){
+  const p = salesPeriodOn(iso);
+  if(!p) return 0;
+  const today = dateFromISO(iso);
+  if(today.getDay() !== 6) return 0;
+  let n = 0;
+  const cur = dateFromISO(p.start);
+  while(cur <= today){
+    if(cur.getDay() === 6) n++;
+    cur.setDate(cur.getDate() + 1);
+  }
+  return n;
+}
+
+function meetingLink(kind){
+  const fromAdmin = SETTINGS["link.meet." + kind];
+  if(fromAdmin) return fromAdmin;
+  return (CONFIG.meetings && CONFIG.meetings[kind] && CONFIG.meetings[kind].url) || "";
+}
+
+function meetingToday(iso){
+  iso = iso || todayISO();
+  const d = dateFromISO(iso);
+  const dow = d.getDay();
+  const p = salesPeriodOn(iso);
+  if(dow === 2){
+    return {
+      kind: "managers",
+      title: "Managers meeting",
+      when: "Tuesday 9 AM",
+      blurb: "Managers-only. Opens in a new tab.",
+      url: meetingLink("managers")
+    };
+  }
+  if(dow === 6){
+    const n = nthSaturdayInPeriod(iso);
+    if(n === 1){
+      return {
+        kind: "allHands",
+        title: "All-hands meeting",
+        when: "First Saturday of the period · 9 AM",
+        blurb: "Company all-hands. Opens in a new tab.",
+        url: meetingLink("allHands")
+      };
+    }
+    if(n === 2 || n === 4){
+      return {
+        kind: "training",
+        title: "Sales manager training",
+        when: (n === 2 ? "Second" : "Fourth") + " Saturday of the period · 9 AM",
+        blurb: "Sales manager training. Opens in a new tab.",
+        url: meetingLink("training")
+      };
+    }
+  }
+  return null;
+}
+
+function meetSeenKey(){
+  const m = meetingToday();
+  return "wg-ops-meet-seen-" + todayISO() + "-" + (m ? m.kind : "");
 }
 
 const ICONS = {
@@ -588,7 +659,7 @@ function unlock(s){
     const mine = localNote(s.name, todayISO());
     if(mine && mine.text) $("noteText").value = mine.text;
   }catch(e){}
-  loadPushed().then(() => { renderPushed(); renderSupply(); maybeSupplyPopup(); });
+  loadPushed().then(() => { renderPushed(); renderSupply(); renderMeeting(); maybeSupplyPopup(); maybeMeetPopup(); });
 }
 
 function relock(){
@@ -712,6 +783,7 @@ function render(){
     (per ? " · Period " + per.n + " · Day " + per.day + " of " + per.len : "");
   safe("manager tasks", renderPushed);
   safe("supply order", renderSupply);
+  safe("meeting today", renderMeeting);
 
   $("deckDaily").innerHTML = "";
   $("deckWeekly").innerHTML = "";
@@ -810,10 +882,34 @@ function tick(){
   acts.innerHTML = "";
   flag.className = "now-flag";
 
-  if(day === 6 && hh < CONFIG.hours.pmStarts){
+  const meet = meetingToday();
+  function addMeetJoin(){
+    if(!meet || !meet.url) return;
+    const a = document.createElement("a");
+    a.className = "btn"; a.href = meet.url; a.target = "_blank"; a.rel = "noopener";
+    a.textContent = "Join 9 AM meeting";
+    a.style.textDecoration = "none";
+    acts.appendChild(a);
+  }
+
+  if(meet && day === 2 && hh < CONFIG.hours.pmStarts){
+    flag.classList.add("work"); flag.textContent = "Tuesday";
+    title.textContent = meet.title + " · 9 AM";
+    sub.textContent = meet.url
+      ? "Managers-only meeting. Join from this button — the link is set in Admin."
+      : "Managers meeting this morning. Paste the join link in Admin so stores can tap it here.";
+    addMeetJoin();
+    acts.appendChild(nowAction("opening","Opening checklist"));
+  } else if(day === 6 && hh < CONFIG.hours.pmStarts){
     flag.classList.add("work"); flag.textContent = "Saturday";
     title.textContent = "Training recap day";
     sub.textContent = "Run Saturday training, then submit the Weekly Training Recap the same day — the compliance report only counts what's submitted.";
+    if(meet){
+      title.textContent = meet.title + " · 9 AM";
+      sub.textContent = (meet.url ? meet.blurb + " " : "Paste today's join link in Admin. ") +
+        "Then run Saturday training and submit the Weekly Training Recap.";
+      addMeetJoin();
+    }
     acts.appendChild(nowAction("workshop","Submit recap"));
     acts.appendChild(nowAction("opening","Opening checklist"));
   } else if(hh < CONFIG.hours.amEnds){
@@ -2523,6 +2619,47 @@ function maybeSupplyPopup(){
   $("supplyAskOpen").href = info.url;
   el.classList.add("on");
 }
+function closeMeetAsk(){ const el = $("meetAsk"); if(el) el.classList.remove("on"); }
+
+function maybeMeetPopup(){
+  const meet = meetingToday();
+  if(!meet || !meet.url) return;
+  try{ if(localStorage.getItem(meetSeenKey())) return; }catch(e){}
+  const el = $("meetAsk");
+  if(!el) return;
+  $("meetAskFlag").textContent = meet.when;
+  $("meetAskTitle").textContent = meet.title + " · 9 AM";
+  $("meetAskBody").textContent = meet.blurb + " Tap Join now when you are ready.";
+  $("meetAskOpen").href = meet.url;
+  el.classList.add("on");
+}
+
+function renderMeeting(){
+  const slot = $("meetSlot");
+  if(!slot) return;
+  slot.innerHTML = "";
+  const meet = meetingToday();
+  if(!meet) return;
+  const box = document.createElement("div");
+  box.className = "handover supply-banner";
+  box.innerHTML =
+    '<div class="handover-h"><span class="flag"></span>' +
+    '<span class="who"></span></div><p></p><div class="acts"></div>';
+  box.querySelector(".flag").textContent = "9 AM today";
+  box.querySelector(".who").textContent = meet.when;
+  box.querySelector("p").textContent = meet.url
+    ? meet.title + ". " + meet.blurb
+    : meet.title + " is on the calendar today, but no join link is pasted in Admin yet.";
+  const acts = box.querySelector(".acts");
+  if(meet.url){
+    const a = document.createElement("a");
+    a.className = "btn"; a.href = meet.url; a.target = "_blank"; a.rel = "noopener";
+    a.textContent = "Join now";
+    acts.appendChild(a);
+  }
+  slot.appendChild(box);
+}
+
 function renderSupply(){
   const slot = $("supplySlot");
   if(!slot) return;
@@ -2659,6 +2796,17 @@ async function renderAdmin(){
         : m.desc,
       { fallback: builtInLink(m.key), rotates: ROTATES[m.key] });
   });
+
+  section("Meetings", "Paste the Zoom / Meet / Teams link. The deck only shows the matching meeting on that day — Tuesday, first Saturday, or 2nd/4th Saturday.");
+  urlRow("link.meet.managers", "Managers meeting — Tuesdays 9 AM",
+    "Shows every Tuesday on the store deck. Replace this URL whenever the room changes.",
+    { fallback: (CONFIG.meetings && CONFIG.meetings.managers && CONFIG.meetings.managers.url) || "", placeholder: "https://zoom.us/j/…" });
+  urlRow("link.meet.allHands", "All-hands — first Saturday 9 AM",
+    "Shows on the first Saturday of each sales period only.",
+    { fallback: (CONFIG.meetings && CONFIG.meetings.allHands && CONFIG.meetings.allHands.url) || "", placeholder: "https://zoom.us/j/…" });
+  urlRow("link.meet.training", "Sales manager training — 2nd & 4th Saturday 9 AM",
+    "Shows on the second and fourth Saturday of each period.",
+    { fallback: (CONFIG.meetings && CONFIG.meetings.training && CONFIG.meetings.training.url) || "", placeholder: "https://zoom.us/j/…" });
 
   // ---- form response sheets ----------------------------------------------
   section("Form responses",
@@ -2804,6 +2952,14 @@ $("supplyAskLater").addEventListener("click", () => {
 $("supplyAskOpen").addEventListener("click", () => {
   try{ localStorage.setItem(supplySeenKey(), "1"); }catch(e){}
   closeSupplyAsk();
+});
+if($("meetAskLater")) $("meetAskLater").addEventListener("click", () => {
+  try{ localStorage.setItem(meetSeenKey(), "1"); }catch(e){}
+  closeMeetAsk();
+});
+if($("meetAskOpen")) $("meetAskOpen").addEventListener("click", () => {
+  try{ localStorage.setItem(meetSeenKey(), "1"); }catch(e){}
+  closeMeetAsk();
 });
 
 
