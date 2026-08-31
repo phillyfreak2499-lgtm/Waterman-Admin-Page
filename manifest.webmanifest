@@ -1,7 +1,7 @@
 {
   "name": "Waterman Ops Deck",
   "short_name": "Ops Deck",
-  "description": "Opening and closing checklists, banking, end of day, schedule and workshop for The Waterman Group.",
+  "description": "Opening and closing checklists, banking, end of day, schedule and weekly training recap for The Waterman Group.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
