@@ -1,0 +1,2604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0b3d52" />
+<meta name="description" content="ArchQuest — Good Feet new-hire training game." />
+<title>ArchQuest — Good Feet Training</title>
+<style>
+:root {
+  --bg: #f4f6f8; --surface: #ffffff; --surface-2: #eef2f5;
+  --fg: #0f1c24; --muted: #5a6b75; --subtle: #8a9ba6;
+  --primary: #0d6e8c; --primary-fg: #fff; --primary-soft: #d6eef5;
+  --accent: #c45c26; --accent-soft: #fde8dc;
+  --success: #1f7a4c; --success-soft: #d8f3e5;
+  --danger: #b42318; --danger-soft: #fde8e6;
+  --warn: #b45309; --warn-soft: #fef3c7;
+  --border: #d5dee5; --border-strong: #b8c5cf;
+  --hud: #0b3d52; --hud-fg: #f0f7fa;
+  --radius: 12px; --radius-lg: 16px; --radius-xl: 24px;
+  --shadow: 0 8px 24px rgb(15 28 36 / 0.08);
+  --shadow-sm: 0 1px 2px rgb(15 28 36 / 0.06);
+  --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+*{box-sizing:border-box} html,body{margin:0;min-height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--fg);-webkit-font-smoothing:antialiased;line-height:1.45}
+button{font:inherit;cursor:pointer} button:disabled{cursor:not-allowed;opacity:.55} input{font:inherit}
+.shell{position:relative;min-height:100dvh;max-width:720px;margin:0 auto;padding:12px 16px 40px}
+.blob{pointer-events:none;position:fixed;inset:0;overflow:hidden;z-index:0}
+.blob:before,.blob:after{content:"";position:absolute;border-radius:50%;filter:blur(60px)}
+.blob:before{top:-6rem;right:-4rem;width:18rem;height:18rem;background:color-mix(in srgb,var(--primary) 12%,transparent)}
+.blob:after{bottom:0;left:-5rem;width:20rem;height:20rem;background:color-mix(in srgb,var(--accent) 10%,transparent)}
+#app{position:relative;z-index:1}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.brand{min-width:0}
+.brand .tag{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--primary);margin:0}
+.brand h1{margin:0;font-size:1.15rem;font-weight:650;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stats{display:flex;gap:6px;flex-shrink:0}
+.chip{display:flex;align-items:center;gap:4px;border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:6px 10px;font-size:12px;font-weight:650;font-variant-numeric:tabular-nums;box-shadow:var(--shadow-sm)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);box-shadow:var(--shadow);padding:20px}
+.card h2{margin:0;font-size:1.35rem;letter-spacing:-.02em}
+.muted{color:var(--muted)}.subtle{color:var(--subtle)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 18px;border-radius:var(--radius);border:none;font-weight:650;font-size:14px;transition:transform .12s,filter .12s,background .12s}
+.btn:active:not(:disabled){transform:scale(.98)}
+.btn-primary{background:var(--primary);color:var(--primary-fg)}
+.btn-primary:hover:not(:disabled){filter:brightness(1.08)}
+.btn-secondary{background:var(--surface-2);color:var(--fg);border:1px solid var(--border)}
+.btn-ghost{background:transparent;color:var(--fg)}
+.btn-ghost:hover{background:var(--surface-2)}
+.btn-block{width:100%}.btn-lg{min-height:48px;font-size:16px;padding:12px 22px}
+.icon-btn{width:44px;height:44px;min-height:44px;border-radius:var(--radius);border:none;background:transparent;display:grid;place-items:center;font-size:20px;color:var(--fg)}
+.icon-btn:hover{background:var(--surface-2)}
+.field{width:100%;height:48px;border-radius:var(--radius);border:1px solid var(--border-strong);background:var(--surface);padding:0 16px;font-size:16px;outline:none}
+.field:focus{border-color:var(--primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 20%,transparent)}
+label.small{display:block;margin-top:20px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.quote{margin:16px 0 0;border-left:4px solid var(--primary);background:color-mix(in srgb,var(--primary-soft) 55%,transparent);border-radius:var(--radius);padding:12px 16px;font-style:italic;font-size:14px}
+.progress{height:10px;background:var(--surface-2);border-radius:999px;overflow:hidden}
+.progress>i{display:block;height:100%;background:var(--primary);border-radius:999px;transition:width .3s ease}
+.hud-card{overflow:hidden;padding:0}
+.hud-head{background:var(--hud);color:var(--hud-fg);padding:20px}
+.hud-head .label{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;opacity:.72;margin:0}
+.hud-head .level{margin:4px 0 0;font-size:1.6rem;font-weight:700}
+.hud-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+.hud-stats>div{background:var(--surface);text-align:center;padding:12px 8px}
+.hud-stats strong{display:block;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.hud-stats span{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.section-title{display:flex;align-items:center;gap:8px;margin:24px 0 12px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.mode-list{display:grid;gap:12px}
+.mode-btn{display:flex;gap:14px;align-items:flex-start;text-align:left;width:100%;padding:16px;border-radius:var(--radius-xl);border:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow-sm);transition:border-color .15s,box-shadow .15s,transform .12s}
+.mode-btn:hover{border-color:color-mix(in srgb,var(--primary) 40%,var(--border));box-shadow:var(--shadow)}
+.mode-btn:active{transform:scale(.995)}
+.mode-ico{width:48px;height:48px;flex-shrink:0;border-radius:var(--radius);background:var(--primary);color:#fff;display:grid;place-items:center;font-size:22px}
+.mode-btn h3{margin:0;font-size:1rem;font-weight:700}
+.mode-btn p{margin:4px 0 0;font-size:13px;color:var(--muted);line-height:1.35}
+.pill{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle}
+.pill-accent{background:var(--accent-soft);color:var(--accent)}
+.pill-ok{background:var(--success-soft);color:var(--success)}
+.pill-pri{background:var(--primary-soft);color:var(--primary)}
+.pill-warn{background:var(--warn-soft);color:var(--warn)}
+.pill-danger{background:var(--danger-soft);color:var(--danger)}
+.mastery-row{margin-bottom:12px}
+.mastery-row .row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
+.badge-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media(min-width:560px){.badge-grid{grid-template-columns:repeat(3,1fr)}}
+.badge{border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px;background:var(--surface)}
+.badge.on{border-color:color-mix(in srgb,var(--accent) 35%,var(--border));background:var(--accent-soft)}
+.badge.off{opacity:.55}
+.badge strong{display:block;font-size:13px}
+.badge span{display:block;margin-top:2px;font-size:11px;color:var(--muted);line-height:1.3}
+.mode-hud{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+@media(min-width:520px){.mode-hud{grid-template-columns:repeat(4,1fr)}}
+.hud-tile{border:1px solid var(--border);background:var(--surface);border-radius:var(--radius);padding:10px 12px}
+.hud-tile.warn{border-color:color-mix(in srgb,var(--danger) 40%,var(--border));background:var(--danger-soft)}
+.hud-tile.hot{border-color:color-mix(in srgb,var(--accent) 35%,var(--border));background:var(--accent-soft)}
+.hud-tile .l{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hud-tile .v{margin-top:2px;font-size:1.15rem;font-weight:800;font-variant-numeric:tabular-nums}
+.cat{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--primary);margin:0 0 8px}
+.q{margin:0;font-size:1.1rem;font-weight:650;letter-spacing:-.01em;line-height:1.35}
+.choices{display:grid;gap:10px;margin-top:16px}
+.choice{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;min-height:52px;padding:14px 16px;border-radius:var(--radius-lg);border:1px solid var(--border);background:var(--surface);font-weight:550;font-size:14px;transition:border-color .12s,background .12s,transform .1s}
+.choice:hover:not(:disabled){border-color:color-mix(in srgb,var(--primary) 45%,var(--border));background:color-mix(in srgb,var(--primary-soft) 45%,var(--surface))}
+.choice:active:not(:disabled){transform:scale(.99)}
+.choice .letter{width:28px;height:28px;flex-shrink:0;border-radius:999px;display:grid;place-items:center;font-size:12px;font-weight:800;background:var(--surface-2);color:var(--muted)}
+.choice.correct{border-color:var(--success);background:var(--success-soft)}
+.choice.correct .letter{background:var(--success);color:#fff}
+.choice.wrong{border-color:var(--danger);background:var(--danger-soft)}
+.choice.wrong .letter{background:var(--danger);color:#fff}
+.feedback{margin-top:14px;border-radius:var(--radius);border:1px solid;padding:12px 14px;font-size:14px}
+.feedback.ok{border-color:color-mix(in srgb,var(--success) 30%,transparent);background:var(--success-soft)}
+.feedback.bad{border-color:color-mix(in srgb,var(--danger) 30%,transparent);background:var(--danger-soft)}
+.feedback strong{display:block;margin-bottom:4px}
+.feedback.ok strong{color:var(--success)}
+.feedback.bad strong{color:var(--danger)}
+.fb-notes{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:7px;border-top:1px solid color-mix(in srgb,var(--fg) 10%,transparent);padding-top:10px}
+.fb-notes li{position:relative;padding-left:20px;font-size:13px;line-height:1.45;color:var(--muted)}
+.fb-notes li::before{position:absolute;left:0;top:0;font-weight:800}
+.fb-notes li.yes::before{content:"\2713";color:var(--success)}
+.fb-notes li.no::before{content:"\2715";color:var(--danger)}
+.fb-notes b{color:var(--fg);font-weight:700}
+.fb-actions{position:sticky;bottom:0;z-index:3;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px -14px -12px;padding:12px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid color-mix(in srgb,var(--fg) 10%,transparent);border-radius:0 0 calc(var(--radius) - 1px) calc(var(--radius) - 1px);background:var(--surface)}
+.feedback.ok .fb-actions{background:var(--success-soft)}
+.feedback.bad .fb-actions{background:var(--danger-soft)}
+.fb-hint{font-size:12px;color:var(--muted)}
+@media (max-height:520px){.fb-notes li{font-size:12px}.fb-actions{margin-top:10px}}
+.center{text-align:center}
+.footer-note{margin-top:28px;text-align:center;font-size:12px;color:var(--subtle)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tier-btn{min-height:56px;border-radius:var(--radius-lg);border:1px solid var(--border);background:var(--surface-2);font-weight:700;font-size:13px;padding:12px}
+.tier-btn.correct{border-color:var(--success);background:var(--success-soft);color:var(--success)}
+.tier-btn.wrong{border-color:var(--danger);background:var(--danger-soft);color:var(--danger)}
+.need-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.need-pills .n{background:var(--surface-2);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:650;color:var(--muted)}
+.need-pills .name{background:var(--primary);color:#fff;border-radius:999px;padding:4px 12px;font-size:12px;font-weight:800}
+.seq-list{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+.seq-item{display:flex;align-items:center;gap:12px;border:1px solid var(--border);background:var(--surface);border-radius:var(--radius-lg);padding:12px;cursor:grab;user-select:none;touch-action:manipulation}
+.seq-item.sel{border-color:var(--primary);background:var(--primary-soft)}
+.seq-item.ok{border-color:var(--success);background:var(--success-soft)}
+.seq-item.bad{border-color:color-mix(in srgb,var(--danger) 40%,var(--border));background:var(--danger-soft)}
+.seq-num{width:32px;height:32px;flex-shrink:0;border-radius:999px;background:var(--hud);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
+.seq-item strong{display:block;font-size:14px}
+.seq-item small{color:var(--muted);font-size:12px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:20px;text-align:left}
+@media(min-width:520px){.stat-grid{grid-template-columns:repeat(4,1fr)}}
+.stat-box{border:1px solid var(--border);background:var(--surface-2);border-radius:var(--radius);padding:12px}
+.stat-box .l{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stat-box .v{margin-top:4px;font-size:1.25rem;font-weight:800;font-variant-numeric:tabular-nums}
+.logo{width:56px;height:56px;border-radius:var(--radius-lg);background:var(--primary);color:#fff;display:grid;place-items:center;font-size:28px;margin-bottom:14px}
+</style>
+<script src="/games/quad-bridge.js"></script></head>
+<body>
+<div class="blob" aria-hidden="true"></div>
+<div class="shell"><div id="app"></div></div>
+<script>"use strict";
+var GameContent = (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+  // src/lib/game/content.ts
+  var content_exports = {};
+  __export(content_exports, {
+    BRAND_PILLARS: () => BRAND_PILLARS,
+    CATEGORY_LABELS: () => CATEGORY_LABELS,
+    MISSION: () => MISSION,
+    PRODUCTS: () => PRODUCTS,
+    QUESTIONS: () => QUESTIONS,
+    SALES_STEPS: () => SALES_STEPS,
+    SCENARIOS: () => SCENARIOS,
+    TIER_COLORS: () => TIER_COLORS,
+    TIER_LABELS: () => TIER_LABELS,
+    VALUES: () => VALUES,
+    levelFromXp: () => levelFromXp,
+    pickQuestions: () => pickQuestions,
+    pickRamped: () => pickRamped,
+    pickOne: () => pickOne,
+    shuffle: () => shuffle,
+    xpForLevel: () => xpForLevel
+  });
+  var MISSION = "Improving the quality of people's lives, two feet at a time.";
+  var VALUES = [
+    {
+      name: "Passion",
+      text: "We are passionate about improving the lives of our employees and clients, and strengthening the communities we serve."
+    },
+    {
+      name: "Innovation",
+      text: "Our innovative and creative approach keeps us at the forefront of our industry."
+    },
+    {
+      name: "Empathy",
+      text: "We are genuinely compassionate about our clients' emotional and physical journeys."
+    },
+    {
+      name: "Commitment",
+      text: "We are committed to providing the best client and employee experience to create a lifetime of success."
+    },
+    {
+      name: "Belief",
+      text: "We believe Our Mission, Our Team, and Our Products improve the quality of people's lives."
+    },
+    {
+      name: "Integrity",
+      text: "We foster an Inclusive Workplace. We are Honest, Respectful, and Accountable."
+    }
+  ];
+  var BRAND_PILLARS = [
+    "An unwavering commitment to improving the quality of people's lives.",
+    "Our system, with arch supports at its foundation, can help alleviate pain, enhance performance, and provide comfort and recovery for customers' entire kinetic chain.",
+    "Effective arch support requires a precision fit by our well-trained, caring Specialists.",
+    "Our free, no-obligation personalized fitting is at the heart of our business.",
+    "The only place to get the Good Feet solution is at The Good Feet Store.",
+    "We are a network of experienced, proven, and established Franchisees, working together to protect and enhance our brand."
+  ];
+  var SALES_STEPS = [
+    {
+      order: 1,
+      title: "Greeting/Seating",
+      duration: "5\u201330 sec.",
+      bullets: [
+        "Welcome / Introduction",
+        "Guide to Seating Area",
+        "Exchange Names"
+      ]
+    },
+    {
+      order: 2,
+      title: "Fitting Process",
+      duration: "5\u20137 min.",
+      bullets: [
+        "Obtain the Footprints",
+        "Measurements",
+        "Foot Alignment Charts",
+        "Explain Ideal Foot, 4 Arches & kinetic alignment"
+      ]
+    },
+    {
+      order: 3,
+      title: "Discovery",
+      duration: "5\u20137 min.",
+      bullets: [
+        "Salesforce Completion",
+        "Review Client's Needs",
+        "MedMassager Foot Massager",
+        "Build trust, rapport, and empathy"
+      ]
+    },
+    {
+      order: 4,
+      title: "Balance Demonstration",
+      duration: "5\u20137 min.",
+      bullets: [
+        "Balance Demonstration Without Supports",
+        "Visual Sizing Confirmation",
+        "Balance Demonstration With Supports"
+      ]
+    },
+    {
+      order: 5,
+      title: "Test Walks with the 3-Step System",
+      duration: "20\u201330 min.",
+      bullets: [
+        "Preparing the Shoes",
+        "Test Walk \u2013 Strengthener",
+        "Test Walk \u2013 Maintainer",
+        "Test Walk \u2013 Relaxer",
+        "Additional Products"
+      ]
+    },
+    {
+      order: 6,
+      title: "Wearing Instructions",
+      duration: "2\u20133 min.",
+      bullets: ["Adjustment Period", "Wear Schedule", "Lifetime Warranty support"]
+    },
+    {
+      order: 7,
+      title: "Closing the Sale",
+      duration: "3\u20135 min.",
+      bullets: [
+        "Summary / Add-ons Review",
+        "Follow-Up, Warranty and Returns",
+        "Price Review",
+        "Client Questions and Answers"
+      ]
+    },
+    {
+      order: 8,
+      title: "Point-of-Sale",
+      duration: "5\u201310 min.",
+      bullets: [
+        "Ringing-up the Client",
+        "Financing Process",
+        "Package All Items and Instructions"
+      ]
+    }
+  ];
+  var PRODUCTS = [
+    {
+      id: "max",
+      name: "Max",
+      tier: "strengthener",
+      blurb: "Most firm Strengthener \u2014 high arches & pronounced pressure.",
+      facts: [
+        "Most firm of the Strengtheners",
+        "Best for high arches and pronounced pressure areas",
+        "More pressure relief than Honeycomb",
+        "May not suit very stiff or very flat feet",
+        "Available in Narrow"
+      ]
+    },
+    {
+      id: "honeycomb",
+      name: "Honeycomb",
+      tier: "strengthener",
+      blurb: "Rigid stability with heel cup, stabilizer & metatarsal rise.",
+      facts: [
+        "More rigid than Classic and Diamond",
+        "Heel cup, stabilizer & metatarsal rise",
+        "Little side-to-side flexion",
+        "Best for higher arches",
+        "Not available in narrow sizes"
+      ]
+    },
+    {
+      id: "classic",
+      name: "Classic",
+      tier: "strengthener",
+      blurb: "Most popular Strengthener \u2014 heel pain & metatarsal support.",
+      facts: [
+        "Most popular Strengthener",
+        "Supports metatarsal arch for heel pain relief",
+        "Takes pressure off the ball of the foot",
+        "Great for Metatarsalgia, Morton's Neuroma, Hammer Toes, Bunions",
+        "Available in Narrow"
+      ]
+    },
+    {
+      id: "sls",
+      name: "Slimline Strengthener (SLS)",
+      tier: "strengthener",
+      blurb: "55% lighter, 5\xD7 thinner \u2014 GeT for tight shoes.",
+      facts: [
+        "55% lighter and 5\xD7 thinner than Classic",
+        "Gait Enhancement Technology (GeT)",
+        "Enhances energy dispersal through the gait cycle",
+        "Best for tighter fitted shoes"
+      ]
+    },
+    {
+      id: "diamond",
+      name: "Diamond",
+      tier: "strengthener",
+      blurb: "Flexible Strengthener for flatter or sensitive feet.",
+      facts: [
+        "Similar to Classic with more side-to-side give",
+        "More flexible polymer than Classic",
+        "Best for flatter or more sensitive feet",
+        "Available in Narrow"
+      ]
+    },
+    {
+      id: "hug",
+      name: "Hug",
+      tier: "strengthener",
+      blurb: "Great intermediate \u2014 flexible Strengthener support.",
+      facts: ["Great intermediate option", "Flexible Strengthener support"]
+    },
+    {
+      id: "ultra",
+      name: "Ultra",
+      tier: "maintainer",
+      blurb: "More rigid Maintainer for lower arches.",
+      facts: [
+        "More rigid and rougher texture than Miracle Flex",
+        "Good for lower arches",
+        "Support near center of inner longitudinal arch"
+      ]
+    },
+    {
+      id: "miracle",
+      name: "Miracle Flex",
+      tier: "maintainer",
+      blurb: "Most rigid Flex line \u2014 high arches, can run in it.",
+      facts: [
+        "Most rigid in Flex line",
+        "Milder metatarsal ridge than Strengtheners",
+        "Good for very high arches and unstable feet",
+        "Can be worn while running",
+        "Works with sandals and open heels"
+      ]
+    },
+    {
+      id: "slm",
+      name: "Slimline Maintainer (SLM)",
+      tier: "maintainer",
+      blurb: "Thinner, wider platform for wider feet & lower arches.",
+      facts: [
+        "Thinner design",
+        "Wider width platform",
+        "Desirable for wider feet and lower arches"
+      ]
+    },
+    {
+      id: "midflex",
+      name: "Mid-Flex",
+      tier: "maintainer",
+      blurb: "Mid-range flex for average arches and higher impact.",
+      facts: [
+        "Mid-range flex level",
+        "Suits many different feet",
+        "Average arches and higher impact activities",
+        "Works great in dress and open-toed shoes"
+      ]
+    },
+    {
+      id: "flex",
+      name: "Flex",
+      tier: "maintainer",
+      blurb: "Support for flatter feet and lightweight shoes.",
+      facts: ["Good for flatter feet", "Light weight shoes"]
+    },
+    {
+      id: "deluxe",
+      name: "Deluxe",
+      tier: "maintainer",
+      blurb: "No metatarsal rise \u2014 deep heel cup for flat/sensitive feet.",
+      facts: [
+        "Maintainer without a metatarsal rise",
+        "Deep heel cup",
+        "Good for flatter feet or ankle instability",
+        "Customers feel comfortable quickly",
+        "Can be difficult to fit in dress shoes"
+      ]
+    },
+    {
+      id: "tss",
+      name: "TSS",
+      tier: "maintainer",
+      blurb: "Less firm than Relaxers \u2014 works with nearly every shoe.",
+      facts: [
+        "Less firm than Relaxer line",
+        "Can be worn for all activities",
+        "Works with nearly every shoe"
+      ]
+    },
+    {
+      id: "flex-relaxer",
+      name: "Flex Relaxer",
+      tier: "relaxer",
+      blurb: "Gentle support without metatarsal rise \u2014 almost any shoe.",
+      facts: [
+        "Support without metatarsal arch support",
+        "Fits heels, slippers, and sandals",
+        "Little to no adjustment period"
+      ]
+    },
+    {
+      id: "skinny",
+      name: "Skinny",
+      tier: "relaxer",
+      blurb: "Slender feet, dress shoes & heels, slight heel cup.",
+      facts: [
+        "Lower longitudinal arch and slight heel cup",
+        "Good for slender feet needing stability",
+        "Fits well in dress shoes and heels",
+        "Can be worn during high-impact sports"
+      ]
+    },
+    {
+      id: "slr",
+      name: "Slimline Relaxer (SLR)",
+      tier: "relaxer",
+      blurb: "Only Relaxer with mild metatarsal rise \u2014 wider platform.",
+      facts: [
+        "Supports all 4 arches",
+        "Mild metatarsal rise",
+        "Slightly wider platform",
+        "Great for wider feet"
+      ]
+    },
+    {
+      id: "sportflex",
+      name: "SportFlex",
+      tier: "youth",
+      blurb: "Youth Maintainer for athletic activities.",
+      facts: [
+        "Youth Maintainer",
+        "Reduces foot fatigue, increases performance",
+        "Flat heel platform, flexible inner longitudinal arch",
+        "10 sizes \xB7 6-month warranty"
+      ]
+    },
+    {
+      id: "enduraflex",
+      name: "EnduraFlex",
+      tier: "youth",
+      blurb: "Youth Relaxer for everyday comfort.",
+      facts: [
+        "Youth Relaxer",
+        "Everyday activities comfort & balance",
+        "Low inner longitudinal arch, slight heel cup",
+        "10 sizes \xB7 6-month warranty"
+      ]
+    }
+  ];
+  var QUESTIONS = [
+    // Anatomy
+    {
+      id: "a1",
+      category: "anatomy",
+      prompt: "How many joints are in the human foot?",
+      choices: ["26", "28", "33", "42"],
+      correctIndex: 2,
+      explain: "The foot has 33 joints that allow motion between bones.",
+      difficulty: 1
+    },
+    {
+      id: "a2",
+      category: "anatomy",
+      prompt: "How many ligaments does the foot have?",
+      choices: ["52", "76", "107", "150"],
+      correctIndex: 2,
+      explain: "The foot has 107 ligaments \u2014 far more than any other body part of equivalent size.",
+      difficulty: 1
+    },
+    {
+      id: "a3",
+      category: "anatomy",
+      prompt: "How many arches does the human foot have?",
+      choices: ["2", "3", "4", "5"],
+      correctIndex: 2,
+      explain: "Four arches: Inner Longitudinal, Outer Longitudinal, Transverse, and Metatarsal.",
+      difficulty: 1
+    },
+    {
+      id: "a4",
+      category: "anatomy",
+      prompt: "Which arch cannot be seen from the outside of the foot?",
+      choices: [
+        "Inner Longitudinal",
+        "Outer Longitudinal",
+        "Transverse",
+        "Metatarsal"
+      ],
+      correctIndex: 2,
+      explain: "The transverse arch sits across the mid-tarsal joints behind the instep \u2014 the only arch not visible from outside.",
+      difficulty: 2
+    },
+    {
+      id: "a5",
+      category: "anatomy",
+      prompt: "How much blood is pumped through each foot daily?",
+      choices: [
+        "1\u20135 gallons",
+        "5\u201310 gallons",
+        "15\u201325 gallons",
+        "30\u201340 gallons"
+      ],
+      correctIndex: 2,
+      explain: "The circulatory system pumps 15 to 25 gallons of blood through each foot every day.",
+      difficulty: 2
+    },
+    {
+      id: "a6",
+      category: "anatomy",
+      prompt: "About how many of the body's ~650 muscles are involved in walking?",
+      choices: ["About 50", "About 100", "About half", "All of them"],
+      correctIndex: 2,
+      explain: "Half of the body's approximately 650 muscles are involved in the simple act of walking.",
+      difficulty: 2
+    },
+    {
+      id: "a7",
+      category: "anatomy",
+      prompt: "What is the primary job of the four-arch system?",
+      choices: [
+        "Make the foot look taller",
+        "Shock absorption & terrain adaptation",
+        "Increase shoe size",
+        "Only support high heels"
+      ],
+      correctIndex: 1,
+      explain: "The arches act as a shock-absorber for standing, walking, running, and adapting to uneven terrain.",
+      difficulty: 1
+    },
+    {
+      id: "a8",
+      category: "anatomy",
+      prompt: "The outer (lateral) longitudinal arch primarily absorbs\u2026",
+      choices: [
+        "Toe pressure only",
+        "The \u201Croll\u201D of the foot during a step",
+        "Blood flow",
+        "Only high-arch feet"
+      ],
+      correctIndex: 1,
+      explain: "The outer longitudinal arch runs along the outside of the foot and absorbs the roll of the foot during a step.",
+      difficulty: 2
+    },
+    {
+      id: "a9",
+      category: "anatomy",
+      prompt: "What does a metatarsal rise primarily do?",
+      choices: [
+        "Cup the heel only",
+        "Support the metatarsal arch and take pressure off the toes",
+        "Lengthen the foot",
+        "Replace the Strengthener entirely"
+      ],
+      correctIndex: 1,
+      explain: "It lifts the metatarsal heads, takes pressure off toes and heel, supports plantar fascia, and stabilizes the midfoot.",
+      difficulty: 2
+    },
+    {
+      id: "a10",
+      category: "anatomy",
+      prompt: "A deeper heel cup is especially helpful for\u2026",
+      choices: [
+        "Running spikes only",
+        "Realigning the body and helping relieve back pain",
+        "Making shoes tighter",
+        "Removing all arches"
+      ],
+      correctIndex: 1,
+      explain: "Heel cups gather the fat pad, absorb step-shock, align ankles \u2192 knees \u2192 hips \u2192 back \u2014 one of the best features for back-pain relief.",
+      difficulty: 2
+    },
+    // Products / 3-step
+    {
+      id: "p1",
+      category: "products",
+      prompt: "What are the three categories in the Good Feet 3-Step System?",
+      choices: [
+        "Soft, Medium, Hard",
+        "Strengthener, Maintainer, Relaxer",
+        "Day, Night, Sport",
+        "Classic, Deluxe, Skinny"
+      ],
+      correctIndex: 1,
+      explain: "Every style falls into Strengthener, Maintainer, or Relaxer \u2014 worn together as a system.",
+      difficulty: 1
+    },
+    {
+      id: "p2",
+      category: "products",
+      prompt: "Which category is the \u201Cwork horse / core\u201D of the product line?",
+      choices: ["Relaxer", "Maintainer", "Strengthener", "Youth only"],
+      correctIndex: 2,
+      explain: "Strengtheners place the foot in the ideal position and are the core of the line.",
+      difficulty: 1
+    },
+    {
+      id: "p3",
+      category: "products",
+      prompt: "What is the most popular Strengthener?",
+      choices: ["Max", "Honeycomb", "Classic", "Hug"],
+      correctIndex: 2,
+      explain: "Classic is the most popular Strengthener and is great for heel pain and metatarsal issues.",
+      difficulty: 1
+    },
+    {
+      id: "p4",
+      category: "products",
+      prompt: "Which Strengthener is most firm?",
+      choices: ["Diamond", "Hug", "Max", "Classic"],
+      correctIndex: 2,
+      explain: "Max is the most firm Strengthener \u2014 best for high arches and pronounced pressure areas.",
+      difficulty: 2
+    },
+    {
+      id: "p5",
+      category: "products",
+      prompt: "SLS is engineered to be\u2026",
+      choices: [
+        "Twice as thick as Classic",
+        "55% lighter and 5\xD7 thinner than Classic",
+        "Only for youth",
+        "Without any GeT technology"
+      ],
+      correctIndex: 1,
+      explain: "Slimline Strengthener is 55% lighter and five times thinner than Classic, with Gait Enhancement Technology.",
+      difficulty: 2
+    },
+    {
+      id: "p6",
+      category: "products",
+      prompt: "Which Strengthener is best for flatter or more sensitive feet?",
+      choices: ["Max", "Honeycomb", "Diamond", "Classic only"],
+      correctIndex: 2,
+      explain: "Diamond uses a more flexible polymer and diamond underside structure for side-to-side give.",
+      difficulty: 2
+    },
+    {
+      id: "p7",
+      category: "products",
+      prompt: "Maintainers are designed to\u2026",
+      choices: [
+        "Replace Strengtheners completely",
+        "Maintain the re-aligned position when not wearing Strengtheners",
+        "Only be worn in boots",
+        "Have the longest adjustment period"
+      ],
+      correctIndex: 1,
+      explain: "Maintainers keep the alignment Strengtheners established \u2014 especially in lower-profile shoes.",
+      difficulty: 1
+    },
+    {
+      id: "p8",
+      category: "products",
+      prompt: "Which Maintainer has no metatarsal rise and a deep heel cup?",
+      choices: ["Flex", "Ultra", "Deluxe", "Miracle Flex"],
+      correctIndex: 2,
+      explain: "Deluxe is a Maintainer without metatarsal rise \u2014 excellent for flat, wide, or sensitive feet.",
+      difficulty: 2
+    },
+    {
+      id: "p9",
+      category: "products",
+      prompt: "Which is the only Relaxer with a mild metatarsal rise?",
+      choices: ["Flex Relaxer", "Skinny", "SLR", "Comfort Leather"],
+      correctIndex: 2,
+      explain: "Slimline Relaxer (SLR) supports all 4 arches with a mild metatarsal rise \u2014 great for wider feet.",
+      difficulty: 2
+    },
+    {
+      id: "p10",
+      category: "products",
+      prompt: "When in a daily 3-Step System are Relaxers typically worn?",
+      choices: [
+        "First thing in the morning only",
+        "Last every day \u2014 slippers, sandals, dress shoes",
+        "Never with the system",
+        "Only during sports"
+      ],
+      correctIndex: 1,
+      explain: "Relaxers are the end-of-day rest step \u2014 thin enough for almost any shoe so clients never go without support.",
+      difficulty: 1
+    },
+    {
+      id: "p11",
+      category: "products",
+      prompt: "GeT (Gait Enhancement Technology) is found on\u2026",
+      choices: [
+        "Only Classic",
+        "SLS, SLM, and SLR SlimLine supports",
+        "Only youth products",
+        "MedMassager only"
+      ],
+      correctIndex: 1,
+      explain: "GeT is a patented S-shaped support system on SlimLine Strengthener, Maintainer, and Relaxer.",
+      difficulty: 3
+    },
+    {
+      id: "p12",
+      category: "products",
+      prompt: "A heel platform (vs heel cup) is best when the client needs\u2026",
+      choices: [
+        "Maximum motion control for desk work only",
+        "Freedom of mobility for sports, running, tighter shoes",
+        "Deepest fat-pad gathering",
+        "No arch support at all"
+      ],
+      correctIndex: 1,
+      explain: "Flat heel platforms allow free heel motion \u2014 ideal for sports, running, and open-heeled shoes with Velcro.",
+      difficulty: 2
+    },
+    {
+      id: "p13",
+      category: "products",
+      prompt: "SportFlex is classified as a\u2026",
+      choices: [
+        "Youth Strengthener",
+        "Youth Maintainer",
+        "Youth Relaxer",
+        "Adult Deluxe"
+      ],
+      correctIndex: 1,
+      explain: "SportFlex is the youth Maintainer for athletic activities (flat heel platform).",
+      difficulty: 2
+    },
+    {
+      id: "p14",
+      category: "products",
+      prompt: "True or false: Good Feet Arch Supports are intended to treat medical ailments.",
+      choices: [
+        "True \u2014 they diagnose conditions",
+        "False \u2014 they are not intended to treat or correct any physical ailment",
+        "True for Strengtheners only",
+        "Only true with a doctor's note"
+      ],
+      correctIndex: 1,
+      explain: "Official disclaimer: Good Feet Arch Supports are not intended to treat or correct any physical ailment. Never diagnose.",
+      difficulty: 1
+    },
+    {
+      id: "p15",
+      category: "products",
+      prompt: "Which Strengthener is NOT available in narrow sizes?",
+      choices: ["Classic", "Max", "Honeycomb", "Diamond"],
+      correctIndex: 2,
+      explain: "Honeycomb is not available in narrow sizes.",
+      difficulty: 3
+    },
+    // Sales process
+    {
+      id: "s1",
+      category: "sales",
+      prompt: "How many steps are in the Good Feet sales process?",
+      choices: ["5", "6", "8", "10"],
+      correctIndex: 2,
+      explain: "There are 8 steps from Greeting/Seating through Point-of-Sale.",
+      difficulty: 1
+    },
+    {
+      id: "s2",
+      category: "sales",
+      prompt: "What is Step 1 of the sales process?",
+      choices: [
+        "Discovery",
+        "Greeting/Seating",
+        "Closing the Sale",
+        "Test Walks"
+      ],
+      correctIndex: 1,
+      explain: "Greeting/Seating (5\u201330 sec.): welcome, guide to seating, exchange names.",
+      difficulty: 1
+    },
+    {
+      id: "s3",
+      category: "sales",
+      prompt: "During the balance demonstration, you should start\u2026",
+      choices: [
+        "With supports first",
+        "Without supports first",
+        "Only sitting, never standing",
+        "With Relaxers only"
+      ],
+      correctIndex: 1,
+      explain: "Always start WITHOUT supports first so the client feels the difference when supports are added.",
+      difficulty: 1
+    },
+    {
+      id: "s4",
+      category: "sales",
+      prompt: "If an arch support overlaps the ball of the foot during visual sizing, it is\u2026",
+      choices: ["Too short", "Too long", "Perfect", "A Relaxer only"],
+      correctIndex: 1,
+      explain: 'Overlapping the ball = too long. \xBC" or more behind the ball = too short. Just behind the ball = correct.',
+      difficulty: 1
+    },
+    {
+      id: "s5",
+      category: "sales",
+      prompt: "Which step usually takes the longest (20\u201330 min.)?",
+      choices: [
+        "Greeting/Seating",
+        "Wearing Instructions",
+        "Test Walks with the 3-Step System",
+        "Point-of-Sale"
+      ],
+      correctIndex: 2,
+      explain: "Test Walks (Strengthener \u2192 Maintainer \u2192 Relaxer) are the heart of the experience \u2014 20\u201330 minutes.",
+      difficulty: 1
+    },
+    {
+      id: "s6",
+      category: "sales",
+      prompt: "Minimum presentation items include how many Lifetime Arch Supports?",
+      choices: ["1", "2", "3", "6"],
+      correctIndex: 2,
+      explain: "Minimum: 3 Lifetime Arch Supports (e.g. Classic, Mid-Flex, Flex Relaxer), 3 cushions, 3 Arch Activators \u2014 in the 3-Step box.",
+      difficulty: 2
+    },
+    {
+      id: "s7",
+      category: "sales",
+      prompt: "When reviewing a footprint, you should\u2026",
+      choices: [
+        "Draw diagnoses on the footprint",
+        "Record only measurements and shoe sizes \u2014 never diagnose",
+        "Skip measurements",
+        "Tell the client their medical condition"
+      ],
+      correctIndex: 1,
+      explain: "Do NOT draw on the footprint or diagnose. If they mention a condition: you are not a medical professional.",
+      difficulty: 1
+    },
+    {
+      id: "s8",
+      category: "sales",
+      prompt: "Average full appointment time yield is about\u2026",
+      choices: [
+        "10\u201315 minutes",
+        "45 minutes \u2013 1 hour 9 minutes",
+        "3\u20134 hours",
+        "Under 5 minutes"
+      ],
+      correctIndex: 1,
+      explain: "Average time yield for the complete sales process is 45 min. to 1 hr. 9 mins.",
+      difficulty: 2
+    },
+    {
+      id: "s9",
+      category: "sales",
+      prompt: "Which product is commonly used during Discovery to build rapport?",
+      choices: ["Honeycomb only", "MedMassager", "High heels", "Lock Laces only"],
+      correctIndex: 1,
+      explain: "Discovery includes Salesforce, reviewing needs, and the MedMassager while building empathy.",
+      difficulty: 1
+    },
+    {
+      id: "s10",
+      category: "sales",
+      prompt: "Wearing Instructions cover\u2026",
+      choices: [
+        "Only pricing",
+        "Adjustment period and wear schedule",
+        "Only financing",
+        "Only greeting scripts"
+      ],
+      correctIndex: 1,
+      explain: "Step 6 explains the adjustment period and wear schedule \u2014 critical for Lifetime Warranty success.",
+      difficulty: 1
+    },
+    // Values / brand
+    {
+      id: "v1",
+      category: "values",
+      prompt: "What is the Good Feet mission statement?",
+      choices: [
+        "Sell more shoes every day",
+        "Improving the quality of people's lives, two feet at a time.",
+        "The cheapest insoles in America",
+        "Diagnose every foot condition"
+      ],
+      correctIndex: 1,
+      explain: "Mission: \u201CImproving the quality of people's lives, two feet at a time.\u201D",
+      difficulty: 1
+    },
+    {
+      id: "v2",
+      category: "values",
+      prompt: "Which is NOT one of the six Good Feet values?",
+      choices: ["Passion", "Empathy", "Aggression", "Integrity"],
+      correctIndex: 2,
+      explain: "Values: Passion, Innovation, Empathy, Commitment, Belief, Integrity.",
+      difficulty: 1
+    },
+    {
+      id: "v3",
+      category: "values",
+      prompt: "Brand Pillar #4 emphasizes that the personalized fitting is\u2026",
+      choices: [
+        "Only for VIP clients",
+        "Free and no-obligation \u2014 at the heart of the business",
+        "Paid and non-refundable",
+        "Optional and rare"
+      ],
+      correctIndex: 1,
+      explain: "Pillar 4: Our free, no-obligation personalized fitting is at the heart of our business.",
+      difficulty: 2
+    },
+    {
+      id: "v4",
+      category: "values",
+      prompt: "The only place to get the Good Feet solution is\u2026",
+      choices: [
+        "Any pharmacy",
+        "Online marketplaces only",
+        "At The Good Feet Store",
+        "Gym gift shops"
+      ],
+      correctIndex: 2,
+      explain: "Brand Pillar #5: The only place to get the Good Feet solution is at The Good Feet Store.",
+      difficulty: 1
+    },
+    {
+      id: "v5",
+      category: "values",
+      prompt: "Empathy at Good Feet means\u2026",
+      choices: [
+        "Rushing every sale",
+        "Genuine compassion for clients' emotional and physical journeys",
+        "Ignoring pain stories",
+        "Only talking product specs"
+      ],
+      correctIndex: 1,
+      explain: "Empathy: we are genuinely compassionate about our clients' emotional and physical journeys.",
+      difficulty: 1
+    },
+    // Fitting / lifestyle
+    {
+      id: "f1",
+      category: "fitting",
+      prompt: "House rule for practices: you should\u2026",
+      choices: [
+        "Go barefoot always",
+        "Wear socks for practices",
+        "Use phones during every demo",
+        "Skip footprints"
+      ],
+      correctIndex: 1,
+      explain: "Ensure you wear socks for practices during training.",
+      difficulty: 1
+    },
+    {
+      id: "f2",
+      category: "fitting",
+      prompt: "Lighter color on the Lifestyle chart generally means\u2026",
+      choices: ["Harder support", "Softer support", "Youth only", "Discontinued"],
+      correctIndex: 1,
+      explain: "COLORS: LIGHTER = SOFTER across the product chart.",
+      difficulty: 2
+    },
+    {
+      id: "f3",
+      category: "fitting",
+      prompt: "Strengtheners generally have the\u2026",
+      choices: [
+        "Shortest adjustment period",
+        "Longest adjustment period",
+        "No adjustment ever",
+        "Same feel as slippers day one"
+      ],
+      correctIndex: 1,
+      explain: "Because Strengtheners profoundly reposition the foot, longer adjustment periods must be observed.",
+      difficulty: 1
+    },
+    {
+      id: "f4",
+      category: "fitting",
+      prompt: "For running, you generally want supports with\u2026",
+      choices: [
+        "Deep heel cups only",
+        "Flat heel platforms for mobility",
+        "No arches at all",
+        "Only Comfort Leather"
+      ],
+      correctIndex: 1,
+      explain: "Heel platforms allow free range of motion \u2014 preferred for running and impact sports. Deep heel cups are not ideal for running.",
+      difficulty: 2
+    },
+    {
+      id: "f5",
+      category: "fitting",
+      prompt: "Which accessory line includes socks and sleeves?",
+      choices: ["OS1st", "Only Brooks", "Only Lock Laces", "None"],
+      correctIndex: 0,
+      explain: "Accessories include OS1st Socks and Sleeves, Brooks Shoes, Lock Laces, and Med Massagers.",
+      difficulty: 1
+    },
+    {
+      id: "f6",
+      category: "lifestyle",
+      prompt: "For high heels, which product family is generally the best fit?",
+      choices: [
+        "Most Strengtheners",
+        "Relaxers and select Maintainers",
+        "Only Honeycomb",
+        "Only Max"
+      ],
+      correctIndex: 1,
+      explain: "High heels need thinner profiles \u2014 Relaxers and certain Maintainers chart better than bulkier Strengtheners.",
+      difficulty: 2
+    },
+    {
+      id: "f7",
+      category: "lifestyle",
+      prompt: "A customer who stands all day on hard surfaces can use\u2026",
+      choices: [
+        "Only Skinny",
+        "Supports across all three tiers (per lifestyle chart)",
+        "No supports at all",
+        "Only youth products"
+      ],
+      correctIndex: 1,
+      explain: "Standing on hard surfaces is marked for essentially the full lineup \u2014 match firmness to foot type and lifestyle.",
+      difficulty: 2
+    },
+    {
+      id: "f8",
+      category: "lifestyle",
+      prompt: "Miracle Flex is especially strong for clients who\u2026",
+      choices: [
+        "Only sit at desks",
+        "Have very high arches / unstable feet and may run",
+        "Need zero support",
+        "Refuse all Maintainers"
+      ],
+      correctIndex: 1,
+      explain: "Miracle Flex: most rigid Flex line, good for very high arches and unstable feet, can be worn while running.",
+      difficulty: 2
+    },
+    {
+      id: "f9",
+      category: "fitting",
+      prompt: "Waffling patterns on Classic-series supports help\u2026",
+      choices: [
+        "Diagnose flat feet",
+        "Evenly distribute weight and add flex while reducing weight",
+        "Make supports rigid only",
+        "Replace the 3-Step System"
+      ],
+      correctIndex: 1,
+      explain: "Waffling (squares/hexagons) stabilizes the bottom, flexes with each step, distributes weight, and lightens the support.",
+      difficulty: 2
+    },
+    {
+      id: "f10",
+      category: "products",
+      prompt: "How many different styles of arch supports does Good Feet sell (approx.)?",
+      choices: ["5", "10", "17", "50"],
+      correctIndex: 2,
+      explain: "About 17 styles \u2014 all under the three categories of the 3-Step System.",
+      difficulty: 2
+    }
+  ];
+  var SCENARIOS = [
+    {
+      id: "c1",
+      name: "Maria",
+      age: 42,
+      story: "Nurse who stands 12-hour shifts on hard floors. Heel pain after long days. Medium-high arches. Wears supportive sneakers at work.",
+      needs: ["Standing on hard surfaces", "Heel pain", "All-day support"],
+      correctTier: "system",
+      correctProduct: "classic",
+      explain: "Classic Strengthener is the most popular for heel pain and metatarsal support \u2014 pair with a Maintainer for other shoes and a Relaxer for end of shift.",
+      choices: [
+        { label: "Classic Strengthener", value: "classic", why: "The core of the 3-Step System \u2014 the most popular pick for heel pain and metatarsal support on hard floors." },
+        { label: "Skinny Relaxer", value: "skinny", why: "A Relaxer is for recovery and low-volume shoes; on its own it skips the system and leaves the shift unsupported." },
+        { label: "EnduraFlex youth support", value: "enduraflex", why: "EnduraFlex is the youth Strengthener, sized and built for growing feet." },
+        { label: "Massage and stretching routine", value: "none", why: "Comfort advice alone leaves the arch unsupported for a twelve-hour shift." }
+      ]
+    },
+    {
+      id: "c2",
+      name: "James",
+      age: 35,
+      story: "Runs 20+ miles a week. High arches, needs side-to-side mobility. Already tried bulky insoles that don't fit racing flats.",
+      needs: ["Running", "High arches", "Low profile"],
+      correctTier: "maintainer",
+      correctProduct: "miracle",
+      explain: "Miracle Flex: most rigid Flex line, good for high arches, can be worn while running, works in tighter shoes. Pair with Strengthener for recovery days.",
+      choices: [
+        { label: "Miracle Flex Maintainer", value: "miracle", why: "Most rigid of the Flex line \u2014 suits high arches, can be worn while running, and works in tighter shoes." },
+        { label: "Honeycomb Strengthener", value: "honeycomb", why: "A deep-cup Strengthener with little flex \u2014 too rigid and too bulky for a racing flat." },
+        { label: "Deluxe Maintainer", value: "deluxe", why: "Its deep heel cup limits the side-to-side mobility a distance runner needs." },
+        { label: "Comfort Leather dress Relaxer", value: "comfort", why: "Comfort Leather is styled for dress shoes and heels, not for twenty miles a week." }
+      ]
+    },
+    {
+      id: "c3",
+      name: "Priya",
+      age: 29,
+      story: "Works in finance \u2014 dress shoes and occasional heels daily. Sensitive, lower arches. Wants something she'll actually wear.",
+      needs: ["Dress shoes", "High heels", "Sensitive feet"],
+      correctTier: "relaxer",
+      correctProduct: "skinny",
+      explain: "Skinny / Flex Relaxer fit dress shoes and heels with little adjustment. Still sell the full system \u2014 Strengtheners for home/gym shoes.",
+      choices: [
+        { label: "Skinny or Flex Relaxer", value: "skinny", why: "Skinny and Flex Relaxers fit dress shoes and heels with little adjustment, so she will actually wear them." },
+        { label: "Max Strengthener", value: "max", why: "The firmest Strengthener \u2014 far too much volume and rigidity for a stiletto." },
+        { label: "Honeycomb Strengthener", value: "honeycomb", why: "Honeycomb is neither narrow nor flexible, so it will not seat in a dress shoe." },
+        { label: "SportFlex youth support", value: "sportflex", why: "SportFlex is a youth Maintainer for sports, not an adult dress-shoe option." }
+      ]
+    },
+    {
+      id: "c4",
+      name: "Robert",
+      age: 58,
+      story: "Wide, flat feet with ankle instability. Gets uncomfortable quickly in aggressive metatarsal rises. Wants something that feels secure.",
+      needs: ["Flat feet", "Ankle instability", "Quick comfort"],
+      correctTier: "maintainer",
+      correctProduct: "deluxe",
+      explain: "Deluxe: no metatarsal rise, deep heel cup, excellent for sensitive, wide & flat feet \u2014 customers often feel comfortable quickly.",
+      choices: [
+        { label: "Deluxe Maintainer", value: "deluxe", why: "No metatarsal rise and a deep heel cup \u2014 excellent for sensitive, wide and flat feet, and comfortable quickly." },
+        { label: "Max Strengthener, firmest tier", value: "max", why: "Max is aggressive and firm, which often does not suit very flat feet." },
+        { label: "Classic Strengthener", value: "classic", why: "Classic leads with a strong metatarsal rise \u2014 exactly what makes him uncomfortable." },
+        { label: "Soft cushioning insole", value: "none", why: "Cushioning alone gives him no heel cup and no ankle stability." }
+      ]
+    },
+    {
+      id: "c5",
+      name: "Aiden",
+      age: 12,
+      story: "Plays soccer and basketball after school. Parents want performance and comfort during sports, not adult Strengtheners.",
+      needs: ["Youth", "Sports", "Fatigue reduction"],
+      correctTier: "youth",
+      correctProduct: "sportflex",
+      explain: "SportFlex is the youth Maintainer designed for athletic activities \u2014 flat heel platform, 10 sizes, 6-month warranty.",
+      choices: [
+        { label: "SportFlex youth Maintainer", value: "sportflex", why: "The youth Maintainer designed for athletic activity \u2014 flat heel platform, 10 sizes, 6-month warranty." },
+        { label: "Max Strengthener", value: "max", why: "Adult Strengtheners are not sized or intended for a 12-year-old." },
+        { label: "Honeycomb Strengthener", value: "honeycomb", why: "Another adult Strengthener \u2014 wrong tier and wrong size range for a youth fitting." },
+        { label: "Athletic shoes on their own", value: "none", why: "Youth feet still get a proper fitting; skipping it is not the Good Feet process." }
+      ]
+    },
+    {
+      id: "c6",
+      name: "Elena",
+      age: 47,
+      story: "Very high arches, pronounced pressure points. Has tried softer drugstore inserts with no relief. Wants the firmest Good Feet option.",
+      needs: ["High arches", "Pressure relief", "Firm support"],
+      correctTier: "strengthener",
+      correctProduct: "max",
+      explain: "Max is the most firm Strengthener \u2014 best suited for high arches and pronounced pressure areas (more relief than Honeycomb).",
+      choices: [
+        { label: "Max Strengthener", value: "max", why: "The most firm Strengthener \u2014 best suited to high arches and pronounced pressure areas, with more relief than Honeycomb." },
+        { label: "Flex Relaxer for recovery", value: "flex-relaxer", why: "A Relaxer is for recovery; it will not deliver the firm support she is asking for." },
+        { label: "TSS Maintainer pair", value: "tss", why: "TSS is a Maintainer meant to be part of a system, not a single pair forever." },
+        { label: "EnduraFlex youth support", value: "enduraflex", why: "EnduraFlex is the youth Strengthener, not an adult high-arch option." }
+      ]
+    },
+    {
+      id: "c7",
+      name: "Chris",
+      age: 33,
+      story: "Loves tight fashion sneakers and slip-ons. Needs a Strengthener that won't fight the shoe volume.",
+      needs: ["Tight shoes", "Daily Strengthener", "Low bulk"],
+      correctTier: "strengthener",
+      correctProduct: "sls",
+      explain: "SLS is 55% lighter and 5\xD7 thinner than Classic with GeT \u2014 engineered for tighter fitted shoes.",
+      choices: [
+        { label: "Slimline Strengthener (SLS)", value: "sls", why: "55% lighter and 5\u00d7 thinner than Classic with GeT \u2014 engineered for tighter fitted shoes." },
+        { label: "Honeycomb Strengthener", value: "honeycomb", why: "Bulkier and not cut narrow, so it fights the volume of a slim sneaker." },
+        { label: "Deluxe Maintainer", value: "deluxe", why: "A Maintainer, and too deep to sit in a low-volume slip-on." },
+        { label: "Stock insole from the shoe", value: "none", why: "A stock insole gives him no arch support at all." }
+      ]
+    },
+    {
+      id: "c8",
+      name: "Diane",
+      age: 61,
+      story: "Mentions plantar fasciitis history and asks you to \u201Cdiagnose which disease I have.\u201D You should\u2026",
+      needs: ["Ethics", "No diagnosing"],
+      correctTier: "system",
+      correctProduct: "ethics",
+      explain: "Never diagnose. Say you are not a medical professional. Focus on fit, comfort, and the 3-Step experience \u2014 supports are not intended to treat ailments.",
+      choices: [
+        { label: "Focus on fit and the 3-Step experience", value: "ethics", why: "Correct \u2014 you are not a medical professional. Keep the conversation on fit, comfort and the 3-Step experience." },
+        { label: "Confirm the diagnosis she names", value: "diagnose", why: "Confirming a diagnosis is practising medicine, well outside a fitter's role." },
+        { label: "Mark disease labels on her footprint", value: "draw", why: "Labelling disease on a footprint reads as a medical claim about her condition." },
+        { label: "Recommend a medication for it", value: "rx", why: "Recommending medication is far outside the scope of a fitting." }
+      ]
+    }
+  ];
+  var CATEGORY_LABELS = {
+    anatomy: "Foot Anatomy",
+    products: "Product Knowledge",
+    sales: "Sales Process",
+    values: "Mission & Values",
+    fitting: "Fitting Best Practices",
+    lifestyle: "Lifestyle Matching"
+  };
+  var TIER_LABELS = {
+    strengthener: "Strengtheners",
+    maintainer: "Maintainers",
+    relaxer: "Relaxers",
+    youth: "Youth"
+  };
+  var TIER_COLORS = {
+    strengthener: "var(--color-strengthener)",
+    maintainer: "var(--color-maintainer)",
+    relaxer: "var(--color-relaxer)",
+    youth: "var(--color-primary)"
+  };
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  function pickQuestions(count, opts) {
+    let pool = QUESTIONS;
+    if (opts?.category) pool = pool.filter((q) => q.category === opts.category);
+    if (opts?.minDiff)
+      pool = pool.filter((q) => q.difficulty >= (opts.minDiff ?? 1));
+    if (opts?.maxDiff)
+      pool = pool.filter((q) => q.difficulty <= (opts.maxDiff ?? 3));
+    return shuffle(pool).slice(0, Math.min(count, pool.length));
+  }
+  // Draw `count` questions that ramp from easy to hard. Falls back to whatever
+  // the bank can supply if a difficulty band is thin.
+  function pickOne(arr) {
+    return arr && arr.length ? arr[Math.floor(Math.random() * arr.length)] : null;
+  }
+  function pickRamped(count) {
+    var bands = [
+      { min: 1, max: 1, share: 0.4 },
+      { min: 2, max: 2, share: 0.4 },
+      { min: 2, max: 3, share: 0.2 },
+    ];
+    var out = [];
+    var seen = Object.create(null);
+    bands.forEach(function (band) {
+      var want = Math.max(1, Math.round(count * band.share));
+      var pool = pickQuestions(QUESTIONS.length, { minDiff: band.min, maxDiff: band.max });
+      for (var i = 0; i < pool.length && want > 0; i++) {
+        if (seen[pool[i].id]) continue;
+        seen[pool[i].id] = 1;
+        out.push(pool[i]);
+        want -= 1;
+      }
+    });
+    if (out.length < count) {
+      var rest = pickQuestions(QUESTIONS.length);
+      for (var j = 0; j < rest.length && out.length < count; j++) {
+        if (seen[rest[j].id]) continue;
+        seen[rest[j].id] = 1;
+        out.push(rest[j]);
+      }
+    }
+    return out.slice(0, count);
+  }
+  function xpForLevel(level) {
+    return Math.floor(80 * level + 20 * level * level);
+  }
+  function levelFromXp(xp) {
+    let level = 1;
+    let remaining = xp;
+    while (remaining >= xpForLevel(level)) {
+      remaining -= xpForLevel(level);
+      level += 1;
+      if (level > 99) break;
+    }
+    return { level, into: remaining, need: xpForLevel(level) };
+  }
+  return __toCommonJS(content_exports);
+})();
+</script>
+<script>
+(function () {
+  const C = GameContent;
+  const STORAGE_KEY = "goodfeet-archquest-standalone-v1";
+
+  const BADGES = [
+    { id: "first_steps", name: "First Steps", desc: "Complete any challenge" },
+    { id: "streak_5", name: "Hot Feet", desc: "Hit a 5-answer streak" },
+    { id: "streak_15", name: "On Fire", desc: "Hit a 15-answer streak" },
+    { id: "anatomy_ace", name: "Anatomy Ace", desc: "Master Foot Anatomy" },
+    { id: "product_pro", name: "Product Pro", desc: "Master Product Knowledge" },
+    { id: "sales_star", name: "Sales Star", desc: "Master the Sales Process" },
+    { id: "values_voice", name: "Values Voice", desc: "Master Mission & Values" },
+    { id: "fit_finder", name: "Fit Finder", desc: "Win 5 Fit Lab scenarios" },
+    { id: "sequence_sorter", name: "Step Master", desc: "Perfect the 8-step order" },
+    { id: "combo_king", name: "Combo King", desc: "Reach an 8x multiplier" },
+    { id: "level_5", name: "Specialist", desc: "Reach level 5" },
+    { id: "level_10", name: "Arch Expert", desc: "Reach level 10" },
+    { id: "perfect_10", name: "Perfect 10", desc: "10 correct in a row" },
+    { id: "scenario_hero", name: "Client Hero", desc: "Clear all Fit Lab scenarios" },
+  ];
+
+  const MODES = [
+    { id: "lightning", title: "Lightning Round", blurb: "Beat the clock. Stack combos. Become unstoppable.", icon: "⚡", tag: "Addictive", pill: "pill-accent" },
+    { id: "sort", title: "Sort Station", blurb: "Drop every support into Strengthener, Maintainer, or Relaxer.", icon: "📦", tag: "Product IQ", pill: "pill-ok" },
+    { id: "fitlab", title: "Fit Lab", blurb: "Real client stories. Pick the smart recommendation.", icon: "👥", tag: "Scenarios", pill: "pill-pri" },
+    { id: "sequence", title: "Sales Sequence", blurb: "Order all 8 steps of the sales process perfectly.", icon: "📋", tag: "Process", pill: "pill-warn" },
+    { id: "mastery", title: "Mastery Run", blurb: "Three lives. Endless mix. Survive as long as you can.", icon: "🎯", tag: "Hardcore", pill: "pill-danger" },
+  ];
+
+  const CATS = ["anatomy", "products", "sales", "values", "fitting", "lifestyle"];
+
+  function emptyCats() {
+    return { anatomy: 0, products: 0, sales: 0, values: 0, fitting: 0, lifestyle: 0 };
+  }
+  function todayKey() {
+    return new Date().toISOString().slice(0, 10);
+  }
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) {
+      return null;
+    }
+  }
+  function defaultProgress() {
+    return {
+      playerName: "",
+      xp: 0,
+      bestStreakAllTime: 0,
+      dayStreak: 0,
+      lastPlayDate: null,
+      badges: [],
+      categoryCorrect: emptyCats(),
+      categoryAttempts: emptyCats(),
+      fitLabWins: 0,
+      fitLabCleared: [],
+      sequencePerfects: 0,
+      gamesPlayed: 0,
+      totalCorrect: 0,
+      highScores: {},
+    };
+  }
+
+  const state = {
+    progress: Object.assign(defaultProgress(), loadProgress() || {}),
+    mode: "hub",
+    lastResult: null,
+    game: null,
+    timer: null,
+    advance: null,
+    advanceLabel: null,
+  };
+
+  // Explanations are never dismissed by a timer. A pending advance is stored
+  // here and only runs when the learner clicks Continue or presses a key.
+  function setAdvance(fn, label) {
+    state.advance = fn;
+    state.advanceLabel = label || "Continue";
+  }
+  function clearAdvance() {
+    state.advance = null;
+    state.advanceLabel = null;
+  }
+  function doAdvance() {
+    var fn = state.advance;
+    if (!fn) return;
+    clearAdvance();
+    fn();
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress));
+    } catch (e) {}
+  }
+  function grantBadge(id) {
+    if (!state.progress.badges.includes(id)) state.progress.badges.push(id);
+  }
+  function addXp(n) {
+    state.progress.xp += Math.max(0, n);
+    const level = C.levelFromXp(state.progress.xp).level;
+    if (level >= 5) grantBadge("level_5");
+    if (level >= 10) grantBadge("level_10");
+  }
+  function recordAnswer(cat, ok) {
+    state.progress.categoryAttempts[cat] = (state.progress.categoryAttempts[cat] || 0) + 1;
+    if (ok) {
+      state.progress.categoryCorrect[cat] = (state.progress.categoryCorrect[cat] || 0) + 1;
+      state.progress.totalCorrect += 1;
+    }
+    if (ok && masteryOf(cat) >= 0.8) {
+      const map = { anatomy: "anatomy_ace", products: "product_pro", sales: "sales_star", values: "values_voice" };
+      if (map[cat]) grantBadge(map[cat]);
+    }
+  }
+  function masteryOf(cat) {
+    const a = state.progress.categoryAttempts[cat] || 0;
+    if (a < 5) return (a / 5) * 0.4;
+    return (state.progress.categoryCorrect[cat] || 0) / a;
+  }
+  function noteStreak(s) {
+    state.progress.bestStreakAllTime = Math.max(state.progress.bestStreakAllTime, s);
+    if (s >= 5) grantBadge("streak_5");
+    if (s >= 15) grantBadge("streak_15");
+    if (s >= 10) grantBadge("perfect_10");
+    if (s >= 8) grantBadge("combo_king");
+  }
+  function noteFitWin(id) {
+    state.progress.fitLabWins += 1;
+    if (!state.progress.fitLabCleared.includes(id)) state.progress.fitLabCleared.push(id);
+    if (state.progress.fitLabWins >= 5) grantBadge("fit_finder");
+    if (state.progress.fitLabCleared.length >= 8) grantBadge("scenario_hero");
+  }
+  function noteGame(mode, score) {
+    state.progress.gamesPlayed += 1;
+    state.progress.highScores[mode] = Math.max(state.progress.highScores[mode] || 0, score);
+    grantBadge("first_steps");
+    touchDay();
+  }
+  function touchDay() {
+    const today = todayKey();
+    const last = state.progress.lastPlayDate;
+    if (last === today) return;
+    if (!last) {
+      state.progress.dayStreak = 1;
+      state.progress.lastPlayDate = today;
+      return;
+    }
+    const prev = new Date(last + "T12:00:00");
+    const now = new Date(today + "T12:00:00");
+    const diff = Math.round((now - prev) / 86400000);
+    state.progress.dayStreak = diff === 1 ? state.progress.dayStreak + 1 : 1;
+    state.progress.lastPlayDate = today;
+  }
+  function clearTimer() {
+    if (state.timer) {
+      clearInterval(state.timer);
+      state.timer = null;
+    }
+  }
+  function setMode(mode) {
+    clearTimer();
+    clearAdvance();
+    state.mode = mode;
+    state.game = null;
+    render();
+  }
+  function finishRun(result) {
+    clearTimer();
+    clearAdvance();
+    try { if (window.QuadScore) window.QuadScore.report(result && result.score || 0); } catch (e) {}
+    state.lastResult = result;
+    state.mode = "results";
+    state.game = null;
+    save();
+    render();
+  }
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&" + "amp;")
+      .replace(/</g, "&" + "lt;")
+      .replace(/>/g, "&" + "gt;")
+      .replace(/"/g, "&" + "quot;");
+  }
+
+  function topbar(title, back) {
+    const p = state.progress;
+    const lv = C.levelFromXp(p.xp);
+    return (
+      '<header class="topbar"><div style="display:flex;align-items:center;gap:4px;min-width:0">' +
+      (back ? '<button class="icon-btn" type="button" data-action="hub" aria-label="Back">←</button>' : "") +
+      '<div class="brand"><p class="tag">ArchQuest</p><h1>' +
+      esc(title) +
+      "</h1></div></div><div class=\"stats\">" +
+      '<div class="chip" title="Day streak">🔥 ' +
+      p.dayStreak +
+      'd</div><div class="chip" title="Level">⚡ Lv ' +
+      lv.level +
+      '</div><div class="chip" title="XP">★ ' +
+      p.xp +
+      "</div></div></header>"
+    );
+  }
+
+  function modeHud(opts) {
+    const tiles = [
+      { l: "Score", v: opts.score },
+      { l: "Streak", v: opts.streak, hot: opts.streak >= 5 },
+    ];
+    if (opts.multiplier != null) tiles.push({ l: "Multiplier", v: opts.multiplier + "×" });
+    if (opts.timer != null) tiles.push({ l: "Time", v: opts.timer + "s", warn: opts.timer <= 5 });
+    if (opts.lives != null) tiles.push({ l: "Lives", v: opts.lives, warn: opts.lives <= 1 });
+    if (opts.progress) tiles.push({ l: "Progress", v: opts.progress });
+    return (
+      '<div class="mode-hud">' +
+      tiles
+        .map(function (t) {
+          return (
+            '<div class="hud-tile' +
+            (t.warn ? " warn" : "") +
+            (t.hot ? " hot" : "") +
+            '"><div class="l">' +
+            t.l +
+            '</div><div class="v">' +
+            esc(t.v) +
+            "</div></div>"
+          );
+        })
+        .join("") +
+      "</div>"
+    );
+  }
+
+  function feedbackHtml(fb) {
+    if (!fb) return "";
+    var notes = "";
+    if (fb.notes && fb.notes.length) {
+      notes =
+        '<ul class="fb-notes">' +
+        fb.notes
+          .map(function (n) {
+            return (
+              '<li class="' +
+              (n.ok ? "yes" : "no") +
+              '"><b>' +
+              esc(n.label) +
+              "</b> " +
+              esc(n.why) +
+              "</li>"
+            );
+          })
+          .join("") +
+        "</ul>";
+    }
+    var cont = state.advance
+      ? '<div class="fb-actions"><button class="btn btn-primary" type="button" data-action="continue" data-autofocus="1">' +
+        esc(state.advanceLabel || "Continue") +
+        '</button><span class="fb-hint">or press Enter / Space</span></div>'
+      : "";
+    return (
+      '<div class="feedback ' +
+      (fb.ok ? "ok" : "bad") +
+      '"><strong>' +
+      (fb.ok ? "Correct!" : "Not quite") +
+      "</strong>" +
+      esc(fb.text) +
+      notes +
+      cont +
+      "</div>"
+    );
+  }
+
+  function choiceHtml(choices, locked, selected, correctIndex) {
+    return (
+      '<div class="choices">' +
+      choices
+        .map(function (c, i) {
+          var cls = "choice";
+          if (locked) {
+            if (c.originalIndex === correctIndex) cls += " correct";
+            else if (selected === c.originalIndex) cls += " wrong";
+          }
+          return (
+            '<button type="button" class="' +
+            cls +
+            '" data-choice="' +
+            c.originalIndex +
+            '" ' +
+            (locked ? "disabled" : "") +
+            '><span class="letter">' +
+            String.fromCharCode(65 + i) +
+            "</span><span>" +
+            esc(c.text) +
+            "</span></button>"
+          );
+        })
+        .join("") +
+      "</div>"
+    );
+  }
+
+  function renderWelcome() {
+    return (
+      topbar("Welcome, New Hire") +
+      '<div class="card"><div class="logo">👣</div><h2>Enter ArchQuest</h2>' +
+      '<p class="muted" style="margin:8px 0 0;font-size:14px">Train like a game. Remember like a pro. Product knowledge, anatomy, sales process, and real client scenarios from Good Feet new-hire training.</p>' +
+      '<blockquote class="quote">“' +
+      esc(C.MISSION) +
+      '”</blockquote>' +
+      '<label class="small" for="name">Your name</label>' +
+      '<input id="name" class="field" maxlength="24" placeholder="e.g. Jordan" value="' +
+      esc(state.progress.playerName) +
+      '" />' +
+      '<button class="btn btn-primary btn-block btn-lg" style="margin-top:14px" type="button" data-action="start-name">Start training</button></div>' +
+      '<p class="footer-note">Offline-ready · Progress saves in this browser · Not medical advice — never diagnose</p>'
+    );
+  }
+
+  function renderHub() {
+    var p = state.progress;
+    var lv = C.levelFromXp(p.xp);
+    var pct = lv.need ? Math.min(100, Math.round((lv.into / lv.need) * 100)) : 0;
+    return (
+      topbar("Hey, " + p.playerName) +
+      '<div class="card hud-card"><div class="hud-head"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start"><div>' +
+      '<p class="label">Specialist Progress</p><p class="level">Level ' +
+      lv.level +
+      '</p></div><div style="background:rgba(255,255,255,.12);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700">' +
+      p.xp +
+      ' XP</div></div><div class="progress" style="margin-top:14px;background:rgba(255,255,255,.15)"><i style="width:' +
+      pct +
+      '%;background:var(--accent)"></i></div>' +
+      '<p style="margin:8px 0 0;font-size:12px;opacity:.75">' +
+      (lv.need - lv.into) +
+      " XP to next level · Best streak " +
+      p.bestStreakAllTime +
+      " · " +
+      p.badges.length +
+      ' badges</p></div><div class="hud-stats"><div><strong>' +
+      p.gamesPlayed +
+      "</strong><span>Games</span></div><div><strong>" +
+      p.totalCorrect +
+      "</strong><span>Correct</span></div><div><strong>" +
+      p.dayStreak +
+      "</strong><span>Day streak</span></div></div></div>" +
+      '<div class="section-title">✦ Play modes</div><div class="mode-list">' +
+      MODES.map(function (m) {
+        return (
+          '<button type="button" class="mode-btn" data-mode="' +
+          m.id +
+          '"><div class="mode-ico">' +
+          m.icon +
+          "</div><div><h3>" +
+          esc(m.title) +
+          ' <span class="pill ' +
+          m.pill +
+          '">' +
+          esc(m.tag) +
+          "</span></h3><p>" +
+          esc(m.blurb) +
+          "</p></div></button>"
+        );
+      }).join("") +
+      '</div><div class="section-title">Category mastery</div><div class="card" style="padding:16px">' +
+      CATS.map(function (cat) {
+        var m = masteryOf(cat);
+        var a = p.categoryAttempts[cat] || 0;
+        var label = a < 5 ? a + "/5 starts" : Math.round(m * 100) + "%";
+        return (
+          '<div class="mastery-row"><div class="row"><span>' +
+          esc(C.CATEGORY_LABELS[cat]) +
+          '</span><span class="muted" style="font-size:12px">' +
+          label +
+          '</span></div><div class="progress"><i style="width:' +
+          Math.round(m * 100) +
+          '%"></i></div></div>'
+        );
+      }).join("") +
+      '</div><div class="section-title">🏆 Badges</div><div class="badge-grid">' +
+      BADGES.map(function (b) {
+        var on = p.badges.includes(b.id);
+        return (
+          '<div class="badge ' +
+          (on ? "on" : "off") +
+          '"><strong>' +
+          esc(b.name) +
+          "</strong><span>" +
+          esc(b.desc) +
+          "</span></div>"
+        );
+      }).join("") +
+      '</div><p class="footer-note">Built for new-hire retention · Play 5 minutes a day · Progress saves on this device<br/>Arch supports are not intended to treat medical ailments — never diagnose.</p>'
+    );
+  }
+
+  function prepChoices() {
+    var g = state.game;
+    var q = g.questions[g.idx];
+    if (!q) return;
+    g.choices = C.shuffle(
+      q.choices.map(function (text, originalIndex) {
+        return { text: text, originalIndex: originalIndex };
+      })
+    );
+  }
+
+  function startClock() {
+    clearTimer();
+    state.timer = setInterval(function () {
+      var g = state.game;
+      if (!g || g.locked || g.type !== "lightning") return;
+      g.timeLeft -= 1;
+      if (g.timeLeft <= 0) {
+        g.timeLeft = 0;
+        onTimeout();
+      } else {
+        render();
+      }
+    }, 1000);
+  }
+
+  function startLightning() {
+    state.mode = "lightning";
+    state.game = {
+      type: "lightning",
+      questions: C.pickRamped(12),
+      idx: 0,
+      score: 0,
+      streak: 0,
+      bestStreak: 0,
+      correct: 0,
+      selected: null,
+      locked: false,
+      feedback: null,
+      timeLeft: 14,
+      xp: 0,
+      choices: null,
+    };
+    clearAdvance();
+    prepChoices();
+    startClock();
+    render();
+  }
+
+  function onTimeout() {
+    var g = state.game;
+    if (!g || g.locked) return;
+    clearTimer();
+    g.locked = true;
+    g.streak = 0;
+    var q = g.questions[g.idx];
+    recordAnswer(q.category, false);
+    g.feedback = { ok: false, text: "Time's up. " + q.explain };
+    save();
+    setAdvance(advanceLightning, g.idx + 1 >= g.questions.length ? "See results" : "Continue");
+    render();
+  }
+
+  function answerLightning(orig) {
+    var g = state.game;
+    if (!g || g.locked) return;
+    clearTimer();
+    g.locked = true;
+    g.selected = orig;
+    var q = g.questions[g.idx];
+    var ok = orig === q.correctIndex;
+    recordAnswer(q.category, ok);
+    var mult = Math.min(8, 1 + Math.floor(g.streak / 2));
+    if (ok) {
+      g.streak += 1;
+      g.bestStreak = Math.max(g.bestStreak, g.streak);
+      g.score += 100 * mult + g.timeLeft * 5;
+      g.correct += 1;
+      g.xp += 12 + mult * 3 + Math.floor(g.timeLeft / 2);
+      noteStreak(g.streak);
+      g.feedback = { ok: true, text: q.explain };
+    } else {
+      g.streak = 0;
+      g.feedback = {
+        ok: false,
+        text: "Correct answer: " + q.choices[q.correctIndex] + ". " + q.explain,
+      };
+    }
+    save();
+    setAdvance(advanceLightning, g.idx + 1 >= g.questions.length ? "See results" : "Continue");
+    render();
+  }
+
+  function advanceLightning() {
+    var g = state.game;
+    if (!g) return;
+    if (g.idx + 1 >= g.questions.length) {
+      addXp(g.xp);
+      noteGame("lightning", g.score);
+      noteStreak(g.bestStreak);
+      finishRun({
+        mode: "lightning",
+        title: "Lightning Round complete",
+        score: g.score,
+        correct: g.correct,
+        total: g.questions.length,
+        bestStreak: g.bestStreak,
+        xpEarned: g.xp,
+      });
+      return;
+    }
+    g.idx += 1;
+    g.selected = null;
+    g.locked = false;
+    g.feedback = null;
+    g.timeLeft = 14;
+    prepChoices();
+    startClock();
+    render();
+  }
+
+  function renderLightning() {
+    var g = state.game;
+    var q = g.questions[g.idx];
+    var mult = Math.min(8, 1 + Math.floor(g.streak / 2));
+    return (
+      topbar("Lightning Round", true) +
+      modeHud({
+        score: g.score,
+        streak: g.streak,
+        timer: g.timeLeft,
+        multiplier: mult,
+        progress: g.idx + 1 + "/" + g.questions.length,
+      }) +
+      '<div class="card"><p class="cat">' +
+      esc(q.category) +
+      " · difficulty " +
+      q.difficulty +
+      '</p><p class="q">' +
+      esc(q.prompt) +
+      "</p>" +
+      choiceHtml(g.choices, g.locked, g.selected, q.correctIndex) +
+      feedbackHtml(g.feedback) +
+      '</div><div class="center" style="margin-top:14px"><button class="btn btn-ghost" type="button" data-action="hub">Quit to hub</button></div>'
+    );
+  }
+
+  function startSort() {
+    state.mode = "sort";
+    state.game = {
+      type: "sort",
+      deck: C.shuffle(C.PRODUCTS.slice()).slice(0, 12),
+      idx: 0,
+      score: 0,
+      streak: 0,
+      bestStreak: 0,
+      correct: 0,
+      locked: false,
+      picked: null,
+      feedback: null,
+      xp: 0,
+    };
+    clearAdvance();
+    render();
+  }
+
+  function answerSort(tier) {
+    var g = state.game;
+    if (!g || g.locked) return;
+    g.locked = true;
+    g.picked = tier;
+    var card = g.deck[g.idx];
+    var ok = tier === card.tier;
+    recordAnswer("products", ok);
+    var tierName = C.TIER_LABELS[card.tier].replace(/s$/, "");
+    if (ok) {
+      g.streak += 1;
+      g.bestStreak = Math.max(g.bestStreak, g.streak);
+      g.score += 120 + g.streak * 20;
+      g.correct += 1;
+      g.xp += 15 + Math.min(g.streak, 6) * 2;
+      noteStreak(g.streak);
+      g.feedback = {
+        ok: true,
+        text:
+          card.name + " is a " + tierName + ". " +
+          ((card.facts && card.facts.length) ? C.pickOne(card.facts) : card.blurb),
+      };
+    } else {
+      g.streak = 0;
+      g.feedback = {
+        ok: false,
+        text:
+          card.name + " is a " + tierName + ". " +
+          ((card.facts && card.facts.length) ? C.pickOne(card.facts) : card.blurb),
+      };
+    }
+    save();
+    setAdvance(function () {
+      if (g.idx + 1 >= g.deck.length) {
+        addXp(g.xp);
+        noteGame("sort", g.score);
+        noteStreak(g.bestStreak);
+        finishRun({
+          mode: "sort",
+          title: "Sort Station complete",
+          score: g.score,
+          correct: g.correct,
+          total: g.deck.length,
+          bestStreak: g.bestStreak,
+          xpEarned: g.xp,
+        });
+      } else {
+        g.idx += 1;
+        g.locked = false;
+        g.picked = null;
+        g.feedback = null;
+        render();
+      }
+    }, g.idx + 1 >= g.deck.length ? "See results" : "Continue");
+    render();
+  }
+
+  function renderSort() {
+    var g = state.game;
+    var card = g.deck[g.idx];
+    var tiers = ["strengthener", "maintainer", "relaxer", "youth"];
+    return (
+      topbar("Sort Station", true) +
+      modeHud({ score: g.score, streak: g.streak, progress: g.idx + 1 + "/" + g.deck.length }) +
+      '<div class="card"><p class="cat">Which tier?</p><h2 style="margin-top:4px">' +
+      esc(card.name) +
+      '</h2><p class="muted" style="margin:10px 0 0;font-size:14px">Name only — no spoilers. Tap the correct category.</p><div class="grid-2" style="margin-top:18px">' +
+      tiers
+        .map(function (t) {
+          var cls = "tier-btn";
+          if (g.locked) {
+            if (t === card.tier) cls += " correct";
+            else if (g.picked === t) cls += " wrong";
+          }
+          return (
+            '<button type="button" class="' +
+            cls +
+            '" data-tier="' +
+            t +
+            '" ' +
+            (g.locked ? "disabled" : "") +
+            ">" +
+            esc(C.TIER_LABELS[t]) +
+            "</button>"
+          );
+        })
+        .join("") +
+      "</div>" +
+      feedbackHtml(g.feedback) +
+      '</div><div class="center" style="margin-top:14px"><button class="btn btn-ghost" type="button" data-action="hub">Quit to hub</button></div>'
+    );
+  }
+
+  function startFit() {
+    state.mode = "fitlab";
+    state.game = {
+      type: "fitlab",
+      scenarios: C.shuffle(C.SCENARIOS.slice()).slice(0, 6),
+      idx: 0,
+      score: 0,
+      streak: 0,
+      bestStreak: 0,
+      correct: 0,
+      selected: null,
+      locked: false,
+      feedback: null,
+      xp: 0,
+      choices: null,
+    };
+    clearAdvance();
+    prepFitChoices();
+    render();
+  }
+
+  // Fit Lab options are authored correct-first; shuffle so position is no tell.
+  function prepFitChoices() {
+    var g = state.game;
+    if (!g || !g.scenarios) return;
+    var s = g.scenarios[g.idx];
+    g.choices = C.shuffle(s.choices.slice());
+  }
+
+  function fitNotes(s) {
+    return s.choices
+      .map(function (c) {
+        return { label: c.label, why: c.why || "", ok: c.value === s.correctProduct };
+      })
+      .sort(function (a, b) {
+        return (b.ok ? 1 : 0) - (a.ok ? 1 : 0);
+      });
+  }
+
+  function answerFit(value) {
+    var g = state.game;
+    if (!g || g.locked) return;
+    g.locked = true;
+    g.selected = value;
+    var s = g.scenarios[g.idx];
+    var ok = value === s.correctProduct;
+    recordAnswer("lifestyle", ok);
+    recordAnswer("fitting", ok);
+    if (ok) {
+      g.streak += 1;
+      g.bestStreak = Math.max(g.bestStreak, g.streak);
+      g.score += 180 + g.streak * 25;
+      g.correct += 1;
+      g.xp += 22 + g.streak * 3;
+      noteStreak(g.streak);
+      noteFitWin(s.id);
+      g.feedback = { ok: true, text: s.explain, notes: fitNotes(s) };
+    } else {
+      g.streak = 0;
+      g.feedback = { ok: false, text: s.explain, notes: fitNotes(s) };
+    }
+    save();
+    setAdvance(function () {
+      if (g.idx + 1 >= g.scenarios.length) {
+        addXp(g.xp);
+        noteGame("fitlab", g.score);
+        noteStreak(g.bestStreak);
+        finishRun({
+          mode: "fitlab",
+          title: "Fit Lab complete",
+          score: g.score,
+          correct: g.correct,
+          total: g.scenarios.length,
+          bestStreak: g.bestStreak,
+          xpEarned: g.xp,
+        });
+      } else {
+        g.idx += 1;
+        g.selected = null;
+        g.locked = false;
+        g.feedback = null;
+        prepFitChoices();
+        render();
+      }
+    }, g.idx + 1 >= g.scenarios.length ? "See results" : "Continue");
+    render();
+  }
+
+  function renderFit() {
+    var g = state.game;
+    var s = g.scenarios[g.idx];
+    var opts = g.choices || s.choices;
+    var choiceBlock =
+      '<div class="choices">' +
+      opts
+        .map(function (c, i) {
+          var cls = "choice";
+          if (g.locked) {
+            if (c.value === s.correctProduct) cls += " correct";
+            else if (g.selected === c.value) cls += " wrong";
+          }
+          return (
+            '<button type="button" class="' +
+            cls +
+            '" data-fit="' +
+            esc(c.value) +
+            '" ' +
+            (g.locked ? "disabled" : "") +
+            '><span class="letter">' +
+            String.fromCharCode(65 + i) +
+            "</span><span>" +
+            esc(c.label) +
+            "</span></button>"
+          );
+        })
+        .join("") +
+      "</div>";
+    return (
+      topbar("Fit Lab", true) +
+      modeHud({ score: g.score, streak: g.streak, progress: g.idx + 1 + "/" + g.scenarios.length }) +
+      '<div class="card"><div class="need-pills"><span class="name">' +
+      esc(s.name) +
+      ", " +
+      s.age +
+      "</span>" +
+      s.needs
+        .map(function (n) {
+          return '<span class="n">' + esc(n) + "</span>";
+        })
+        .join("") +
+      '</div><p style="margin:0;font-size:15px;line-height:1.5">' +
+      esc(s.story) +
+      '</p><p class="cat" style="margin-top:16px">Best next move</p>' +
+      choiceBlock +
+      feedbackHtml(g.feedback) +
+      '</div><div class="center" style="margin-top:14px"><button class="btn btn-ghost" type="button" data-action="hub">Quit to hub</button></div>'
+    );
+  }
+
+  function startSequence() {
+    clearAdvance();
+    state.mode = "sequence";
+    state.game = {
+      type: "sequence",
+      order: C.shuffle(C.SALES_STEPS).map(function (s) {
+        return { id: s.order, title: s.title, duration: s.duration, bullets: s.bullets || [] };
+      }),
+      dragIdx: null,
+      checked: false,
+      correctMap: [],
+      score: 0,
+      feedback: null,
+    };
+    render();
+  }
+
+  function moveSeq(from, to) {
+    var g = state.game;
+    if (!g || g.checked || from === to) return;
+    var next = g.order.slice();
+    var item = next.splice(from, 1)[0];
+    next.splice(to, 0, item);
+    g.order = next;
+  }
+
+  function checkSeq() {
+    var g = state.game;
+    if (!g || g.checked) return;
+    var map = g.order.map(function (s, i) {
+      return s.id === i + 1;
+    });
+    var correct = map.filter(Boolean).length;
+    var perfect = correct === 8;
+    g.correctMap = map;
+    g.checked = true;
+    var pts = correct * 100 + (perfect ? 400 : 0);
+    g.score = pts;
+    var i;
+    for (i = 0; i < correct; i++) recordAnswer("sales", true);
+    for (i = 0; i < 8 - correct; i++) recordAnswer("sales", false);
+    var xp = correct * 10 + (perfect ? 50 : 0);
+    var banked = state.seqXpAwarded || 0;
+    var gain = Math.max(0, xp - banked);
+    if (gain > 0) {
+      state.seqXpAwarded = xp;
+      addXp(gain);
+      noteGame("sequence", pts);
+    }
+    xp = gain;
+    if (perfect) {
+      state.progress.sequencePerfects += 1;
+      grantBadge("sequence_sorter");
+      noteStreak(8);
+      g.feedback = {
+        ok: true,
+        text: "Perfect! Greeting → Fitting → Discovery → Balance → Test Walks → Wearing → Close → POS.",
+      };
+      save();
+      setAdvance(function () {
+        finishRun({
+          mode: "sequence",
+          title: "Sales Sequence mastered",
+          score: pts,
+          correct: correct,
+          total: 8,
+          bestStreak: 8,
+          xpEarned: xp,
+        });
+      }, "See results");
+      render();
+    } else {
+      g.feedback = {
+        ok: false,
+        text: "You placed " + correct + "/8 correctly. Tap Reset to try again.",
+      };
+      save();
+      render();
+    }
+  }
+
+  function renderSequence() {
+    var g = state.game;
+    return (
+      topbar("Sales Sequence", true) +
+      modeHud({
+        score: g.score,
+        streak: g.correctMap.filter(Boolean).length,
+        progress: "8 steps",
+      }) +
+      '<div class="card"><p class="muted" style="margin:0;font-size:14px">Drag steps into order (1 → 8). On mobile, tap one card then another to swap.</p><ol class="seq-list">' +
+      g.order
+        .map(function (step, i) {
+          var cls = "seq-item";
+          if (g.checked) cls += g.correctMap[i] ? " ok" : " bad";
+          else if (g.dragIdx === i) cls += " sel";
+          return (
+            '<li class="' +
+            cls +
+            '" draggable="' +
+            !g.checked +
+            '" data-seq-i="' +
+            i +
+            '"><span class="seq-num">' +
+            (i + 1) +
+            '</span><div style="flex:1;min-width:0"><strong>' +
+            esc(step.title) +
+            "</strong><small>" +
+            esc(step.duration) +
+            "</small>" +
+            (g.checked && step.bullets && step.bullets.length
+              ? '<small style="display:block;margin-top:4px;opacity:.85">' +
+                step.bullets.map(function (b) { return esc(b); }).join(" · ") +
+                "</small>"
+              : "") +
+            "</div>" +
+            (g.checked && g.correctMap[i] ? "<span>✓</span>" : "") +
+            "</li>"
+          );
+        })
+        .join("") +
+      "</ol>" +
+      feedbackHtml(g.feedback) +
+      '<div class="actions">' +
+      (!g.checked
+        ? '<button class="btn btn-primary" type="button" data-action="check-seq">Check order</button>'
+        : '<button class="btn btn-secondary" type="button" data-action="reset-seq">Try again</button>') +
+      '<button class="btn btn-ghost" type="button" data-action="hub">Hub</button></div></div>'
+    );
+  }
+
+  function startMastery() {
+    state.mode = "mastery";
+    state.game = {
+      type: "mastery",
+      queue: C.pickRamped(40),
+      qi: 0,
+      lives: 3,
+      score: 0,
+      streak: 0,
+      bestStreak: 0,
+      correct: 0,
+      total: 0,
+      selected: null,
+      locked: false,
+      feedback: null,
+      xp: 0,
+      choices: null,
+    };
+    var g = state.game;
+    var q = g.queue[g.qi];
+    g.choices = C.shuffle(
+      q.choices.map(function (text, originalIndex) {
+        return { text: text, originalIndex: originalIndex };
+      })
+    );
+    clearAdvance();
+    render();
+  }
+
+  function answerMastery(orig) {
+    var g = state.game;
+    if (!g || g.locked) return;
+    g.locked = true;
+    g.selected = orig;
+    var q = g.queue[g.qi];
+    var ok = orig === q.correctIndex;
+    recordAnswer(q.category, ok);
+    g.total += 1;
+    if (ok) {
+      g.streak += 1;
+      g.bestStreak = Math.max(g.bestStreak, g.streak);
+      var mult = Math.min(10, 1 + Math.floor(g.streak / 2));
+      g.score += 100 * mult;
+      g.correct += 1;
+      g.xp += 10 + mult * 2;
+      noteStreak(g.streak);
+      g.feedback = { ok: true, text: q.explain };
+    } else {
+      g.lives -= 1;
+      g.streak = 0;
+      g.feedback = {
+        ok: false,
+        text: "Correct: " + q.choices[q.correctIndex] + ". " + q.explain,
+      };
+    }
+    save();
+    setAdvance(function () {
+      if (!ok && g.lives <= 0) {
+        addXp(g.xp);
+        noteGame("mastery", g.score);
+        noteStreak(g.bestStreak);
+        finishRun({
+          mode: "mastery",
+          title: "Mastery Run over",
+          score: g.score,
+          correct: g.correct,
+          total: g.total,
+          bestStreak: g.bestStreak,
+          xpEarned: g.xp,
+        });
+        return;
+      }
+      if (g.qi + 1 >= g.queue.length - 3) {
+        g.queue = g.queue.concat(C.pickQuestions(20));
+      }
+      g.qi += 1;
+      g.selected = null;
+      g.locked = false;
+      g.feedback = null;
+      var nq = g.queue[g.qi];
+      g.choices = C.shuffle(
+        nq.choices.map(function (text, originalIndex) {
+          return { text: text, originalIndex: originalIndex };
+        })
+      );
+      render();
+    }, !ok && g.lives <= 0 ? "See results" : "Continue");
+    render();
+  }
+
+  function cashOutMastery() {
+    var g = state.game;
+    if (!g) return;
+    addXp(g.xp);
+    noteGame("mastery", g.score);
+    noteStreak(g.bestStreak);
+    finishRun({
+      mode: "mastery",
+      title: "Mastery Run over",
+      score: g.score,
+      correct: g.correct,
+      total: g.total,
+      bestStreak: g.bestStreak,
+      xpEarned: g.xp,
+    });
+  }
+
+  function renderMastery() {
+    var g = state.game;
+    var q = g.queue[g.qi];
+    var mult = Math.min(10, 1 + Math.floor(g.streak / 2));
+    return (
+      topbar("Mastery Run", true) +
+      modeHud({
+        score: g.score,
+        streak: g.streak,
+        lives: g.lives,
+        multiplier: mult,
+        progress: g.correct + " correct",
+      }) +
+      '<div class="card"><p class="cat">' +
+      esc(q.category) +
+      " · diff " +
+      q.difficulty +
+      '</p><p class="q">' +
+      esc(q.prompt) +
+      "</p>" +
+      choiceHtml(g.choices, g.locked, g.selected, q.correctIndex) +
+      feedbackHtml(g.feedback) +
+      '</div><div class="center" style="margin-top:14px"><button class="btn btn-ghost" type="button" data-action="cash-out">Cash out to results</button></div>'
+    );
+  }
+
+  function renderResults() {
+    var r = state.lastResult;
+    if (!r) {
+      return (
+        topbar("Results", true) +
+        '<div class="card"><p>No run data yet.</p><button class="btn btn-primary" style="margin-top:12px" data-action="hub">Back to hub</button></div>'
+      );
+    }
+    var p = state.progress;
+    var lv = C.levelFromXp(p.xp);
+    var acc = r.total > 0 ? Math.round((r.correct / r.total) * 100) : 0;
+    return (
+      topbar("Run Complete", true) +
+      '<div class="card center"><div class="logo" style="margin:0 auto 8px">🎉</div><h2>' +
+      esc(r.title) +
+      '</h2><p class="muted" style="margin:6px 0 0">Nice work, ' +
+      esc(p.playerName || "Specialist") +
+      '</p><div class="stat-grid">' +
+      '<div class="stat-box"><div class="l">Score</div><div class="v">' +
+      r.score +
+      '</div></div><div class="stat-box"><div class="l">Accuracy</div><div class="v">' +
+      acc +
+      '%</div></div><div class="stat-box"><div class="l">Best streak</div><div class="v">' +
+      r.bestStreak +
+      '</div></div><div class="stat-box"><div class="l">XP earned</div><div class="v">+' +
+      r.xpEarned +
+      '</div></div></div><p class="muted" style="margin:18px 0 0;font-size:14px">Level ' +
+      lv.level +
+      " · " +
+      p.xp +
+      " total XP · " +
+      p.badges.length +
+      ' badges unlocked</p><div class="actions" style="justify-content:center">' +
+      '<button class="btn btn-primary" type="button" data-action="replay">Play again</button>' +
+      '<button class="btn btn-secondary" type="button" data-action="hub">Training hub</button></div></div>'
+    );
+  }
+
+  function render() {
+    var root = document.getElementById("app");
+    var html = "";
+    if (!state.progress.playerName && state.mode === "hub") html = renderWelcome();
+    else if (state.mode === "hub") html = renderHub();
+    else if (state.mode === "lightning") html = renderLightning();
+    else if (state.mode === "sort") html = renderSort();
+    else if (state.mode === "fitlab") html = renderFit();
+    else if (state.mode === "sequence") html = renderSequence();
+    else if (state.mode === "mastery") html = renderMastery();
+    else if (state.mode === "results") html = renderResults();
+    else html = renderHub();
+    root.innerHTML = html;
+    var af = root.querySelector("[data-autofocus]");
+    if (af) {
+      try {
+        af.focus({ preventScroll: true });
+      } catch (e) {}
+      // Scroll the top of the explanation into view. The action row is
+      // position:sticky, so Continue stays pinned to the bottom of the
+      // viewport for as long as the explanation is taller than the screen.
+      var fb = root.querySelector(".feedback");
+      if (fb && window.scrollTo) {
+        var r = fb.getBoundingClientRect();
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        if (r.top < 8 || r.top > vh - 96) {
+          var y = (window.pageYOffset || document.documentElement.scrollTop || 0) + r.top - 12;
+          try {
+            window.scrollTo({ top: Math.max(0, y), behavior: "auto" });
+          } catch (e) {
+            window.scrollTo(0, Math.max(0, y));
+          }
+        }
+      }
+    }
+  }
+
+  document.getElementById("app").addEventListener("click", function (e) {
+    var t = e.target.closest("[data-action],[data-mode],[data-choice],[data-tier],[data-fit],[data-seq-i]");
+    if (!t) return;
+    if (t.dataset.action === "start-name") {
+      var name = ((document.getElementById("name") && document.getElementById("name").value) || "")
+        .trim()
+        .slice(0, 24);
+      if (name.length < 2) return;
+      state.progress.playerName = name;
+      save();
+      render();
+      return;
+    }
+    if (t.dataset.action === "continue") {
+      doAdvance();
+      return;
+    }
+    if (t.dataset.action === "hub") {
+      setMode("hub");
+      return;
+    }
+    if (t.dataset.action === "replay") {
+      var m = state.lastResult && state.lastResult.mode;
+      if (m === "lightning") startLightning();
+      else if (m === "sort") startSort();
+      else if (m === "fitlab") startFit();
+      else if (m === "sequence") startSequence();
+      else if (m === "mastery") startMastery();
+      else setMode("hub");
+      return;
+    }
+    if (t.dataset.action === "check-seq") {
+      checkSeq();
+      return;
+    }
+    if (t.dataset.action === "reset-seq") {
+      startSequence();
+      return;
+    }
+    if (t.dataset.action === "cash-out") {
+      cashOutMastery();
+      return;
+    }
+    if (t.dataset.mode) {
+      var id = t.dataset.mode;
+      if (id === "lightning") startLightning();
+      else if (id === "sort") startSort();
+      else if (id === "fitlab") startFit();
+      else if (id === "sequence") { state.seqXpAwarded = 0; startSequence(); }
+      else if (id === "mastery") startMastery();
+      return;
+    }
+    if (t.dataset.choice != null) {
+      var n = Number(t.dataset.choice);
+      if (state.game && state.game.type === "lightning") answerLightning(n);
+      else if (state.game && state.game.type === "mastery") answerMastery(n);
+      return;
+    }
+    if (t.dataset.tier) {
+      answerSort(t.dataset.tier);
+      return;
+    }
+    if (t.dataset.fit) {
+      answerFit(t.dataset.fit);
+      return;
+    }
+    if (t.dataset.seqI != null && state.game && state.game.type === "sequence" && !state.game.checked) {
+      var si = Number(t.dataset.seqI);
+      var g = state.game;
+      if (g.dragIdx == null) {
+        g.dragIdx = si;
+        render();
+      } else {
+        moveSeq(g.dragIdx, si);
+        g.dragIdx = null;
+        render();
+      }
+    }
+  });
+
+  document.getElementById("app").addEventListener("dragstart", function (e) {
+    var li = e.target.closest("[data-seq-i]");
+    if (!li || !state.game || state.game.checked) return;
+    state.game.dragIdx = Number(li.dataset.seqI);
+  });
+  document.getElementById("app").addEventListener("dragover", function (e) {
+    var li = e.target.closest("[data-seq-i]");
+    if (!li || !state.game || state.game.checked) return;
+    e.preventDefault();
+    var i = Number(li.dataset.seqI);
+    if (state.game.dragIdx == null || state.game.dragIdx === i) return;
+    moveSeq(state.game.dragIdx, i);
+    state.game.dragIdx = i;
+    render();
+  });
+  document.getElementById("app").addEventListener("dragend", function () {
+    if (state.game) state.game.dragIdx = null;
+  });
+  document.addEventListener("keydown", function (e) {
+    if (!state.advance) return;
+    var tag = e.target && e.target.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+    if (e.key === "Enter" || e.key === " " || e.key === "Spacebar" || e.key === "ArrowRight") {
+      e.preventDefault();
+      doAdvance();
+    }
+  });
+
+  document.getElementById("app").addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && e.target.id === "name") {
+      e.preventDefault();
+      var btn = document.querySelector('[data-action="start-name"]');
+      if (btn) btn.click();
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
