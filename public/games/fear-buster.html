@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#071e36"/>
+<title>Fear Buster: Confidence Protocol — Waterman College</title>
+<script src="/games/quad-bridge.js"></script>
+<style>
+:root{
+  --navy:#0B2A4A; --deep:#071e36; --mid:#0f3558;
+  --cream:#f7f4ec; --cream2:#efebe0; --gold:#C9A227; --goldb:#e8c44a;
+  --ink:#0f1c24; --muted:#5a6b75; --ok:#1a7a4a; --okbg:#d4f0e2;
+  --bad:#b42318; --badbg:#fde8e6; --breach:#4a7fd4; --arena:#c94a3a;
+  --r:18px; --sh:0 22px 50px rgba(0,0,0,.34);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;min-height:100%;color:var(--cream);background:
+  radial-gradient(ellipse 100% 70% at 50% -15%,rgba(201,162,39,.22),transparent 55%),
+  radial-gradient(ellipse 55% 45% at 95% 95%,rgba(74,127,212,.1),transparent 50%),
+  radial-gradient(ellipse 40% 35% at 5% 80%,rgba(201,162,39,.06),transparent 45%),
+  var(--deep)}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+button:disabled{cursor:default;opacity:.5}
+.wrap{flex:1;display:flex;flex-direction:column;max-width:440px;margin:0 auto;width:100%;
+  padding:max(14px,env(safe-area-inset-top)) 14px max(28px,env(safe-area-inset-bottom));position:relative;z-index:1}
+.hud{display:flex;justify-content:space-between;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.chip{display:inline-flex;align-items:center;gap:4px;background:rgba(7,30,54,.78);border:1px solid rgba(201,162,39,.32);
+  border-radius:999px;padding:6px 11px;font-size:11px;font-weight:700;letter-spacing:.02em;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-variant-numeric:tabular-nums}
+.chip.gold{color:var(--goldb);border-color:rgba(201,162,39,.5)}
+.chip.combo{color:var(--goldb);font-weight:800}
+.card{background:linear-gradient(165deg,#fcfbf7 0%,var(--cream) 45%,var(--cream2));
+  color:var(--ink);border-radius:22px;padding:22px 17px;box-shadow:var(--sh),0 1px 0 rgba(255,255,255,.55) inset;
+  border:1px solid rgba(255,255,255,.28);position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.4),transparent 42%);opacity:.65}
+.card>*{position:relative;z-index:1}
+.tag{font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:7px}
+.card h1{font-family:Georgia,"Times New Roman",serif;font-size:28px;color:var(--navy);line-height:1.12;letter-spacing:-.01em}
+.card h2{font-family:Georgia,"Times New Roman",serif;font-size:22px;color:var(--navy);line-height:1.2}
+.sub{font-size:13.5px;color:var(--muted);line-height:1.5;margin:10px 0 2px}
+.prompt{font-size:15.5px;font-weight:650;color:var(--ink);line-height:1.42;margin:12px 0 14px;
+  padding:13px 14px;background:rgba(11,42,74,.045);border-radius:13px;border-left:3.5px solid var(--gold)}
+.btn{display:block;width:100%;min-height:52px;border-radius:14px;font-weight:700;font-size:15px;
+  padding:14px 16px;margin-top:10px;transition:transform .13s cubic-bezier(.2,.8,.2,1),filter .13s,box-shadow .13s}
+.btn:active:not(:disabled){transform:scale(.97)}
+.btn.primary{background:var(--navy);color:#fff;box-shadow:0 10px 24px -10px rgba(11,42,74,.55)}
+.btn.gold{background:linear-gradient(180deg,var(--goldb),var(--gold));color:var(--navy);
+  box-shadow:0 10px 26px -10px rgba(201,162,39,.55)}
+.btn.ghost{background:transparent;color:var(--navy);border:1.5px solid #c5cdd4}
+.btn.breach{background:linear-gradient(180deg,#5b8ef0,var(--breach));color:#fff;
+  box-shadow:0 10px 26px -10px rgba(74,127,212,.5)}
+.opt{display:block;width:100%;text-align:left;padding:14px 15px;margin:8px 0;border:2px solid #d6dee6;
+  border-radius:14px;background:#fff;font-size:14px;font-weight:600;color:var(--ink);line-height:1.35;
+  transition:border-color .14s,background .14s,transform .1s,box-shadow .14s}
+.opt:active:not(:disabled){transform:scale(.985)}
+.opt:hover:not(:disabled){border-color:rgba(201,162,39,.6);background:#fffdf7;box-shadow:0 4px 14px -8px rgba(11,42,74,.2)}
+.opt .tip{font-size:11.5px;font-weight:500;color:var(--muted);margin-top:4px}
+.opt.ok{border-color:var(--ok);background:var(--okbg);box-shadow:0 0 0 1px rgba(26,122,74,.15)}
+.opt.bad{border-color:var(--bad);background:var(--badbg);opacity:.9}
+.step-row{display:flex;gap:6px;margin-bottom:12px}
+.step-dot{flex:1;height:5px;border-radius:3px;background:rgba(11,42,74,.1);transition:background .25s}
+.step-dot.on{background:var(--gold);box-shadow:0 0 8px rgba(201,162,39,.45)}
+.step-dot.done{background:var(--ok)}
+.step-label{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+.fb{margin-top:14px;padding:15px;border-radius:14px;font-size:13.5px;line-height:1.5}
+.fb.ok{background:var(--okbg);color:var(--ok);border:1px solid rgba(26,122,74,.22)}
+.fb.bad{background:var(--badbg);color:var(--bad);border:1px solid rgba(180,35,24,.18)}
+.fb strong{display:block;font-size:15px;margin-bottom:5px}
+.rev{display:grid;gap:7px;margin-top:10px}
+.rev-i{background:rgba(11,42,74,.05);border-radius:11px;padding:9px 11px;color:var(--ink);
+  font-size:12.5px;line-height:1.42;display:grid;gap:2px}
+.rev-i.hit{background:rgba(26,122,74,.1)}
+.rev-i.miss{background:rgba(180,35,24,.07)}
+.rev-i b{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);margin-bottom:2px}
+.rev-i .yours{color:var(--muted)}
+.rev-i .rlab{color:var(--muted);font-size:11.5px;margin-top:3px}
+.rev-i .right{color:var(--navy);font-weight:700}
+.rev-i .model{border-left:3px solid var(--gold);padding-left:9px;color:var(--ink);font-weight:600}
+.why{margin-top:10px;color:var(--ink)}
+.bar{height:9px;background:rgba(11,42,74,.1);border-radius:999px;overflow:hidden;margin:10px 0 4px}
+.bar>i{display:block;height:100%;border-radius:999px;transition:width .15s linear;
+  background:linear-gradient(90deg,var(--gold),var(--goldb))}
+.bar.arena>i{background:linear-gradient(90deg,#e05a4a,var(--arena))}
+.bar.breach>i{background:linear-gradient(90deg,#3d6fd8,var(--breach))}
+.hp{display:flex;gap:5px;margin:6px 0}
+.hp span{flex:1;height:7px;border-radius:4px;background:rgba(11,42,74,.12);transition:background .25s,box-shadow .25s}
+.hp span.on{background:#e25555;box-shadow:0 0 10px rgba(226,85,85,.45)}
+.hp span.int{background:var(--breach);box-shadow:0 0 10px rgba(74,127,212,.4)}
+.depth{display:flex;gap:3px;margin:8px 0 2px}
+.depth i{flex:1;height:5px;border-radius:3px;background:rgba(11,42,74,.1);transition:background .3s,box-shadow .3s}
+.depth i.on{background:var(--breach);box-shadow:0 0 8px rgba(74,127,212,.45)}
+.depth i.done{background:var(--ok)}
+.stage-grid{display:grid;gap:11px;margin-top:16px}
+.stage-btn{text-align:left;padding:16px 15px;border-radius:15px;border:2px solid #d5dee5;background:#fff;
+  color:var(--ink);transition:border-color .15s,transform .12s,box-shadow .15s}
+.stage-btn:active{transform:scale(.98)}
+.stage-btn:hover{border-color:rgba(201,162,39,.55);box-shadow:0 8px 22px -12px rgba(11,42,74,.3)}
+.stage-btn strong{display:block;font-size:15.5px;margin-bottom:4px;color:var(--navy)}
+.stage-btn span{font-size:12.5px;color:var(--muted);line-height:1.4}
+.stage-btn .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;
+  border-radius:8px;background:var(--navy);color:#fff;font-size:12px;font-weight:800;margin-right:7px;vertical-align:middle}
+.center{text-align:center}
+.brief-sec{margin-top:18px}
+.brief-sec h3{font-family:Georgia,"Times New Roman",serif;font-size:16.5px;color:var(--navy);margin-bottom:6px}
+.brief-sec p{font-size:13px;color:var(--muted);line-height:1.5}
+.numlist{counter-reset:bn;margin-top:10px}
+.numlist li{list-style:none;position:relative;padding:10px 12px 10px 40px;margin:7px 0;background:rgba(11,42,74,.045);
+  border-radius:12px;font-size:13.5px;line-height:1.42;color:var(--ink)}
+.numlist li::before{counter-increment:bn;content:counter(bn);position:absolute;left:11px;top:10px;width:20px;height:20px;
+  border-radius:7px;background:var(--navy);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.numlist li b{color:var(--navy)}
+.reflist{margin-top:8px}
+.reflist li{list-style:none;display:flex;gap:9px;align-items:baseline;padding:7px 0;border-bottom:1px solid rgba(11,42,74,.07);
+  font-size:13px;line-height:1.4;color:var(--ink)}
+.reflist li:last-child{border-bottom:none}
+.reflist.solo b{flex:1 1 auto}
+.reflist b{flex:0 0 128px;color:var(--navy);font-weight:700}
+.reflist span{color:var(--muted);font-size:12.5px}
+.wraplist li{list-style:none;padding:8px 11px;margin:6px 0;border-left:3.5px solid var(--gold);
+  background:rgba(201,162,39,.08);border-radius:0 10px 10px 0;font-size:13px;line-height:1.42;color:var(--ink)}
+.wraplist li b{color:var(--navy);font-size:14px}
+.small{font-size:12px;color:var(--muted)}
+.row{display:flex;gap:8px;align-items:center}
+.score-big{font-size:52px;font-weight:800;color:var(--navy);letter-spacing:-.025em;line-height:1;
+  margin:12px 0 6px;font-variant-numeric:tabular-nums}
+@keyframes pop{0%{transform:scale(.93) translateY(6px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
+@keyframes fadeup{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
+.pop{animation:pop .26s cubic-bezier(.2,.85,.2,1)}
+.fade-in{animation:fadeup .3s cubic-bezier(.2,.85,.2,1)}
+.pulse-gold{animation:pulseG 1.2s ease-in-out infinite}
+@keyframes pulseG{0%,100%{box-shadow:0 0 0 0 rgba(201,162,39,.35)}50%{box-shadow:0 0 0 6px rgba(201,162,39,0)}}
+.opt:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.stage-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.btn:focus-visible{outline:2px solid rgba(201,162,39,.7);outline-offset:2px}
+@media (min-width:900px){
+  .wrap{max-width:760px}
+  .card{padding:26px 30px}
+  .card h1{font-size:34px}
+  .brief-grid{column-count:2;column-gap:30px;margin-top:16px}
+  .brief-grid .brief-sec{break-inside:avoid;-webkit-column-break-inside:avoid;
+    display:inline-block;width:100%;margin:0 0 20px}
+  .stage-grid{grid-template-columns:repeat(3,1fr)}
+  .rev{grid-template-columns:1fr 1fr}
+  .rev-i[data-rev="wrap"]{grid-column:1/-1}
+}
+@media (min-width:760px) and (max-height:560px){
+  .wrap{max-width:720px}
+  .brief-grid{column-count:2;column-gap:24px;margin-top:14px}
+  .brief-grid .brief-sec{break-inside:avoid;-webkit-column-break-inside:avoid;
+    display:inline-block;width:100%;margin:0 0 16px}
+  .rev{grid-template-columns:1fr 1fr;gap:6px}
+  .rev-i{padding:8px 10px;font-size:12px}
+  .rev-i[data-rev="wrap"]{grid-column:1/-1}
+}
+@media (prefers-reduced-motion:reduce){
+  .pop,.fade-in,.pulse-gold{animation:none!important}
+  .opt,.btn,.stage-btn{transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+(function(){
+"use strict";
+const SAVE_KEY="fear-buster-v6";
+const FEARS=[
+  {id:"salesperson",label:"Afraid of the salesperson"},
+  {id:"mistake",label:"Fear of making a mistake"},
+  {id:"liedto",label:"Fear of being lied to"},
+  {id:"debt",label:"Fear of owing money / debt"},
+  {id:"losingface",label:"Fear of losing face"},
+  {id:"unknown",label:"Fear of the unknown"},
+  {id:"pastexp",label:"Bad past experience"},
+  {id:"thirdparty",label:"Third-party influence"},
+];
+const PRINCIPLES=[
+  {id:"authority",label:"Authority",tip:"Demonstrate expertise & credentials"},
+  {id:"social",label:"Social Proof",tip:"Show others like them succeeded"},
+  {id:"endowment",label:"Endowment Effect",tip:"Let them feel ownership in the fit"},
+  {id:"loss",label:"Loss Aversion",tip:"Frame the cost of inaction"},
+  {id:"reciprocity",label:"Reciprocity",tip:"Give value first"},
+  {id:"painpleasure",label:"Pain–Pleasure",tip:"From pain relief to life quality"},
+  {id:"value",label:"Perceived Value",tip:"Benefits outweigh the investment"},
+  {id:"simplify",label:"Reduce Decision Fatigue",tip:"One clear recommendation"},
+];
+const SCENARIOS=[
+  {line:"I don't usually talk to salespeople. I'm just looking.",fear:"salesperson",principle:"reciprocity",
+    wrap:'W – Why: "I\'m here to understand what\'s going on with your feet first — no pressure at all."',
+    near:['R – Ready: "Let me show you our best-selling pair while you\'re here — you\'ll love how they feel."',
+          'A – Answer: "Happy to browse. Here\'s the full price list so you know what everything costs today."'],
+    why:"Salesperson fear dissolves with warmth, low pressure, and free value before any ask."},
+  {line:"What if these don't actually work for me?",fear:"mistake",principle:"endowment",
+    wrap:'P – Pain Better: "Walk a lap with these in. Once you can feel the difference, you\'ll know."',
+    near:['A – Answer: "Our return rate is under three percent, so the odds of that are honestly very tiny."',
+          'R – Ready: "I promise they\'ll work — I have never had a single customer come back unhappy yet."'],
+    why:"Mistake fear drops when they experience ownership and feel improvement live."},
+  {line:"How do I know this isn't just another gimmick?",fear:"liedto",principle:"authority",
+    wrap:'A – Answer: "Biomechanically designed, and backed by clinical results out of Mass General."',
+    near:['R – Ready: "You can tell it\'s no gimmick just by holding one — feel the shell on that."',
+          'P – Pain Better: "Give them a fortnight. If you still think it\'s a gimmick, so be it."'],
+    why:"Fear of being lied to is met with authority — clinical backing and clear specifics."},
+  {line:"I can't afford to put that much on a card right now.",fear:"debt",principle:"value",
+    wrap:'A – Answer: "We can spread it into smaller payments — an investment in pain-free days ahead."',
+    near:['W – Why: "Money\'s tight for everyone right now. Let\'s just focus on getting the fit right today."',
+          'R – Ready: "Most people find room in the budget once they realise how much better they will feel."'],
+    why:"Debt fear is handled by reframing value and making the investment feel manageable."},
+  {line:"If this doesn't work I'll look foolish for spending the money.",fear:"losingface",principle:"social",
+    wrap:'R – Ready: "Customers in the same spot felt that too — then couldn\'t believe the difference."',
+    near:['A – Answer: "Nobody needs to know what you spent — that stays between us today."',
+          'P – Pain Better: "Nothing foolish about it. You\'d look foolish still limping next year."'],
+    why:"Losing face eases with social proof that others had the same worry and still succeeded."},
+  {line:"I've never worn anything like this. I don't know what to expect.",fear:"unknown",principle:"simplify",
+    wrap:'W – Why: "Here\'s the one pair I\'d start you on, and exactly what the first week feels like."',
+    near:['A – Answer: "We carry four densities and three arch profiles — have a look through all of them."',
+          'R – Ready: "Don\'t overthink it — most people just pop them in and get on with their day quite happily."'],
+    why:"Fear of the unknown shrinks when the choice narrows to one clear recommendation and a simple plan."},
+  {line:"I tried orthotics years ago and they just made things worse.",fear:"pastexp",principle:"authority",
+    wrap:'A – Answer: "Those were likely generic. Ours are fitted to your structure — let\'s test now."',
+    near:['R – Ready: "Orthotics have come a long way since then — you\'ll be amazed this time."',
+          'P – Pain Better: "That\'s unusual. Most people get on fine with them, so let\'s try again."'],
+    why:"Bad past experience is overcome by differentiating with expertise and a live demo."},
+  {line:"My sister said these kinds of things never work.",fear:"thirdparty",principle:"social",
+    wrap:'R – Ready: "Plenty of people hear that. What matters is what your feet say in this fitting."',
+    near:['A – Answer: "With respect, your sister hasn\'t had her gait measured — and isn\'t in pain."',
+          'W – Why: "She\'s probably right about the ones she tried — cheap ones are a waste."'],
+    why:"Third-party influence is countered by social proof and returning authority to their own experience."},
+  {line:"I'm worried I'll waste money if I don't notice a change.",fear:"mistake",principle:"loss",
+    wrap:'P – Pain Better: "The real cost is another year of this. Let\'s confirm the change right now."',
+    near:['A – Answer: "If you notice nothing in thirty days, bring them back and we\'ll refund you in full."',
+          'R – Ready: "Oh, you\'ll notice — everybody notices something in the first few days of wearing them."'],
+    why:"Mistake fear + loss aversion: show the cost of inaction and confirm relief live."},
+  {line:"I just don't trust sales pitches. I've been burned.",fear:"salesperson",principle:"reciprocity",
+    wrap:'W – Why: "Then let\'s do the free analysis only — you\'ll leave with more clarity either way."',
+    near:['A – Answer: "I\'m not really a salesperson — think of me more as a foot health consultant, honestly."',
+          'R – Ready: "I hear that a lot. Have a read of these five-star reviews from customers like you."'],
+    why:"Salesperson fear + past burn is met with pure reciprocity — value first, no pressure."},
+  {line:"This seems expensive for something that goes in a shoe.",fear:"debt",principle:"painpleasure",
+    wrap:'P – Pain Better: "Walk a lap. You\'re not buying an insert, you\'re buying your evenings back."',
+    near:['A – Answer: "It works out at less than a coffee a day over the two years they last."',
+          'W – Why: "Good materials cost money — there\'s real engineering in that shell."'],
+    why:"Price shrinks when the frame moves from the pain itself to the quality of the days they get back."},
+  {line:"What if my doctor doesn't agree with this?",fear:"thirdparty",principle:"authority",
+    wrap:'A – Answer: "Many clients come from medical referrals — I can send your doctor the full data."',
+    near:['W – Why: "Your doctor treats the whole body. Feet are a specialism — all we do."',
+          'R – Ready: "Plenty never mention it to their doctor and do absolutely fine with them."'],
+    why:"Third-party (doctor) concern is met with authority and openness to evidence."},
+];
+const WRAP_DISTRACTORS=[
+  'W – Why: "Most people in your shoes just take the best seller and never look back."',
+  'R – Ready: "I wouldn\'t worry about the details — come back later if anything feels off."',
+  'A – Answer: "The price is the price, though I could do something if you decide today."',
+  'P – Pain Better: "A bit of discomfort early on is normal — most people push through week one."',
+  'W – Why: "These are our most popular model this month and we\'re nearly out of your size."',
+  'R – Ready: "You\'ll work out the wear schedule once you\'re home — it\'s all written in the leaflet."',
+  'A – Answer: "Everyone who buys these says they\'re worth every penny. You can take my word for it."',
+  'P – Pain Better: "If they don\'t help, it\'s usually down to the shoes that people wear them in."',
+];
+function shuffle(a){const x=a.slice();for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}return x;}
+function pick(arr,n){return shuffle(arr).slice(0,n);}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
+
+let state={screen:"title",stage:1,score:0,streak:0,bestStreak:0,qi:0,queue:[],step:"fear",
+  selected:{fear:null,principle:null,wrap:null},lastCorrect:{fear:false,principle:false,wrap:false},
+  health:3,maxHealth:3,bossHp:2,bossMax:2,integrity:3,maxIntegrity:3,depth:0,maxDepth:6,
+  timer:0,timerMax:0,timerId:null,perfects:0,high:0,locked:false,seenBrief:false};
+
+function loadHigh(){try{const r=localStorage.getItem(SAVE_KEY);if(r){const d=JSON.parse(r);state.high=d.high||0;state.seenBrief=!!d.seenBrief;}}catch(e){}}
+function saveBriefSeen(){state.seenBrief=true;try{localStorage.setItem(SAVE_KEY,JSON.stringify({high:state.high,seenBrief:true}));}catch(e){}}
+function saveHigh(){if(state.score>state.high){state.high=state.score;try{localStorage.setItem(SAVE_KEY,JSON.stringify({high:state.high,seenBrief:state.seenBrief}));}catch(e){}}
+  if(window.QuadScore)window.QuadScore.report(state.score);}
+
+let ctx=null;
+function unlock(){if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==="suspended")ctx.resume();}
+function beep(f,d,type,g){if(!ctx)return;const t=ctx.currentTime,o=ctx.createOscillator(),gn=ctx.createGain();
+  o.type=type||"sine";o.frequency.value=f;gn.gain.setValueAtTime(0.0001,t);
+  gn.gain.exponentialRampToValueAtTime(g||0.065,t+0.01);gn.gain.exponentialRampToValueAtTime(0.0001,t+(d||0.08));
+  o.connect(gn);gn.connect(ctx.destination);o.start(t);o.stop(t+(d||0.08)+0.02);}
+
+/* Haptic patterns (ms). No-ops safely when Vibration API is unavailable. */
+const HAP = {
+  click:  [12],
+  select: [18],
+  ok:     [20, 30, 20],
+  perfect:[30, 40, 30, 40, 60],
+  bad:    [60, 40, 80],
+  timeout:[100, 50, 100],
+  depth:  [25, 35, 25, 35, 45],
+  boss:   [40, 50, 40],
+  start:  [15, 40, 15, 40, 30],
+  high:   [40, 50, 40, 50, 80, 60, 100],
+};
+function hap(name){
+  try{
+    if(typeof navigator==="undefined"||!navigator.vibrate) return;
+    const pat = HAP[name];
+    if(!pat) return;
+    navigator.vibrate(0);
+    navigator.vibrate(pat);
+  }catch(e){}
+}
+
+const sfx={
+  ok(){beep(523,.055);beep(659,.075,"triangle",.065);hap("ok");},
+  perfect(){beep(523,.05);beep(659,.055);beep(784,.1,"triangle",.085);hap("perfect");},
+  bad(){beep(170,.18,"sawtooth",.05);hap("bad");},
+  depth(){beep(392,.05);beep(523,.065,"triangle",.075);beep(659,.085,"triangle",.085);hap("depth");},
+  start(){beep(330,.065);beep(440,.085,"triangle",.065);hap("start");},
+  click(){beep(700,.03,"sine",.04);hap("click");},
+  timeout(){hap("timeout");},
+  boss(){hap("boss");},
+  high(){hap("high");}
+};
+
+function startStage(n){
+  unlock();sfx.start();clearTimer();
+  state.stage=n;state.score=0;state.streak=0;state.bestStreak=0;state.perfects=0;state.qi=0;state.depth=0;
+  state.step="fear";state.selected={fear:null,principle:null,wrap:null};state.locked=false;
+  state.health=3;state.maxHealth=3;state.integrity=3;state.maxIntegrity=3;
+  state.timer=0;state.timerMax=0;
+  if(n===1){state.queue=shuffle(SCENARIOS).slice(0,6);state.screen="stage1";}
+  else if(n===2){state.queue=shuffle(SCENARIOS).slice(0,8);state.bossHp=2;state.bossMax=2;state.screen="stage2";}
+  else{state.queue=shuffle(SCENARIOS).slice(0,6);state.maxDepth=state.queue.length;state.screen="stage3";}
+  if(n===2||n===3)startTimer();
+  render();
+}
+function clearTimer(){if(state.timerId){clearInterval(state.timerId);state.timerId=null;}}
+/* Each of the three steps gets its own clock, so the pressure lands on hesitation
+   rather than on reading. The squeeze still tightens with progress / depth. */
+const STEP_TIME={2:{fear:6,principle:6,wrap:9},3:{fear:7,principle:7,wrap:10}};
+function stepBudget(){const t=STEP_TIME[state.stage];if(!t)return 0;
+  const base=t[state.step]||6,squeeze=state.stage===2?Math.floor(state.qi/2):state.depth;
+  return Math.max(state.step==="wrap"?6:4,base-squeeze);}
+function startTimer(){clearTimer();if(state.stage!==2&&state.stage!==3)return;
+  state.timerMax=stepBudget();state.timer=state.timerMax;
+  state.timerId=setInterval(()=>{
+    state.timer-=0.1;if(state.timer<=0){state.timer=0;clearTimer();onTimeout();}updateTimerUI();},100);}
+/* A timeout simply scores whatever was answered so far — the unanswered steps
+   count as wrong, so the review below stays honest about what happened. */
+function onTimeout(){if(state.locked)return;sfx.timeout();scoreRound();}
+function current(){return state.queue[state.qi];}
+function depthMult(){return state.stage===3?(1+state.depth*0.35):1;}
+function comboMult(){return Math.min(4,1+state.streak*0.5);}
+function chooseFear(id){if(state.step!=="fear"||state.locked)return;unlock();sfx.click();state.selected.fear=id;state.step="principle";startTimer();render();}
+function choosePrinciple(id){if(state.step!=="principle"||state.locked)return;unlock();sfx.click();state.selected.principle=id;state.step="wrap";startTimer();render();}
+function chooseWrap(text){if(state.step!=="wrap"||state.locked)return;unlock();state.selected.wrap=text;scoreRound();}
+function scoreRound(){
+  state.locked=true;const q=current();
+  const fOk=state.selected.fear===q.fear,pOk=state.selected.principle===q.principle,wOk=state.selected.wrap===q.wrap;
+  state.lastCorrect={fear:fOk,principle:pOk,wrap:wOk};
+  let pts=0;if(fOk)pts+=100;if(pOk)pts+=150;if(wOk)pts+=200;
+  const perfect=fOk&&pOk&&wOk;
+  if(perfect){state.streak++;state.bestStreak=Math.max(state.bestStreak,state.streak);state.perfects++;
+    let mult=comboMult();if(state.stage===3)mult*=depthMult();pts=Math.round(pts*mult);sfx.perfect();
+    if(state.stage===2){state.bossHp=Math.max(0,state.bossHp-1);sfx.boss();}
+    if(state.stage===3){state.depth=Math.min(state.maxDepth,state.depth+1);sfx.depth();}
+  }else{state.streak=0;sfx.bad();
+    if(state.stage===2)state.health=Math.max(0,state.health-1);
+    if(state.stage===3)state.integrity=Math.max(0,state.integrity-1);}
+  state.score+=pts;state.step="feedback";clearTimer();render();
+}
+function nextRound(){
+  if(state.stage===2&&state.health<=0){endRun();return;}
+  if(state.stage===3&&state.integrity<=0){endRun();return;}
+  state.qi++;if(state.qi>=state.queue.length){endRun();return;}
+  state.step="fear";state.selected={fear:null,principle:null,wrap:null};state.locked=false;
+  if(state.stage===2){if(state.bossHp<=0){state.bossHp=2+Math.floor(state.qi/3);state.bossMax=state.bossHp;}
+    startTimer();}
+  if(state.stage===3)startTimer();
+  render();
+}
+function endRun(){clearTimer();const wasHigh=state.score>state.high;saveHigh();if(wasHigh&&state.score>0)sfx.high();state.screen="result";render();}
+function stepDots(){const order=["fear","principle","wrap"];const idx=order.indexOf(state.step);
+  return order.map((s,i)=>`<div class="step-dot ${i<idx?"done":i===idx?"on":""}"></div>`).join("");}
+function optionsForStep(step){
+  const q=current();
+  if(step==="fear")return shuffle(FEARS).map(f=>({id:f.id,label:f.label,correct:f.id===q.fear}));
+  if(step==="principle"){const correct=PRINCIPLES.find(p=>p.id===q.principle);
+    const others=PRINCIPLES.filter(p=>p.id!==q.principle);
+    return shuffle([correct,...pick(others,3)]).map(p=>({id:p.id,label:p.label,tip:p.tip,correct:p.id===q.principle}));}
+  const correct=q.wrap;
+  const nears=(q.near&&q.near.length>=2)?pick(q.near,2):(q.near||[]).slice(0,2);
+  const pool=WRAP_DISTRACTORS.filter(w=>w!==correct&&nears.indexOf(w)<0);
+  const distractors=nears.concat(pick(pool,3-nears.length));
+  return shuffle([correct,...distractors]).map(w=>({id:w,label:w,correct:w===correct}));
+}
+function labelFor(kind,id){if(!id)return null;
+  const src=kind==="fear"?FEARS:PRINCIPLES,hit=src.find(x=>x.id===id);return hit?hit.label:null;}
+/* Every answer closes with the same review: what you picked, what was right,
+   and — the part the briefing promises — the model W.R.A.P. line itself. */
+function answerReview(q){
+  const lc=state.lastCorrect,sel=state.selected,none="No answer — the clock ran out";
+  const row=(key,title,ok,yours,right)=>`<div class="rev-i ${ok?"hit":"miss"}" data-rev="${key}">
+      <b>${title} ${ok?"✓":"✗"}</b><span class="yours">You: ${esc(yours||none)}</span>
+      ${ok?"":`<span class="right">Correct: ${esc(right)}</span>`}</div>`;
+  const wrapOk=lc.wrap;
+  return `<div class="rev">
+    ${row("fear","Fear",lc.fear,labelFor("fear",sel.fear),labelFor("fear",q.fear))}
+    ${row("principle","Principle",lc.principle,labelFor("principle",sel.principle),labelFor("principle",q.principle))}
+    <div class="rev-i ${wrapOk?"hit":"miss"}" data-rev="wrap"><b>W.R.A.P. response ${wrapOk?"✓":"✗"}</b>
+      ${wrapOk?`<span class="yours">You picked the model line:</span>`
+              :`<span class="yours">You: ${esc(sel.wrap||none)}</span><span class="rlab">The model line:</span>`}
+      <span class="model">${esc(q.wrap)}</span></div>
+  </div>`;
+}
+function render(){
+  const app=document.getElementById("app");
+  if(state.screen==="title")app.innerHTML=viewTitle();
+  else if(state.screen==="brief")app.innerHTML=viewBrief();
+  else if(state.screen==="stage1")app.innerHTML=viewStage1();
+  else if(state.screen==="stage2")app.innerHTML=viewStage2();
+  else if(state.screen==="stage3")app.innerHTML=viewStage3();
+  else if(state.screen==="result")app.innerHTML=viewResult();
+  bind();
+}
+function viewTitle(){loadHigh();return `
+  <div class="hud"><span class="chip">Waterman College</span><span class="chip gold">★ ${state.high}</span></div>
+  <div class="card pop">
+    <div class="tag">Confidence Protocol</div>
+    <h1>Fear Buster</h1>
+    <p class="sub">Identify the fear → fire the right principle → seal it with W.R.A.P. Perfect triples build your combo and score.</p>
+    <div class="stage-grid">
+      <button class="stage-btn" data-go="1"><strong><span class="num">1</span>Basic Protocol</strong><span>Learn the system. No timer. Pure matching.</span></button>
+      <button class="stage-btn" data-go="2"><strong><span class="num">2</span>Fear Arena</strong><span>Boss rush. Health bar. Timed pressure.</span></button>
+      <button class="stage-btn" data-go="3"><strong><span class="num">3</span>Mind Breach</strong><span>Deeper chambers. Rising multipliers. Path integrity.</span></button>
+    </div>
+    <button class="btn ghost" data-brief style="margin-top:14px">Training briefing — read this first</button>
+    <p class="small center" style="margin-top:14px">Customer Fears · Psychological Principles · W.R.A.P.</p>
+  </div>`;}
+function viewBrief(){
+  const fears=FEARS.map(f=>`<li><b>${esc(f.label)}</b></li>`).join("");
+  const prins=PRINCIPLES.map(p=>`<li><b>${esc(p.label)}</b><span>${esc(p.tip)}</span></li>`).join("");
+  return `
+  <div class="hud"><span class="chip">Training</span><span class="chip gold">Fear Buster</span></div>
+  <div class="card pop">
+    <div class="tag">Before you play</div>
+    <h1>The Confidence Protocol</h1>
+    <p class="sub">Every Client objection is a fear wearing a costume. Your job is to name the fear, answer it with the
+      right psychological principle, and close the loop with W.R.A.P. This briefing is the whole system — three minutes now
+      saves you the whole run.</p>
+
+    <div class="brief-grid">
+    <div class="brief-sec">
+      <h3>How a round works</h3>
+      <ol class="numlist">
+        <li><b>Read the Client's line.</b> One sentence, in their words — exactly what you'd hear on the floor.</li>
+        <li><b>Identify the fear.</b> Pick which of the eight customer fears is really talking. Worth 100 points.</li>
+        <li><b>Choose the principle.</b> Fire the psychological principle that dissolves <em>that specific</em> fear. Worth 150.</li>
+        <li><b>Seal it with W.R.A.P.</b> Pick the response that actually uses the protocol. Worth 200.</li>
+      </ol>
+      <p>Get all three right and it's a <b>Perfect Triple</b> — your combo multiplier climbs (up to ×4) and rides into the
+        next scenario. Miss any one and the combo resets to zero. Either way you'll see why the right answer was right
+        before you move on.</p>
+    </div>
+
+    <div class="brief-sec">
+      <h3>The eight Client fears</h3>
+      <p>Nobody says "I'm afraid." They say something else. These are the eight things underneath it.</p>
+      <ul class="reflist solo">${fears}</ul>
+    </div>
+
+    <div class="brief-sec">
+      <h3>The eight principles</h3>
+      <p>Each fear has a principle that answers it. Matching the wrong one isn't wrong information — it's the right
+        information aimed at the wrong worry.</p>
+      <ul class="reflist">${prins}</ul>
+    </div>
+
+    <div class="brief-sec">
+      <h3>W.R.A.P. — the four beats</h3>
+      <ul class="wraplist">
+        <li><b>W — Why</b> Understand the need first. Educate before anything else moves.</li>
+        <li><b>R — Ready</b> Build enthusiasm. Let them feel the lift before money enters the room.</li>
+        <li><b>A — Answer</b> Answer the actual question with specifics — clinical backing, real numbers, real options.</li>
+        <li><b>P — Pain Better</b> Put the relief in their hands and confirm the improvement live.</li>
+      </ul>
+      <p>In step 3 every option is dressed as a W.R.A.P. line. Only one of them actually does the job — the rest are
+        pressure, deflection, or a shrug in a nice jacket.</p>
+    </div>
+
+    <div class="brief-sec">
+      <h3>The three stages</h3>
+      <ul class="reflist">
+        <li><b>1 · Basic Protocol</b><span>Six scenarios, no clock, no penalty. Learn the matching here.</span></li>
+        <li><b>2 · Fear Arena</b><span>Eight scenarios on a timer. Three health. A miss or a timeout costs you one.</span></li>
+        <li><b>3 · Mind Breach</b><span>Every Perfect Triple takes you a chamber deeper — bigger multipliers, tighter clock.</span></li>
+      </ul>
+      <p>Start with Stage 1 until the eight-and-eight feel automatic. Each step of a timed round carries its own clock,
+        so the pressure is on hesitation, not on reading — and you can reopen this briefing from the menu any time.</p>
+    </div>
+    </div>
+
+    <button class="btn gold" data-briefstart style="margin-top:20px">Start Stage 1 — Basic Protocol</button>
+    <button class="btn ghost" data-menu>Back to menu</button>
+  </div>`;}
+function viewStage1(){
+  const q=current(),step=state.step;let body="";
+  if(step==="feedback"){const lc=state.lastCorrect,perfect=lc.fear&&lc.principle&&lc.wrap;
+    body=`<div class="fb ${perfect?"ok":"bad"} fade-in"><strong>${perfect?"Perfect triple":"Review the gaps"}</strong>
+      <div style="margin:6px 0 2px;font-size:12.5px;opacity:.9">Fear ${lc.fear?"✓":"✗"} · Principle ${lc.principle?"✓":"✗"} · W.R.A.P. ${lc.wrap?"✓":"✗"}</div>
+      ${answerReview(q)}
+      <div class="why">${esc(q.why)}</div></div>
+      <button class="btn gold" data-next>Next scenario</button>`;}
+  else{const opts=optionsForStep(step);
+    const title=step==="fear"?"1 · Identify the Fear":step==="principle"?"2 · Choose the Principle":"3 · Seal with W.R.A.P.";
+    body=`<div class="step-row">${stepDots()}</div><div class="step-label">${title}</div>
+      <div class="prompt">"${esc(q.line)}"</div>
+      ${opts.map(o=>`<button class="opt" data-${step}="${esc(o.id)}">${esc(o.label)}${o.tip?`<div class="tip">${esc(o.tip)}</div>`:""}</button>`).join("")}`;} 
+  return `<div class="hud"><span class="chip">Stage 1</span><span class="chip">${state.qi+1} / ${state.queue.length}</span>
+    <span class="chip gold">★ ${state.score}</span><span class="chip combo">×${comboMult().toFixed(1)}</span></div>
+    <div class="card pop">${body}</div>
+    <button class="btn ghost" style="margin-top:12px" data-menu>Quit to menu</button>`;}
+function viewStage2(){
+  const q=current(),step=state.step,pct=(state.timer/state.timerMax)*100;let body="";
+  if(step==="feedback"){const lc=state.lastCorrect,perfect=lc.fear&&lc.principle&&lc.wrap,dead=state.health<=0;
+    body=`<div class="fb ${perfect?"ok":"bad"} fade-in"><strong>${perfect?"Fear shattered":(dead?"Down":"Hit taken")}</strong>
+      ${perfect?"Boss damaged. Keep the streak.":"Combo broken."}
+      ${answerReview(q)}
+      <div class="why">${esc(q.why)}</div></div>
+      <button class="btn gold" data-next>${dead||state.qi+1>=state.queue.length?"See results":"Next fear"}</button>`;}
+  else{const opts=optionsForStep(step);
+    const title=step==="fear"?"Identify the Fear":step==="principle"?"Fire the Principle":"W.R.A.P. Finish";
+    body=`<div class="step-row">${stepDots()}</div><div class="step-label">${title}</div>
+      <div class="prompt">"${esc(q.line)}"</div>
+      ${opts.map(o=>`<button class="opt" data-${step}="${esc(o.id)}">${esc(o.label)}</button>`).join("")}`;} 
+  return `<div class="hud"><span class="chip">Arena</span><span class="chip gold">★ ${state.score}</span>
+    <span class="chip combo">Streak ${state.streak}</span></div>
+    <div class="card pop">
+      <div class="row" style="justify-content:space-between;margin-bottom:2px"><span class="small">Your health</span><span class="small">Boss ${state.bossHp}/${state.bossMax}</span></div>
+      <div class="hp">${Array.from({length:state.maxHealth},(_,i)=>`<span class="${i<state.health?"on":""}"></span>`).join("")}</div>
+      ${step!=="feedback"?`<div class="bar arena"><i id="timerFill" style="width:${pct}%"></i></div><div class="small center">${Math.ceil(state.timer)}s</div>`:""}
+      ${body}</div>
+    <button class="btn ghost" style="margin-top:12px" data-menu>Quit to menu</button>`;}
+function viewStage3(){
+  const q=current(),step=state.step,pct=(state.timer/state.timerMax)*100,mult=(comboMult()*depthMult()).toFixed(2);let body="";
+  if(step==="feedback"){const lc=state.lastCorrect,perfect=lc.fear&&lc.principle&&lc.wrap,collapsed=state.integrity<=0;
+    body=`<div class="fb ${perfect?"ok":"bad"} fade-in"><strong>${perfect?"Chamber breached":(collapsed?"Path collapsed":"Integrity damaged")}</strong>
+      ${perfect?`Depth ${state.depth} · Multiplier ×${mult}`:"Path integrity reduced."}
+      ${answerReview(q)}
+      <div class="why">${esc(q.why)}</div></div>
+      <button class="btn breach" data-next>${collapsed||state.qi+1>=state.queue.length?"See results":"Next chamber"}</button>`;}
+  else{const opts=optionsForStep(step);
+    const title=step==="fear"?"Identify the Fear":step==="principle"?"Choose the Principle":"W.R.A.P. Seal";
+    body=`<div class="step-row">${stepDots()}</div><div class="step-label">${title}</div>
+      <div class="prompt">"${esc(q.line)}"</div>
+      ${opts.map(o=>`<button class="opt" data-${step}="${esc(o.id)}">${esc(o.label)}</button>`).join("")}`;} 
+  return `<div class="hud"><span class="chip">Mind Breach</span><span class="chip">Depth ${state.depth}/${state.maxDepth}</span>
+    <span class="chip gold">★ ${state.score}</span><span class="chip combo">×${mult}</span></div>
+    <div class="card pop">
+      <div class="row" style="justify-content:space-between;margin-bottom:2px"><span class="small">Path integrity</span><span class="small">Chamber ${state.qi+1}</span></div>
+      <div class="hp">${Array.from({length:state.maxIntegrity},(_,i)=>`<span class="${i<state.integrity?"int":""}"></span>`).join("")}</div>
+      <div class="depth">${Array.from({length:state.maxDepth},(_,i)=>`<i class="${i<state.depth?"done":(i===state.depth?"on":"")}"></i>`).join("")}</div>
+      ${step!=="feedback"?`<div class="bar breach"><i id="timerFill" style="width:${pct}%"></i></div>
+        <div class="small center">${Math.ceil(state.timer)}s · deeper = higher score, tighter clock</div>`:""}
+      ${body}</div>
+    <button class="btn ghost" style="margin-top:12px" data-menu>Quit to menu</button>`;}
+function viewResult(){
+  const perfectRate=state.queue.length?Math.round(state.perfects/state.queue.length*100):0;
+  const name=state.stage===1?"Basic Protocol":state.stage===2?"Fear Arena":"Mind Breach";
+  const isHigh=state.score>=state.high&&state.score>0;
+  return `<div class="hud"><span class="chip">Run complete</span><span class="chip gold">Best ★ ${state.high}</span></div>
+    <div class="card pop center">
+      <div class="tag">Confidence Protocol</div>
+      <h2>${isHigh?"New high score":"Session complete"}</h2>
+      <p class="sub">${name} · ${state.perfects} perfect${state.perfects===1?"":"s"} · streak ${state.bestStreak}${state.stage===3?` · depth ${state.depth}`:""}</p>
+      <div class="score-big ${isHigh?"pulse-gold":""}">${state.score}</div>
+      <div class="small">Perfect rate ${perfectRate}%</div>
+      <button class="btn gold" data-again style="margin-top:20px">Run ${name} again</button>
+      <button class="btn primary" data-menu>Back to menu</button>
+    </div>`;}
+function updateTimerUI(){const el=document.getElementById("timerFill");if(!el)return;
+  const pct=state.timerMax>0?(state.timer/state.timerMax*100):0;el.style.width=Math.max(0,pct)+"%";}
+function bind(){
+  document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>startStage(+b.getAttribute("data-go")));
+  const brief=document.querySelector("[data-brief]");if(brief)brief.onclick=()=>{saveBriefSeen();state.screen="brief";render();window.scrollTo(0,0);};
+  const bstart=document.querySelector("[data-briefstart]");if(bstart)bstart.onclick=()=>{saveBriefSeen();startStage(1);window.scrollTo(0,0);};
+  document.querySelectorAll("[data-fear]").forEach(b=>b.onclick=()=>chooseFear(b.getAttribute("data-fear")));
+  document.querySelectorAll("[data-principle]").forEach(b=>b.onclick=()=>choosePrinciple(b.getAttribute("data-principle")));
+  document.querySelectorAll("[data-wrap]").forEach(b=>b.onclick=()=>chooseWrap(b.getAttribute("data-wrap")));
+  const next=document.querySelector("[data-next]");if(next)next.onclick=nextRound;
+  const menu=document.querySelector("[data-menu]");if(menu)menu.onclick=()=>{clearTimer();state.screen="title";render();};
+  const again=document.querySelector("[data-again]");if(again)again.onclick=()=>startStage(state.stage);
+}
+loadHigh();if(!state.seenBrief){state.screen="brief";saveBriefSeen();}render();
+})();
+</script>
+</body>
+</html>

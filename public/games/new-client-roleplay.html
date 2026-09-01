@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>New Client Roleplay — CARE Floor Practice</title>
+<meta name="description" content="Generate and print per-role New Client roleplay sheets for Waterman / COGS CARE floor training." />
+<style>
+
+:root{--bg:#0c0f14;--bg-elevated:#141a22;--bg-subtle:#1b2330;--bg-card:#161d28;--fg:#eef1f6;--fg-muted:#9aa5b5;--fg-subtle:#6b7687;--border:#2a3444;--primary:#3d8bfd;--primary-fg:#0a0f16;--primary-soft:rgba(61,139,253,.14);--success:#3ddc84;--success-soft:rgba(61,220,132,.13);--warn:#f4b740;--warn-soft:rgba(244,183,64,.13);--danger:#ff6b6b;--danger-soft:rgba(255,107,107,.13);--font:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--display:Georgia,"Times New Roman",serif;--tap:2.75rem}
+*{box-sizing:border-box}body{margin:0;font-family:var(--font);background:var(--bg);color:var(--fg);line-height:1.5;min-height:100dvh;-webkit-font-smoothing:antialiased}
+button{cursor:pointer;font-family:inherit}button:disabled{cursor:not-allowed;opacity:.7}
+.wrap{max-width:48rem;margin:0 auto;padding:1.5rem 1rem 2.5rem}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.brand-left{display:flex;align-items:center;gap:.75rem}
+.logo-pill{background:#fff;border-radius:.75rem;padding:.4rem .75rem;display:flex;align-items:center}
+.logo-pill img{height:2rem;width:auto;max-width:10rem;display:block}
+.logo-cogs{width:3rem;height:3rem;border-radius:999px;background:#fff;object-fit:cover}
+.kicker{font-size:.7rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--primary);margin:1.5rem 0 0}
+h1{font-family:var(--display);font-size:clamp(1.75rem,4vw,2.25rem);font-weight:600;letter-spacing:-.02em;margin:.35rem 0 0}
+.lead{color:var(--fg-muted);max-width:36rem;margin:.5rem 0 0}
+.panel{margin-top:1.25rem;border:1px solid var(--border);background:var(--bg-card);border-radius:1rem;padding:1rem 1.1rem}
+.panel.error{border-color:color-mix(in srgb,var(--danger) 55%,var(--border))}
+.panel h2{margin:0;font-size:.95rem}.panel .hint{margin:.25rem 0 0;font-size:.8rem;color:var(--fg-muted)}
+.names{display:grid;gap:.75rem;margin-top:1rem;grid-template-columns:1fr}
+@media(min-width:640px){.names{grid-template-columns:1fr 1fr 1fr}}
+label{display:block;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-subtle);margin-bottom:.35rem}
+input[type=text]{width:100%;min-height:var(--tap);border-radius:.75rem;border:1px solid var(--border);background:var(--bg-elevated);color:var(--fg);padding:0 .75rem;font-size:.95rem}
+input[type=text]:focus{outline:2px solid var(--primary);outline-offset:1px}
+.actions{display:flex;flex-wrap:wrap;gap:.65rem;margin-top:1rem}
+.btn{min-height:3rem;border-radius:.75rem;border:0;padding:0 1.25rem;font-weight:600;font-size:.95rem;display:inline-flex;align-items:center;justify-content:center;gap:.4rem}
+.btn-primary{background:var(--fg);color:var(--primary-fg);flex:1;min-width:10rem}
+.btn-primary.arming{background:var(--warn);color:#2a1c00}
+.btn-secondary{background:var(--primary-soft);color:var(--primary);border:1px solid color-mix(in srgb,var(--primary) 40%,transparent)}
+.btn-ghost{background:var(--bg-elevated);color:var(--fg);border:1px solid var(--border)}
+.btn-small{min-height:var(--tap);min-width:var(--tap);font-size:.75rem;font-weight:600;padding:0 .7rem;background:var(--bg-subtle);color:var(--fg-muted);border:1px solid var(--border);border-radius:.6rem;display:inline-flex;align-items:center;justify-content:center;gap:.3rem;flex:0 0 auto}
+.btn-small:hover{color:var(--fg);border-color:var(--fg-subtle)}
+.alert{color:var(--danger);font-size:.8rem;font-weight:600;margin:.75rem 0 0}
+.ready{color:var(--fg-subtle);font-size:.8rem;margin:.75rem 0 0}
+.note{font-size:.8rem;color:var(--fg-muted);margin:.6rem 0 0}
+.copyout{width:100%;margin-top:.65rem;min-height:8rem;border-radius:.75rem;border:1px solid var(--border);background:var(--bg-elevated);color:var(--fg);padding:.6rem .7rem;font:inherit;font-size:.8rem}
+.cast{margin-top:1.25rem;border:1px solid color-mix(in srgb,var(--primary) 35%,var(--border));background:color-mix(in srgb,var(--primary-soft) 45%,var(--bg-card));border-radius:1rem;padding:1rem}
+.cast-head{display:flex;justify-content:space-between;align-items:center;gap:.75rem;flex-wrap:wrap}
+.cast-grid{display:grid;gap:.65rem;margin-top:.85rem}
+@media(min-width:640px){.cast-grid{grid-template-columns:1fr 1fr 1fr}}
+.cast-card{border-radius:.75rem;border:1px solid var(--border);padding:.75rem;background:var(--bg-elevated)}
+.cast-card.fl{border-color:color-mix(in srgb,var(--warn) 45%,var(--border));background:color-mix(in srgb,var(--warn-soft) 55%,var(--bg))}
+.cast-card.sp{border-color:color-mix(in srgb,var(--primary) 40%,var(--border))}
+.cast-card.cl{border-color:color-mix(in srgb,var(--success) 40%,var(--border));background:color-mix(in srgb,var(--success-soft) 50%,var(--bg))}
+.cast-role{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-muted)}
+.cast-name{font-family:var(--display);font-size:1.15rem;font-weight:600;margin:.2rem 0 0}
+.cast-hint{font-size:.7rem;color:var(--fg-muted);margin:.15rem 0 0}
+.tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem;margin-top:1rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:.9rem;padding:.35rem}
+.tab{min-height:var(--tap);border-radius:.65rem;border:1px solid transparent;background:transparent;color:var(--fg-muted);font-weight:700;font-size:.78rem;letter-spacing:.04em;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;padding:.25rem .3rem;text-align:center}
+.tab .who{font-size:.66rem;font-weight:600;letter-spacing:.02em;color:var(--fg-subtle);text-transform:none}
+.tab[aria-selected=true]{background:var(--bg-card);color:var(--fg);border-color:var(--border);box-shadow:0 1px 0 rgba(0,0,0,.35)}
+.tab[aria-selected=true].fl{border-color:color-mix(in srgb,var(--warn) 55%,var(--border));color:var(--warn)}
+.tab[aria-selected=true].sp{border-color:color-mix(in srgb,var(--primary) 55%,var(--border));color:var(--primary)}
+.tab[aria-selected=true].cl{border-color:color-mix(in srgb,var(--success) 55%,var(--border));color:var(--success)}
+.viewnote{margin:.85rem 0 0;border-radius:.85rem;padding:.6rem .8rem;font-size:.78rem;border:1px dashed var(--border);color:var(--fg-muted)}
+.viewnote.sp{border-color:color-mix(in srgb,var(--primary) 45%,var(--border))}
+.viewnote.cl{border-color:color-mix(in srgb,var(--success) 45%,var(--border))}
+.viewnote.fl{border-color:color-mix(in srgb,var(--warn) 45%,var(--border));background:var(--warn-soft);color:var(--fg)}
+.hero{margin-top:.85rem;border:1px solid var(--border);background:var(--bg-card);border-radius:1rem;padding:1rem 1.1rem}
+.hero h2{font-family:var(--display);font-size:1.6rem;margin:.15rem 0 0;font-weight:600}
+.meta{color:var(--fg-muted);font-size:.9rem;margin:.2rem 0 0}.vibe{color:var(--fg-subtle);font-style:italic;font-size:.9rem;margin:.25rem 0 0}
+.badges{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem;align-items:center}
+.badge{border-radius:999px;border:1px solid var(--border);padding:.3rem .65rem;font-size:.75rem;font-weight:600;display:inline-flex;align-items:center;gap:.35rem;min-height:2rem}
+.badge.primary{border-color:color-mix(in srgb,var(--primary) 40%,transparent);background:var(--primary-soft);color:var(--primary)}
+.badge.green{border-color:color-mix(in srgb,var(--success) 40%,transparent);background:var(--success-soft);color:var(--success)}
+.badge.red{border-color:color-mix(in srgb,var(--danger) 40%,transparent);background:var(--danger-soft);color:var(--danger)}
+.badge.warn{border-color:color-mix(in srgb,var(--warn) 40%,transparent);background:var(--warn-soft);color:var(--warn)}
+.grid{display:grid;gap:.75rem;margin-top:.85rem}@media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
+.card{border:1px solid var(--border);background:var(--bg-card);border-radius:.85rem;padding:.85rem}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+.card-title{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-muted)}
+.card-value{font-weight:600;margin:.45rem 0 0;font-size:.92rem}.card-detail{font-size:.78rem;color:var(--fg-muted);margin:.2rem 0 0}
+.flag-box{margin-top:.85rem;border-radius:1rem;padding:1rem;border:1px solid var(--border)}
+.flag-box.green{border-color:color-mix(in srgb,var(--success) 40%,transparent);background:var(--success-soft)}
+.flag-box.red{border-color:color-mix(in srgb,var(--danger) 40%,transparent);background:var(--danger-soft)}
+.flag-box .label{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap}
+.flag-box.green .label{color:var(--success)}.flag-box.red .label{color:var(--danger)}
+.keyline{margin:.6rem 0 0;padding:.55rem .7rem;border-radius:.7rem;background:rgba(0,0,0,.28);border:1px dashed var(--fg-subtle)}
+.keytag{font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--warn);display:block;margin-bottom:.2rem}
+.plan{margin-top:.85rem;border:1px solid var(--border);background:var(--bg-elevated);border-radius:1rem;padding:1rem}
+.plan ol{margin:.5rem 0 0;padding-left:1.2rem}.plan li{margin:.35rem 0}
+.plan li .fwtag{display:inline-block;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--primary);background:var(--primary-soft);border-radius:999px;padding:.1rem .45rem;margin-right:.35rem;vertical-align:1px}
+.tip{font-size:.78rem;color:var(--fg-subtle);margin:.75rem 0 0}
+.mission{margin-top:.85rem;border:1px solid color-mix(in srgb,var(--primary) 30%,var(--border));background:var(--bg-elevated);border-radius:1rem;padding:1rem}
+.mission ul{margin:.5rem 0 0;padding-left:1.15rem}.mission li{margin:.3rem 0;font-size:.88rem}
+.fw{margin-top:.85rem;border:1px solid var(--border);background:var(--bg-card);border-radius:1rem;padding:.35rem .9rem}
+.fw>summary{cursor:pointer;list-style:none;min-height:var(--tap);display:flex;align-items:center;gap:.5rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-muted)}
+.fw>summary::-webkit-details-marker{display:none}
+.fw>summary::before{content:"▸";color:var(--primary);font-size:.9rem}
+.fw[open]>summary::before{content:"▾"}
+.fw-block{border-top:1px solid var(--border);padding:.7rem 0}
+.fw-block h4{margin:0 0 .35rem;font-size:.8rem;color:var(--fg);letter-spacing:.04em}
+.fw-block dl{margin:0;display:grid;gap:.3rem}
+.fw-block dt{font-weight:700;font-size:.8rem;color:var(--primary)}
+.fw-block dd{margin:0 0 .25rem;font-size:.82rem;color:var(--fg-muted)}
+.fw-src{font-size:.68rem;color:var(--fg-subtle);margin:.4rem 0 0}
+.check{margin-top:1.25rem;border:1px solid color-mix(in srgb,var(--primary) 35%,var(--border));background:var(--bg-card);border-radius:1rem;padding:1rem 1.1rem}
+.check h3{margin:0;font-size:1rem;font-family:var(--display);font-weight:600}
+.check .qprompt{font-size:1rem;font-weight:600;margin:.75rem 0 0}
+.opts{display:grid;gap:.5rem;margin-top:.75rem}
+.opt{min-height:var(--tap);text-align:left;border-radius:.75rem;border:1px solid var(--border);background:var(--bg-elevated);color:var(--fg);padding:.6rem .8rem;font-size:.88rem;line-height:1.35;display:flex;gap:.55rem;align-items:flex-start}
+.opt .k{font-weight:700;color:var(--fg-subtle);flex:0 0 auto}
+.opt:hover:not(:disabled){border-color:var(--primary)}
+.opt.correct{border-color:var(--success);background:var(--success-soft)}
+.opt.wrong{border-color:var(--danger);background:var(--danger-soft)}
+.why{margin:.75rem 0 0;font-size:.85rem;color:var(--fg-muted);border-left:3px solid var(--primary);padding-left:.7rem}
+.progress{display:flex;gap:.3rem;margin-top:.6rem}
+.dot{height:.4rem;flex:1;border-radius:999px;background:var(--bg-subtle)}
+.dot.ok{background:var(--success)}.dot.no{background:var(--danger)}
+.scorebig{font-family:var(--display);font-size:2.6rem;font-weight:600;line-height:1;margin:.5rem 0 0}
+.breakdown{margin:.85rem 0 0;display:grid;gap:.45rem}
+.brow{display:flex;gap:.6rem;align-items:flex-start;font-size:.82rem;border:1px solid var(--border);border-radius:.6rem;padding:.5rem .65rem;background:var(--bg-elevated)}
+.brow .mk{flex:0 0 auto;font-weight:700}
+.brow.ok .mk{color:var(--success)}.brow.no .mk{color:var(--danger)}
+.history{margin:.85rem 0 0;font-size:.78rem;color:var(--fg-muted)}
+footer.site{margin-top:2rem;text-align:center;font-size:.7rem;color:var(--fg-subtle)}
+.empty{margin-top:1.5rem;border:1px dashed var(--border);border-radius:1rem;padding:2.5rem 1.25rem;text-align:center;color:var(--fg-muted)}
+.hidden{display:none!important}.row-between{display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem;flex-wrap:wrap}
+.print-only{display:none}
+@media(max-width:420px){.tab{font-size:.72rem}.wrap{padding:1.25rem .75rem 2rem}}
+@media print{
+@page{size:letter;margin:.4in}body{background:#fff!important;color:#111!important}
+.wrap{max-width:none;margin:0;padding:0}
+.no-print{display:none!important}.print-only{display:block!important}
+.print-card{font-size:9.5pt;color:#111}
+.print-page{page-break-after:always}.print-page:last-child{page-break-after:auto}
+.print-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #111;padding-bottom:6px;margin-bottom:8px}
+.print-header h1{font-size:13.5pt;margin:0;font-family:Georgia,serif}
+.print-for{font-size:10pt;font-family:Georgia,serif;font-weight:600;display:block;margin-top:2px}
+.print-for span{display:block;font-size:7pt;font-family:var(--font);text-transform:uppercase;letter-spacing:.1em;color:#555;font-weight:700}
+.print-cast{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px}
+.print-cast>div{border:1.5px solid #222;border-radius:6px;padding:4px 8px}
+.print-cast strong{display:block;font-size:7.5pt;letter-spacing:.1em;text-transform:uppercase;color:#555}
+.print-cast span{font-family:Georgia,serif;font-size:11pt;font-weight:600}
+.print-hero{border:1.5px solid #222;border-radius:8px;padding:6px 10px;margin-bottom:8px;display:flex;justify-content:space-between;gap:12px}
+.print-hero h2{margin:1px 0;font-family:Georgia,serif;font-size:14pt}
+.print-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px}
+.print-field{border:1px solid #ccc;border-radius:6px;padding:4px 8px}
+.print-field .l{font-size:7pt;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#555}
+.print-field .v{font-weight:600;font-size:9.5pt}.print-field .n{font-size:7.5pt;color:#555}
+.print-flag,.print-plan,.print-mission,.print-fw{border:1px solid #333;border-radius:8px;padding:6px 10px;margin-bottom:6px}
+.print-flag p,.print-plan p,.print-mission p{margin:2px 0}
+.print-plan ol{margin:3px 0 0;padding-left:15px;font-size:8.8pt}.print-plan li{margin:1px 0}
+.print-mission ul{margin:3px 0 0;padding-left:15px}.print-mission li{margin:1px 0}
+.print-key{border:2px dashed #111;border-radius:8px;padding:5px 10px;margin-bottom:6px;background:#f4f4f4}
+.print-fw p{font-size:7.5pt;line-height:1.3;margin:2px 0 0}
+.print-fw strong{font-weight:700}
+.print-notes{border:1px dashed #999;border-radius:8px;padding:6px 10px}
+.print-line{border-bottom:1px solid #ccc;height:15px;margin-top:2px}
+.print-footer{margin-top:6px;padding-top:5px;border-top:1px solid #bbb;font-size:7pt;text-align:center;color:#555}
+.print-badge{display:inline-block;border:1px solid #333;border-radius:999px;padding:2px 8px;font-size:8pt;font-weight:600;margin-left:4px}
+.sec-title{font-size:7.5pt;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#555}
+}
+
+</style>
+
+<!-- quad-bridge records the play; the debrief check reports a real per-learner
+     score with window.QuadScore.report(0–100) when a Specialist finishes it. -->
+<script src="/games/quad-bridge.js"></script></head>
+<body>
+<div class="wrap">
+  <div class="no-print">
+    <div class="brand">
+      <div class="brand-left">
+        <div class="logo-pill"><img id="logoW" alt="Waterman Arch Supports" /></div>
+        <img class="logo-cogs" id="logoC" alt="COGS — The Good Feet Store" />
+      </div>
+      <div style="font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--fg-subtle)">New Client Roleplay</div>
+    </div>
+    <p class="kicker">CARE training · New Client only</p>
+    <h1>New Client Roleplay</h1>
+    <p class="lead">Enter three names, generate a scenario, and we randomly cast Floor Leader, Specialist, and Client for the demo. Each role gets its own view — the Specialist never sees the answer.</p>
+    <section class="panel" id="playersPanel">
+      <h2>Players</h2>
+      <p class="hint">Enter three names. On generate, roles are spun randomly: Floor Leader, Specialist, and Client.</p>
+      <div class="names">
+        <div><label for="p1">Player 1</label><input id="p1" type="text" placeholder="e.g. Alex" autocomplete="off" /></div>
+        <div><label for="p2">Player 2</label><input id="p2" type="text" placeholder="e.g. Jordan" autocomplete="off" /></div>
+        <div><label for="p3">Player 3</label><input id="p3" type="text" placeholder="e.g. Sam" autocomplete="off" /></div>
+      </div>
+      <p class="alert hidden" id="nameError">Add all three names before generating a roleplay.</p>
+      <p class="ready hidden" id="nameReady">Ready — hit generate to cast roles and build the Client scenario.</p>
+    </section>
+    <div class="actions">
+      <button type="button" class="btn btn-primary" id="btnGenerate">Generate roleplay</button>
+      <button type="button" class="btn btn-secondary hidden" id="btnPrint">Print sheets</button>
+      <button type="button" class="btn btn-ghost hidden" id="btnCopy">Copy this sheet</button>
+    </div>
+    <p class="note hidden" id="copyNote"></p>
+    <textarea class="copyout hidden" id="copyOut" readonly aria-label="Sheet text to copy"></textarea>
+    <div class="empty" id="emptyState"><strong style="color:var(--fg);display:block;margin-bottom:.35rem">Add three players</strong>Type three names above, then generate a New Client roleplay card.</div>
+    <div id="result" class="hidden"></div>
+    <div id="checkPanel" class="hidden"></div>
+  </div>
+  <div class="print-only" id="printArea"></div>
+  <footer class="site no-print">Waterman Arch Supports · COGS — The Good Feet Store · New Client Roleplay</footer>
+</div>
+<script>
+
+const DATA = {"PERSONAS":[{"name":"Marcus","ageRange":"late 40s","vibe":"skeptical but polite","occupation":"warehouse supervisor"},{"name":"Denise","ageRange":"early 60s","vibe":"warm and chatty","occupation":"retired teacher"},{"name":"Jayden","ageRange":"mid 20s","vibe":"impatient, phone in hand","occupation":"delivery driver"},{"name":"Priya","ageRange":"mid 30s","vibe":"analytical and prepared","occupation":"nurse"},{"name":"Robert","ageRange":"early 70s","vibe":"quiet, listens carefully","occupation":"retired contractor"},{"name":"Alicia","ageRange":"early 50s","vibe":"friendly but time-crunched","occupation":"small business owner"},{"name":"Tyler","ageRange":"late 30s","vibe":"competitive athlete energy","occupation":"CrossFit coach"},{"name":"Helen","ageRange":"mid 60s","vibe":"cautious and research-heavy","occupation":"office administrator"},{"name":"Carlos","ageRange":"early 40s","vibe":"jokey, deflects with humor","occupation":"restaurant manager"},{"name":"Nina","ageRange":"late 20s","vibe":"open-minded and curious","occupation":"graphic designer"},{"name":"Frank","ageRange":"late 50s","vibe":"blunt and results-focused","occupation":"truck driver"},{"name":"Sharon","ageRange":"mid 50s","vibe":"caring, here for family too","occupation":"homemaker / caregiver"},{"name":"Omar","ageRange":"mid 40s","vibe":"professional, handshake-ready","occupation":"sales executive"},{"name":"Becky","ageRange":"late 30s","vibe":"nervous first-timer","occupation":"elementary school aide"},{"name":"Jim","ageRange":"early 60s","vibe":"golf-obsessed optimist","occupation":"semi-retired accountant"},{"name":"Keisha","ageRange":"mid 40s","vibe":"decisive once she trusts you","occupation":"HR director"}],"PAIN_POINTS":[{"label":"Heel pain first thing in the morning","detail":"Classic plantar fasciitis story"},{"label":"Arch collapses after long shifts","detail":"End-of-day fatigue and burning"},{"label":"Knee ache on the right side","detail":"Compensation from the feet upward"},{"label":"Lower back tightness by noon","detail":"Posture and support chain"},{"label":"Ball-of-foot burning in dress shoes","detail":"Metatarsal pressure"},{"label":"Ankle rolls on uneven ground","detail":"Stability and balance concerns"},{"label":"Hip pinch after walking the dog","detail":"Gait and alignment"},{"label":"General \"my feet are just tired\"","detail":"Vague — dig for specifics"},{"label":"Pain when standing at work all day","detail":"Occupation-driven volume"},{"label":"Post-surgery recovery on feet","detail":"Sensitivity and confidence"},{"label":"Bunions rubbing in every shoe","detail":"Fit and support challenge"},{"label":"Shin splints from training","detail":"Active lifestyle demand"}],"HOT_BUTTONS":[{"label":"Keep up with the grandkids","detail":"Family moments without sitting out"},{"label":"Finish a full work shift pain-free","detail":"Job performance and pride"},{"label":"Get back on the golf course","detail":"18 holes without limping"},{"label":"Walk the neighborhood again","detail":"Independence and routine"},{"label":"Look good in nice shoes","detail":"Style without sacrifice"},{"label":"Train for a 5K / race","detail":"Performance goal"},{"label":"Travel without packing ice packs","detail":"Freedom on trips"},{"label":"Stop relying on pain meds","detail":"Long-term health mindset"},{"label":"Dance at a wedding coming up","detail":"Time-bound emotional event"},{"label":"Feel steady on their feet","detail":"Balance and confidence"},{"label":"Play with the kids after work","detail":"Energy left for home"},{"label":"Not feel \"old\" before their time","detail":"Identity and vitality"}],"LIFESTYLE_GOALS":[{"label":"Daily 2-mile walks","detail":"Consistent low-impact movement"},{"label":"Standing 8–10 hours at work","detail":"Occupational demand"},{"label":"Weekend hiking with friends","detail":"Trails and uneven ground"},{"label":"Pickleball 3x a week","detail":"Lateral movement and quick stops"},{"label":"Church / community events all day","detail":"Long periods of standing and walking"},{"label":"Theme park trip with family","detail":"All-day miles on concrete"},{"label":"Factory floor / warehouse routes","detail":"Hard surfaces, heavy steps"},{"label":"Retail floor shifts in fashion shoes","detail":"Style and support tension"},{"label":"Gardening and yard work","detail":"Kneeling, uneven ground"},{"label":"Airport travel and city walking","detail":"Long distances, irregular rest"}],"COMMUNICATION":[{"label":"One-word answers","detail":"Need open questions and patience"},{"label":"Storyteller — long personal stories","detail":"Guide without shutting down"},{"label":"Numbers and proof person","detail":"Wants mechanics and why it works"},{"label":"Emotional and tearful about pain","detail":"Empathy first, then plan"},{"label":"Comparison shopper (\"I saw this online\")","detail":"Differentiate the system"},{"label":"Brought a spouse who decides","detail":"Include the partner fully"},{"label":"Friendly but distracted","detail":"Re-engage with WOW moments"},{"label":"Asks great questions","detail":"Reward curiosity, stay expert"}],"SHOE_SITUATIONS":[{"label":"Worn-out sneakers, no support left","detail":"Easy win for visible change"},{"label":"Dress shoes they refuse to give up","detail":"Fit creativity required"},{"label":"Work boots only","detail":"Durability and all-day volume"},{"label":"Fashion flats / low-profile shoes","detail":"Low-volume challenge"},{"label":"Multiple pairs — gym, work, casual","detail":"System across lifestyles"},{"label":"Brand-new shoes, still painful","detail":"Support over footwear alone"},{"label":"Old custom orthotics in a bag","detail":"Compare and elevate"},{"label":"Barely any shoes that fit right","detail":"Start with fit fundamentals"}],"URGENCY":[{"label":"Event in 2 weeks","detail":"Time-bound motivation"},{"label":"Pain getting worse this month","detail":"Urgency without panic"},{"label":"No rush — \"just looking\"","detail":"Create value in the demo"},{"label":"Doctor suggested supports soon","detail":"Authority already open"},{"label":"Vacation in 10 days","detail":"Practical timeline"},{"label":"Been putting this off for years","detail":"Break the delay pattern"}],"BUDGET_VIBES":[{"label":"Investment-minded","detail":"Cares about lasting results"},{"label":"Price-sensitive, needs value framed","detail":"Cost per day, not sticker shock"},{"label":"Will spend if they feel the WOW","detail":"Demo quality is everything"},{"label":"Comparing to drugstore inserts","detail":"Educate on system difference"},{"label":"Spouse must approve the spend","detail":"Arm them with a clear story"},{"label":"Already budgeted for a solution","detail":"Don't undersell — match the need"}],"TWISTS":[{"label":"Friend had a bad insert experience","detail":"Overcome secondhand doubt"},{"label":"Only has 20 minutes today","detail":"Efficient, high-energy demo"},{"label":"Came in from a billboard / Google review","detail":"Reputation already working"},{"label":"Brought their actual problem shoes","detail":"Use them in the demo"},{"label":"Afraid supports will feel bulky","detail":"Address comfort early"},{"label":"Previously bought online orthotics","detail":"Show custom-fit difference"},{"label":"Wants the cheapest option first","detail":"Lead with need, not the price ladder"},{"label":"Silent partner watching everything","detail":"Include them with CARE Connect"},{"label":"Heard mixed things about arch supports","detail":"Earn trust in the demo"},{"label":"Loves the feel, worried about commitment","detail":"Close with confidence, not pressure"},{"label":"Mentions a competitor store visit","detail":"Stay classy, differentiate the experience"},{"label":"Kid / teen with them is restless","detail":"Pace and keep energy high"}],"FLAGS":[{"kind":"green","label":"Visible WOW on test walk","behavior":"Smiles, stands taller, says \"oh wow\" out loud","specialistMove":"Protect the silence. Let the moment land. Don't talk over it."},{"kind":"green","label":"Leaning in, trying more steps","behavior":"Asks to try another pair / another surface","specialistMove":"Stay present. Build on curiosity. Hand control stays with you."},{"kind":"green","label":"Puts supports into their own shoes","behavior":"Ownership behavior — they take physical control","specialistMove":"Celebrate lightly. Move toward lifestyle fit and close."},{"kind":"green","label":"Balance aha lands clean","behavior":"Notices they feel steadier without you naming it first","specialistMove":"Name it once, then let them talk. Green flag protected."},{"kind":"green","label":"Compares old walk to new walk","behavior":"Self-coaches: \"I was limping before\"","specialistMove":"Agree and elevate. They're selling themselves."},{"kind":"red","label":"Neutral language","behavior":"Says \"fine,\" \"maybe,\" \"I guess\"","specialistMove":"Re-anchor to what they feel. Floor Leader may step in with AAH."},{"kind":"red","label":"Shoes back on early","behavior":"Starts packing up mid-demo","specialistMove":"Signal Floor Leader. Save the relationship with a clean step-in."},{"kind":"red","label":"Too much talking on test walk","behavior":"Specialist (you) fills silence with features","specialistMove":"Stop talking. Let them feel. Reset with one question."},{"kind":"red","label":"One-word / disengaged","behavior":"Arms crossed, short answers, checking phone","specialistMove":"Change the energy. Get them moving. Find the hot button."},{"kind":"red","label":"Oversharing personal stories","behavior":"Demo drifts into life stories off-track","specialistMove":"Empathize briefly, steer back to feet and goal."},{"kind":"red","label":"Price objection before value","behavior":"\"How much?\" before any WOW","specialistMove":"Park price. Earn the feel-first demo. Floor Leader can support."}],"PLAN_Qs":["What brought them in today?","Pain level right now?","What do they want to get back to?","Which system will you present?"],"LOGO_WATERMAN":"iVBORw0KGgoAAAANSUhEUgAAAPYAAABACAMAAAAeX3qSAAADAFBMVEVMaXH8+/n8+/tRqcRvgH5WWGdPsf////0BAAsMJkMaMFEZMVP8+/obMlH7+/ObvccbMlQZME/6+vjx7+tXsuAcM1MnOlRWsN79/f0QGjN8gozR2NohNlMrPlgcMlNTYnSJk6EqPlkpO1XBzM/Ex8qgq7f8/f1Ws+JUseEmOFNTYHL+/v1TbXx/ho9eZ3dNW22RlqE7S2BYZHevsbRKWW9AT2RCUWU4SGA4SGBVYXJDUGEwPlFlcIE9Sl02RFc0Rl9aZnUpPFaMk51aZnR5hJGaoajB09lCT2GJv9VveonY391/hpC2u8J5hJJsd4SzwsgzQVUoO1fIz9P6/PxXY3REU2icoqtitd1JWG49Sl1ncoI7SVw6SWC9w8gyPlFZZHWqucNveITe4eQnOlV6g5JzfYt1gI1HVGe1ub1DUmcyQ1xNWm9fandfbX6EjJcsOlAiNU9rdIFGUmZqdIVetN5WZHYuPlRNW2+Du9Rptds9S2NFU2Q6SmIxQViOv9JNW250d4BdaHZ9u9dsdYJCUWdmtdsyQ1wwQlursbeHj5YxQFRJVGY1QVRdaXlibX2HkJwxP1NNW294udZtud92uNhweohKV2douuJKVmgpO1VgbX2CipRgbH3M0dRJVmhyuNo7SFkhNVJ9vNiWyNuXxNUlNk0xQ1xATmQ/TF8qOVAmNUxzut2SmKCus7ltttl1vNxsud9rt9p+hpFVYXNseIdWZHguPlSTm6SQmKR7uthCTmB0u9xstdZ7vdtKVWeVmaJitd1CTmAkNU5dan1fbH4pN00mM0edy9+UnamSxNdaZHIgMUtxe4gsOU0pOE9FVmw+SVm0uLwzQ1c6Rln19fafpbAkMkaVyd2Kkp9SX3N6hJE4SWGNwdiBv9seLD/T1Nbi5OW5y9BrdYRicIKNrLx6oLUaMlMULE0ZMFMYL1EXLk8bMVAkOVcdM1MhNlMdM1EVLlESK0shNlYsPlcuQVtevOtXteRcuuliu+giNE4nPFoaME5huONbt+ZYt+dnwO1e6vmOAAAA5nRSTlMADQYDAQMBAQED/PsK+gMD+vwRCPn62fsWBSQj7PX8g2vX6xgSGRv+/P5RCQU4R5gooVgQ3a2T3+l6b/NrscvRPeNTM3AxKnlHaBwtS2hxIN/7OCOatEv617tgxplU6KcoVyv1jmJ2wDLI+8gool/P3zzSmf7Gs7Jb4NJZ88I7vBFvZ4nr6fTrPB+Gn9aXd3qqpYLvm39k/oLIkIKFQUOt1/ePUDH51+BNv9bkRkPC1/jUTY2qtZ91XqWGybmyqzjx2um9rvW4XmpuYe1Gd5Ln4nNc7jBcxH6Q0Zv9nL1nYUaAvctGhMva894AAAAJcEhZcwAACxMAAAsTAQCanBgAABnuSURBVHja7VsHdBNX1r6SJc2ojWUJueAgggvG2IbQi2NjY4oxsTFgIMaLMRB6h9Cr6b13CL2EXkMCoQYISYBAIGWTTTZbzpFVLMkFY4xt8t83RRoJk2RP/t3s/+/enBzkmTdv3nf7ve8NAAA9V6ORIDWbCyxRcyUS7m8GPDS3GV6a28z996Y4ULr/MERERHAPRZBfGv4XGR3bjP1LwxI/REOeCfHciOFepFR43kam00uhBjLo9XqJ19IQAjTLfw0o8aXYuWR63xnYqyxQGtok10MKPPQJ/iZ/v55J/q6X/J3BPZMMziQG1hs3aRj+Yv/sWtFfgE1DzOTkeoHjkpPDwsICA/FB/Dc5GYdPDwW4mhNIJg8TaBxeH56GM4T3CmTfsngxPrX1fOdGyCR+RiUMWBF48GByFuOLWQHN8F31km/qvUDKoWHFRpEY8Gb4lXE4e2JHvCe62q1X8sHA6+3ZVWuWu8xmtfkmw05FA9PYpTari76tL5paCW0cBc17sIwhf120tR7IsQAHLX3FYnt8/8bo0dtuOsxmx9+3jb45qXWhtbj0OL50sMtqLpg58ey2bStXrhw9p1WhuWARck8OV8PMqqJn59rU3bbyvUPPSkrqbYnkZySsL7GYLHWWCBc8y2jqspuKmg/0vZFQPFwi5gQN3XIsJpPD9+pr9QqebeeXrcmxGnUlQ3jGUKDPseiMJavF7JPBVe2iv/AjFBAx1uIUxstg/B77pH56AAa6vWLWFX6FPyh97ymVFe3BD6Q5RcbikRrh7ZLeveyDCBwlNDbrbCN6sDc0vYe61I7MMx4NamE2al3bxEvgrq/B64WrIVZ8FZXvFVv33qDwUoCOdVRGneOs1xRyGGCbJHHrlENlMo/mRYl/v+406RwTxQ+gGlWeEy7Ikee6gpE8I+XwruscUTplCL7erC58FUKUOBW1I7oDyBGAVVfwZjDEKgkRZTob/QE+JIfXXeqCx2/gYCVatWatXWet096tTm0duoCCVqHeUiX4zCbVs0+QnV460NmltWcJ6+eFF3zQpjOpo8d4S69j9Er+AhrCQbPRej2Yf4cM8hZbjNZv9V5KvuxxP168NPLcqi1C9sq5W39GVP6UgluVuvATMi8Vq4SELED8TaxGApufi8Ir2fPxSRqa2lUENnkpJYfgdjhuNz8OYbsC7AGuDt7iJtwwIez3xRaLT0i2mo221l48Ihcfl7hMlsw80WUZvFanrseFbHFoVc++8qjYcmTDiOOe8SiNI80FNshg1Ct2ldrOs00JK9/nuC+D2m7YAP7Q6BzQSoStFcEm2tHoLXyFUgybVTFXgBYth5/z3p9mFmuLhmu8TTNm6/3FVhMquZ8XMxqhwatLOng7tZgjf3+vqERnGRrjmcMLNop+kNlov+n5+4zTZCx5yzONEpIq3vJwadnMScVGW6ue3JLpYXpOv3jYrwoDDcMY8JU2IWk4i6Fppaqg9A23ir0WVqktmiNlB+Ir7n9XbLJGtxcDlEGjij+2s5CVyb1gn19wv0Bn9eIRBYbA5T0XW3Rq1w4PDi/YNFDZREt68k4BnRpObhWtVQl/ePwOMPxoybj+7V12H/bWAJsb7Sttj1O2B3hgo1K2w4HXg3nYnx964yOz1tofaIXokc//9A7qM7odr7AUeee7DLPO2v2Y6DKB3QLSC1UmFfJOWRNs/Pczp0pd2MEjz7oOXeXj3gKrcU1HvhVCAbqw0vaagxZj0UgDL2WqZthkxSzsYm/YCi5Q+sBmZiHsVmns33I4f1+fgKJY3MljaTKI/OgGMWP0vkovgx9xPK+O1WgROzUC+wrAaIfOZGvlnsQbNjIsGcU7ScqLWw5xdSxa8zlhGjnsdG7nR6NDm7ygPpx16Gzdj/s62pdIWwybdv+Ltm17XDNsfEdzZoBLpXXNF1vaptKvYJZZZ74JNOV5AbO1uYTqhetvLQrnnLQheLhNZSqao3G7JTFsosRmLQmign9ptMdutB3qyY8m2tUDfRTHgtq3vgOIG2TVenNdgF1SE2z9C0pOQ0OELZK2vh4OFKIiM+tbhtX6Q/XdUGg4fD8YJpt19vcYMezx0asBBqO6ulMJHnYvCIEli2wqldu8fWDTkKSt1DoE1iqhpdNpDkCf7M+nJ+MmGdwsuIdmTkuz0VO1ru8l7l9h27SCoWuELYeUPRatfSKrDbjmsTcA2rhUKme6x9GOR7eK+YpOcHxukXwJkNbKpisQ5WToyRE2HQIZzgCVDc1bXgNszNS2ehwu6vy4vx8qMlp5rsqgoTtU4oqOfGvALCnfoVY7vZ3aS2Bb2IkZiqIUsVB7fowItse2Q6BlpbZgxDsso3E5gTcBhoVZTQVDDbzloUaiOkITtPiRElG1gAaPqRJk2bU2IZXwwKZoZopNrbLxiQ/CHiSCTRIdh9pWyj0mRyPq19KhK0JjUXAR4k8D3VLZiTqlxKw+Gd+Pa/KFbfKGjYtF2BP4ddKwbCTDmTcHG22b8EMegmblCHB+xz2KGv8RMaC1lSoCRcYnVeNuMErCxWKvGEMMXi6DY91tWstokbsiSk7js/Vb2dSmyils9PaFTRIsu9rOJqSs05I0cqrVXF7OM5TXUjg/syeGMiUsdxit3ZfwFu+BrasBdvGbPZtFRERGLt3ZxPUeJYaN0sb8laQwyVZb4Tne9SDEj7ahArR32lTWLG46lMXjr/BaY7u2+H5PT/5NHUYHS9FgyLZpCzxOjXNp7NTHBlWisezgoHjDxgEJxImRqgtZEH0OIupZjUWTDGw+NaP0A7eOR95hWSqHu93Rp670znhfVHICW1vpjCdUJ9qptr5HeZQ8oODxX5CFhsikP+wpKpm5XfAf+JZbxM/opxMorH4qgDl8vz7CPmvWFi8YKHBbBnFcHsVmeSohyxPBxgsbHQEmK2sAPrbNh+6AQgIPFb60H0Bjh5H4diLYNTM9Pr0tERAbymdZdEV8wBGQ1AgbxbPg/b7pXdLTh2S1qvSCHeC8npOY2C6zu/nxpLcGEtsR+HcA62clrEKn5trIsXl8BeqiHNqaVcUzewgZBaZz6A9k5JHQZJvOY/Ue2EAbplhI9Eb2vQAbNTnQbrSwRbf0awwUcDfaoirBV8qg24GbfLjFIDn2TQnIaJomFbjaVJIuyozompXcjp5cwtfy9RPniANYQOHIK1PmLDZr1c8wT6c8fqrrgSHkzZ0W20y26Wx5x+aJ/nKYYQ4oWHTcXfRijJHy61lrNrk9gRg2cqRVkVZnn2Kg/Xxhk6DlMBa17sTylbgWSSLWI8i9WNao5EKgq+D1CEt2THEscwziRL9GaWM4bl5fKDzH/03jZdtEyUOHW4w2V4aHgTJIiSZBAmtyu8rqHANydKF3MCmkSJWrKqojwFZCw+hXud803NWKUgkRbLzfvrvVpHZuRBvxhY2PRbtUmGeHYI35DshJgmqyPj6OmkechpDHnJ/5JUgZJKkU1qKWL1oiThFqhG02Fjd3x21DD6lXAOvHCRVTy0WeXoockkrHsDU58c+2OcTQNkWTyk4GOxE2ypRPGdH59gSDVGowGBj9cJvR3fRBnXXDxsHznWqTrc4x8HVpJNDNwjIMMwH9OKKT6Cz22HWObYAKN9HNwshxpdPb8TR9scWkM4u6EQoCW1UjbHeDivLK0ghsOepThktlsnoUB6NkKUkwcO1Di7S2Qcexmts6kxR8MkhyWWyFHwjZR9c7pe0OIrVCmr7IguXnECEGSo+4YaPoe1l1Ktv0+i/AZkO30YZ9roYYmOWkxM5BY58QDJ1FRfHD0v4t3dQ4mTg1T8tN8XJp1xflF6KcvIDtXaB7xLZWQOEYQXFQlUf0Js5aCX2dKpNjJSbDFRO5CDTeaA0Q8l/ifPu3bCxQVpgnlfGSNjHvTJtJVdkfW011fTPqroPsRjSA85jsydiuoVNreXwMxjZ3Jxtw+JBelCm0cZnUuFi/X1by+jXk5G7YpMXlVOksE/TuePEQmxz+bGtoN2aLGMNacoUv0UFrAF8XKbCV8KZEtJ7lLq2le28+0TOIYHPmjW7i1YHd6/o26Jhs6x778J53brAFDjYf6iAbdlyNfsudyKdgkAxRyuVK/F8eC13DLDrrFHeCzLo0bQ2wC5oH/yxsFE0vq1FdOMTtqR6OGMaunmNtyRD9R5OkXJrVcVCRys6tCNsO0dvZ9bAUAmeiA3QoUZp+ATaO3+FC8178RZgvbCXkPzMW1fkb+g7ON1Kk4n3zRvQ7fHKAQbK0h6jThO1Bi1HtcUU1waa9XRoIxavQVOrH19dn9qiM1la860TlXcRlJKidizGNGrm94hMeaV6YTcVlk8TBjvCqNfXtKnV8T80XNrquXpUmU3HzEVt8YGPvvW9Wa2fRgp7Cy/MdJlVh9Eh3ysgGSUrUTu3rdKgt2zw10otxmytFfJRc4SNt5APTAv2RUCBiMEUH5s/9xL6yvftjvgClIC3QpqoczSfNd24w3s18l1rlGMIpEFuKiG04NLNIrSpwtRH1mPxZQimkZbQ+59bppckY7lzb3eVow9JXxe0cLEjr9p/TesFAdz/spbDF0qZhbl8N23V2wyZ9+EFWk5VvpqAazazPwcaOxyCzSW3hDU0BkrFYn7wHrL60jf5AvB4Z1mxFpiK2/HwBNg5vH21VqR0CbJmfu/MRG4LAu3kGNjHrCmZ6mg+eJJVTHPKbCR4zTATb8SJsq49LC4G2c7hmu8nm7kKTzESntq/lV5o9s74Qfxk0NesifhE0SLdWam2knaUAw9etvbWIhit2LZd9k9q1l2/37qzdDZvCCojpljp13ryps7GjiSWxKNYMcOpsk3gdJxtfNz2Fnb+/HxkdG+JdiiDs1TVKm9SXSDLM1Lremkga6J+5VDbetvnmvNZceIZtoVOz3B0MObcIgxBMmFlYlxOfj1VbpU97B8eWqLQWsj2Hhh44FLzELQPJcJuWU3LMziPnnejz008/Pa06tXDX1AhQxoqUuJ61cDXv4DB7K3yff40/G7MYKdtLDfF3e/K4PQ6vRjNhMQqrSNxUYhqOIwrB+mhrqSBtHLjKoTNap+P+CQOSwEW8bRO1bmf1sJImsG0PsPZVUmucH3jDRsuv58J8DxtgmM2GHfJpZclhSZiNlTaGjnVHTx09+eHJ9ZufPmlQXXX6Uz34K9xrvljQ+ktBvZLulLCwFX54odvUdbsunTixa93tUP4Ka2x2HfYeRNttmNcFFumKm3/ZLDw8Eql2UtvJe4rqkJ4sM7kyQG2dKKoUp5jVRtcUPdl5CqgY42njtnEvglSOH9kCSKUYAjMCKl6ArWln1Rmx6GDnwFaSzEfNu1RYWGlHXvjhdk8NI5V02rdhWlWDoKinJ/eBwl/oDcdV/I3hQBs2xRcWHjoGtJ8C/GdvWFj1tKy8vOxp2dOFl/dJgCaiYfLrPEOK7h8O7upyaU5JYWHh4xF1WCotLcUBJQtCgW7WJBpvOEcMkXriT/9nJWbLwU1pM+ILSx6NYQQdyjsg9HAxD0wsKcT/Wp+RdB5UGD2ho5ca01QbMv+zZ0O7Mk0XFzpzB3jdJrizWCUP/+ttz53wT6dV1wp6vnlDGoLjFi5dyTXfsMLLyBg8OKM9dgCZ1Et9yqqDanEUFFX29PS8GJD7gWZwl8FIfTM6ejLwrqu6EHqdpYyMjA7p6ekdxmAvaunGDkjpGR30nmyHOdN/+ITp/Xt0GZI+OCNdw7dQaBgwjF8kBXEb2flWjQldhetZdUyMC42yA5k/Ha9rOmR06ZI/2GdfXwb6ofkIKBSzAnQ2CgWl8EMxpu3tU12rQfm0TzUi/+5N0tRLb5cj3Kgn5WVlZeXPoxD586oP91HgX/MDv0Q0pRAaQah9jISBfyJhXONamIxnsf5+fpB6+mlQrScIA0OEHwKRu2/HxsaiqiNoFDTawuaTlzfs3XBpWlVZVFCtBs/7XEDFjZWzRbVcHOSUL1JsrJ+fl/LRfn4sk2klm4kpaDJKZJai38J8Mhnt8ybOLLm72FKU+cwhPM++mPK+IfODiA1VT2rVer75BDp1BfgJhG4OdWjeCR700e9T9WzUDk+9sLA8KigoqHohqoi/389LXEb5+/FdsNhm4Xn7Z8+evT8v3MDFJu5ZioJ/KtU8P2r6vtPlBHjVtL2pepFy501Fn8eD/gZFS7TBjzAjdO/C6gZBQVGoIgzIXq6jFDEjshGalzpv764Tpxde6/M2oWvTTmyYR3IG4h9+L8JTJfq918oRx5OnfabtWjdvX2pq6tR1G04srGKlSkATl+fP96z8ZArIu/D2k6CgBk/6XJ5NEY19QbdQyCxkKnL2vA2nF/Z5+hSjQBnmCptPrV+//tTmn37avHDXvG4kS1b8XsDRWe+/0KecmOyT8qdVRCBVZWXVBDMG9pMEtILxtgx0CYRRDar7XNoXg4qgIFahkMlkCgUC5oQMkanrLk1DxNVRT6oR78nLez/dN3t/p9DQTvtnYxZw9NT6XakMwO+GW4Fvnr3haFX5kwa1ME4hnAao2w2inlet/+E25iJ+ihc1JGLdteqgBkENyqtOr0sN97EfKmL/1HWXFr5dVh7FesP1H35/u4fE98DZ/nmXT56YGvNPt+6Xkz/6u7TbF1A2GKIIlZdV9Vl4+ZtOGAdr9FrIif27+qCJo1Moq5p2ae+81P3dMCvrtp8YyKVp16rKiMMIqn566uT3tzuxe0hEJRiGq/38OVbqp37/fT8D/H7kR7yLfjbxPR+e/vBDVMjU+kQDmZfooAKLntm7+pShgtSKqi4re/p2n2sLFxKvVVWOiDG6N4gq37z+h284Kcf6y15otyjYTL/bp38NBer3Ay7oMoPNWClvxP4/ryGy/ejsy583YNO3qCdIUVEkkasVhE5i89HLn3YiPgFl+zJYbHIfHuqTUv7LkQvKh8L0/+UkjJhG+NQLp9E0yqoRMUtPqhHxqaM/fLMvjSLB2f8X3wn/HqRQ/Grn6k/yd8nsqXsvf3gUA9Opa+uPnvzhwt7b7wQTnil+XfpKUfB/jmSsUwBKE9GtE1JoeIQUBP8F/6+JYhivhAUVm6HgP4NIVedPUhbqPwXxf+m/9J9Nv9XSFf9OYJT86XdClLsJQtITbnPH3XlX0kq58DUMe8/9iOdZRQjfNqH5Vg2tFG7K8XnZvw1q2legCvofErXnKKVCaPuITlfSL3nP7w7asIx85UFD24SENZ3TiBjn3puc3TYCYGc+++0R18+mYdT5nITP8HuotnHktGW+FJgt2QlrLnbDrj95lvygIeJedvaWYBywtEl2QkJbCTT7Q3ZCi4ScAQDvTs453+hfhZ6m+Y0cntjdZE+DToknrckXFjR8PbTzxa14UgJGHZmwZUtmfwbuTTAo/WDsH7mjY6OOzGnTcugwPO70Op7ceLhCA5pxwztfTNwdCpqxEzpfzNmdh53ksde3bCGXYPyI/p0vHrlimNu58+T4usvuwozcrPwmWdzXAHI0hVh2a5tfFbdGiqbpfxAcgaegWeL0jPpVuQYNH7+VyB7U+vgM0DFj5+MJL3L6rFlXP/jzSKLas3jY9w5htxa/aqMO90XYMxI1ELPiVTy2O3YbGBLxLBg1qz9OghvLuN+XLYWU1njG9LX49mQHZEIMPv8x7qFQGupX5kuUgApZoiBS+8cYwkg1+Kle5NLatUeNSklJSUraufPdd2c8fNj5LqtueNBkhX7ZcLLR/PEAXNvk0bDz0ZdA2sv49cyC9BmfNU3mYTe6deUuuxtwuAsPW5NJjkZNzsKNzPn4o8UcSIl/A3A/MS5+CaQ8QtjBuWPIHul1Pe7NbYlv05XbYMeDFZ3btt00Y8a7DXc2SkpKSRk1qvbSpZHN8JPDGOmvS4UN4QPf6ffjF1988f77q7dvnD9/28qsxmuvtEjIzsYTgitWZGYm54bF3zpwILrCyVJJiQO/crNaCs7xhxvXbISlu48hkI/rjkq5h8t+9wHZEJbjx0EPD0xIzBle8Ufetpsm5ubWRWEefp2HLVkxcVTKsvjjKO3Ro1Laxo+Bho+Gkf3I2rntIWVRh5Txax7gmTaELcGjKzF1VyweO4Db295Saa20OJC4RVVUVBw4cGtQfFhubm5m5ooViYk52Qm9rlxZ3jhr5bb587dvX/0+Ivzrjz/++JeBGq5aNEjC00JD8/I6IsUhjR8/PimpEVLDpk37IuE2Tv6qVat27DibhQxZu3bKlF5Dh0+f3mo7d5R11J3szz8/sJYoYfzuXDzvCym5PfD4HdnJ/vNQKR5gm+XeBJXW3nQrAxU5A+9tSjTgJn387szd+PWh4fCt3Q8epFPQMb43hOCB4/geEHfg0e5bDwYSF0lgs9/JdW0Z3xFlLYfPWk2fPmH40F69puCKsrLOnq27Y9Wq/HxcK1ly04YNCYCkpCQEExd39erVjh2HDSMlYVq45LeUgoxBYuCPsV8/27Lx8txhAF93YfISB4OSmZyDpzdHNWIQNrbO4TALGx15HD4wC49bnZ+Az348BWvzFUMk4Xh6kii5pJuB+MUWmegTw4+8x0DSozfg7oqrGO2h7W5iHEnYUk6L5754YfQaw2/cN6JFblrw1G5SKkPwMJB4M4cWeUsUdiZ79jZxOcJuCtAUjRLSZuU2WZM70UA8Oe5TC578s9ycJmMz8X5e5oomXz9ARulzu2Cug5mIdMUOcuwQP6ILzs5NWJM7FPmW9AiHXnwQTI7wPNAjb5Y/SmhyZI5o15p1vz5bTSFKpdyHSOOa7V+z/p7+X8gzcQ9yjAEZA3F9KRjwGtE+skeqmdGy8QB02yljiJT7LuFiLZVycfmWPBKbwzsvr0s6hczgjny+OeAq8N9TMA3xWXJ6YekQ3DE2ZBCl7jqGuLKYhi2X5wuof8Py/wcOatHnPxT1gwAAAABJRU5ErkJggg==","LOGO_COGS":"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"};
+const PERSONAS = DATA.PERSONAS;
+const PAIN_POINTS = DATA.PAIN_POINTS;
+const HOT_BUTTONS = DATA.HOT_BUTTONS;
+const LIFESTYLE_GOALS = DATA.LIFESTYLE_GOALS;
+const COMMUNICATION = DATA.COMMUNICATION;
+const SHOE_SITUATIONS = DATA.SHOE_SITUATIONS;
+const URGENCY = DATA.URGENCY;
+const BUDGET_VIBES = DATA.BUDGET_VIBES;
+const TWISTS = DATA.TWISTS;
+const FLAGS = DATA.FLAGS;
+const LOGO_WATERMAN = DATA.LOGO_WATERMAN;
+const LOGO_COGS = DATA.LOGO_COGS;
+
+/* ---------------------------------------------------------------------------
+   Frameworks. The Quad names CARE, AAH, W.R.A.P., the 3-Step System and the
+   Complete Solution all over the place; this sheet used to name two of them and
+   define none. Every string below is quoted verbatim from the game that owns
+   the framework so the wording matches the rest of the Quad:
+     CARE letters + AAH  -> three-step-showdown.html (CARE bank)
+                            care-floor-commander.html (trivia + "what you will drill")
+     W.R.A.P. four beats -> fear-buster.html (briefing)
+     3-Step / Complete Solution / WOW -> tunnel-run.html (BANK)
+                                         three-step-showdown.html
+   Don't paraphrase these. If the source game changes, change them here too.
+--------------------------------------------------------------------------- */
+const FRAMEWORKS = [
+  { id: "care", name: "CARE", sub: "The floor model",
+    items: [
+      ["C — Connect", "Greet at the entrance the moment a Client arrives. A double greet tells them the whole store is glad they came."],
+      ["A — Assess", "Read the room before you step in, and answer a red flag before the timer on that moment dies."],
+      ["R — Recommend", "A complete solution built on what you assessed. On the floor it shows up as Respond: AAH the reds, amplify the WOWs, never hijack."],
+      ["E — Elevate", "Coach the Specialist in the backroom while the demo is still warm. Elevate, never steal."]
+    ],
+    src: "care-floor-commander · three-step-showdown" },
+  { id: "aah", name: "AAH", sub: "Add · Amplify · Hand back",
+    items: [
+      ["Add", "Add to what the Specialist said."],
+      ["Amplify", "Amplify the result the Client felt."],
+      ["Hand back", "Then hand ownership back. AAH without the hand-back is a steal."]
+    ],
+    src: "care-floor-commander · three-step-showdown" },
+  { id: "wrap", name: "W.R.A.P.", sub: "The four beats",
+    items: [
+      ["W — Why", "Understand the need first. Educate before anything else moves."],
+      ["R — Ready", "Build enthusiasm. Let them feel the lift before money enters the room."],
+      ["A — Answer", "Answer the actual question with specifics — clinical backing, real numbers, real options."],
+      ["P — Pain Better", "Put the relief in their hands and confirm the improvement live."]
+    ],
+    src: "fear-buster" },
+  { id: "3step", name: "3-Step System", sub: "Three pairs, worn together",
+    items: [
+      ["Strengthener", "Workhorse — repositions foot, four arches, longest adjustment. Classic is the most popular: metatarsal support, heel-pain relief."],
+      ["Maintainer", "The bridge between correction and daily function — between the corrective Strengthener and everyday activity."],
+      ["Relaxer", "Mild support, any shoe, little adjustment. Recovery and off-loading after stress on the feet — the recovery step after the foot has worked."],
+      ["As a system", "Three pairs: Strengthener, Maintainer, Relaxer — as a system. Worn together as a system. A single pair is partial."]
+    ],
+    src: "tunnel-run · three-step-showdown" },
+  { id: "solution", name: "Complete Solution", sub: "vs. a Partial Solution",
+    items: [
+      ["Solution Component", "Socks are a Solution Component that protects comfort every hour — not an optional extra. Add-on language is what separates the system."],
+      ["Partial Solution", "Supported in one pair, unsupported the other 16 hours: they haven't solved the problem, only part of it. Calling the rest an extra conversation for later puts most of their day outside the Solution."],
+      ["Footwear's job", "Brooks Ghost and Adrenaline carry the correction into the shoes the Client wears most. Supports work when footwear works with them. Name the job, not the transaction."],
+      ["Never step down first", "If the investment lands high, reconnect to the goal before changing the Solution. Pulling pieces teaches the Client the price was padding."]
+    ],
+    src: "tunnel-run · three-step-showdown" },
+  { id: "flags", name: "Green flags & red flags", sub: "What the Floor Leader watches",
+    items: [
+      ["Green", "Protect the moment — do not steal. Protect green · amplify WOW · hand back ownership."],
+      ["Red", "Answer it fully. A red flag unanswered is a sale that walks out the door."],
+      ["WOW Moment", "A guest feels heard and cared for — real relief or hope. WOW = Empathy + Expertise + Experience. Name the win, go quiet, and hand back to the Specialist."]
+    ],
+    src: "care-floor-commander · three-step-showdown · tunnel-run" }
+];
+
+/* Floor Leader prompts, grouped by the framework beat each one exercises. The
+   four originals live in "open" and "product" so the old wording survives. One
+   prompt is drawn from each group every round, so the plan changes round to
+   round instead of being the same four questions forever.
+   {sp} {cl} {fl} interpolate to the cast. */
+const PLAN_BANK = {
+  open: { tag: "CARE · Connect + Assess", qs: [
+    "What brought them in today?",
+    "Pain level right now?",
+    "What do they want to get back to?",
+    "Before {sp} steps in — what did you read on {cl}'s face and in their walk?",
+    "Did {sp} Connect before they assessed, or start pitching at the door?"
+  ]},
+  wrap: { tag: "W.R.A.P.", qs: [
+    "W — Why: did {sp} educate before anything else moved, or did price come first?",
+    "R — Ready: where in the demo did {cl} actually feel the lift?",
+    "R — Ready: did money enter the room before the feeling did?",
+    "A — Answer: name one specific {sp} gave — clinical backing, a real number, a real option.",
+    "A — Answer: which question got deflected instead of answered?",
+    "P — Pain Better: did {sp} confirm the improvement out loud while {cl} could still feel it?"
+  ]},
+  product: { tag: "3-Step System", qs: [
+    "Which system will you present?",
+    "Which of the three — Strengthener, Maintainer, Relaxer — did {sp} present, and why that one?",
+    "Was the wear schedule coached, or assumed?",
+    "Did {sp} present three pairs as a system, or one pair plus extras?"
+  ]},
+  solution: { tag: "Complete Solution", qs: [
+    "What happens in the other 16 hours {cl} is not in that pair of shoes?",
+    "Were the socks presented as a Solution Component, or as an add-on?",
+    "Did the footwear get a job — carrying the correction into the shoes {cl} wears most?",
+    "If the investment landed high, did {sp} reconnect to the goal before changing the Solution?"
+  ]},
+  green: { tag: "Green flag · AAH", qs: [
+    "The green flag was live — was it protected, or talked over?",
+    "Was the WOW named once and then handed back to {sp}?",
+    "If you stepped in: did you Add, Amplify, and Hand back — or did you finish their close?"
+  ]},
+  red: { tag: "Red flag · AAH", qs: [
+    "The red flag was live — was it answered fully, or left to walk out the door?",
+    "If you stepped in: did you Add, Amplify, and Hand back — or did you finish their close?",
+    "Did {sp} step down on price, or answer the value?"
+  ]}
+};
+
+/* The debrief check. Q1–Q3 are built at run time from the flag that was drawn
+   (the other ten flags are the distractors). Q4–Q5 come from this bank, which
+   is the FRAMEWORKS wording turned into questions — same phrasing the rest of
+   the Quad uses. */
+const FRAMEWORK_CHECK = [
+  { cat: "CARE", q: "In the CARE model, what does the C stand for?", choices: ["Close first", "Connect", "Compare prices", "Confirm the sale"], a: 1, why: "C is Connect — greet at the entrance the moment a Client arrives. A double greet tells them the whole store is glad they came." },
+  { cat: "CARE", q: "What does the A in CARE stand for?", choices: ["Argue price", "Assume the sale", "Assess", "Approve financing"], a: 2, why: "A is Assess — read the room before you step in, and answer a red flag before the timer on that moment dies." },
+  { cat: "CARE", q: "What does the R in CARE stand for?", choices: ["Rush the walk", "Reduce the price", "Recommend", "Refund"], a: 2, why: "R is Recommend — a complete solution built on what you assessed. On the floor it shows up as Respond: AAH the reds, amplify the WOWs, never hijack." },
+  { cat: "CARE", q: "What does the E in CARE stand for?", choices: ["Exit early", "Elevate", "Escalate to a manager", "Explain the warranty"], a: 1, why: "E is Elevate — coach the Specialist in the backroom while the demo is still warm. Elevate, never steal." },
+  { cat: "AAH", q: "AAH stands for what?", choices: ["Argue · Assume · Hustle", "Ask · Answer · Hold", "Add · Amplify · Hand back", "Approach · Advise · Handle"], a: 2, why: "Add to what the Specialist said, amplify the result the Client felt, then hand ownership back. AAH without the hand-back is a steal." },
+  { cat: "AAH", q: "The Floor Leader says AAH, then finishes the close for the Specialist. What just happened?", choices: ["A clean save", "A steal — AAH without the hand-back", "Correct use of Elevate", "A double greet"], a: 1, why: "AAH without the hand-back is a steal. Elevate, never steal." },
+  { cat: "W.R.A.P.", q: "In W.R.A.P., what does the W — Why — do?", choices: ["Pitch the price and the 3-Step immediately", "Help them understand the need first. Educate.", "Ask why they waited so long to come in", "Explain why the store is busy today"], a: 1, why: "W is Why: understand the need and educate before anything else moves. Price first skips trust." },
+  { cat: "W.R.A.P.", q: "What is R — Ready — in W.R.A.P.?", choices: ["Ask if they can afford it before they stand up", "Build enthusiasm — let them feel the lift", "Have the paperwork ready while they walk", "Ready the next Client in line"], a: 1, why: "Ready taps emotion — let them feel the lift before money enters the room. Money before feeling kills Ready." },
+  { cat: "W.R.A.P.", q: "What does A — Answer — mean in W.R.A.P.?", choices: ["Answer the actual question with specifics — clinical backing, real numbers, real options", "Answer every question with another question", "Tell them not to worry about the details", "Answer only once the sale is written"], a: 0, why: "Answer means specifics: biomechanical design, clinical results, real payment options. Deflection is not an answer." },
+  { cat: "W.R.A.P.", q: "What is P — Pain Better — in W.R.A.P.?", choices: ["Warn them the break-in will hurt", "Put the relief in their hands and confirm the improvement live", "Promise the pain is gone forever", "Push past the price objection"], a: 1, why: "Pain Better means they walk in the supports and you confirm the change out loud, while they can still feel it." },
+  { cat: "3-Step System", q: "The 3-Step System is…", choices: ["One pair plus optional extras.", "Three pairs: Strengthener, Maintainer, Relaxer — as a system.", "A wear schedule with no products.", "Whichever single pair fits today's shoes."], a: 1, why: "Worn together as a system. A single pair is partial." },
+  { cat: "3-Step System", q: "The Strengthener's job?", choices: ["Mild support, any shoe, little adjustment.", "Workhorse — repositions foot, four arches, longest adjustment.", "Recovery after the foot has worked.", "Style only — for dress shoes."], a: 1, why: "Strengtheners reposition the foot. Mild support in any shoe with little adjustment is a Relaxer." },
+  { cat: "3-Step System", q: "Maintainers are often described as the bridge between what?", choices: ["Socks and shoes only", "Correction and daily function", "Running and swimming", "Kids and adults only"], a: 1, why: "They bridge the corrective Strengthener and everyday activity." },
+  { cat: "3-Step System", q: "Relaxers support which customer moment?", choices: ["Only at purchase", "Recovery and off-loading after stress on the feet", "Never at home", "Only in formal shoes"], a: 1, why: "They are the recovery step after the foot has worked." },
+  { cat: "Complete Solution", q: "A Client asks about the socks. How do you present them?", choices: ["They're a great add-on if you want them", "They're a Solution Component that protects comfort every hour", "They're free with a big enough purchase", "They're only for athletes"], a: 1, why: "Solution Component — not an optional extra. Add-on language is what separates the system." },
+  { cat: "Complete Solution", q: "A Client is supported in one pair of shoes and unsupported the other 16 hours of the day. What is that?", choices: ["A Complete Solution", "A Partial Solution — they haven't solved the problem, only part of it", "A smart way to start", "The recommended wear schedule"], a: 1, why: "A Partial Solution is incomplete. Calling the rest an extra conversation for later puts most of their day outside the Solution." },
+  { cat: "Complete Solution", q: "What job do the Brooks Ghost and Adrenaline do in the Solution?", choices: ["Premium upsell after the supports", "They carry the correction into the shoes the Client wears most", "They replace the Maintainer", "They are only for the test walk"], a: 1, why: "Supports work when footwear works with them. Name the job, not the transaction." },
+  { cat: "Complete Solution", q: "The investment lands higher than the Client expected. What is your FIRST move?", choices: ["Remove the most expensive component", "Reconnect to the goal before changing the Solution", "Offer a quiet manager discount", "Split the difference on price"], a: 1, why: "Never step down first — reconnect to the result they came for. Pulling pieces teaches the Client the price was padding." },
+  { cat: "WOW Moments", q: "A WOW Moment happens when a guest…", choices: ["Feels heard and cared for — real relief or hope", "Buys the full system and leaves quickly", "Asks the fewest questions", "Agrees with everything you say"], a: 0, why: "WOW = Empathy + Expertise + Experience. Speed-to-close is not a WOW." },
+  { cat: "WOW Moments", q: "A Specialist is mid-demo and the Client has a WOW moment. What is the strongest move?", choices: ["Take over and finish the demo yourself", "Name the win, go quiet, and hand back to the Specialist", "Jump straight to price while they are excited", "Stack three more product pitches on it"], a: 1, why: "Amplify the WOW, then let silence work. A WOW is Empathy + Expertise + Experience — and ownership stays with the Specialist." }
+];
+
+/* Pairs that make a sheet redundant or self-contradictory. Each rule names the
+   field to re-roll when it fires. Generate() and every re-spin run these, so a
+   "no rush, just looking" Client never also arrives at 9/10 pain. */
+const CONFLICTS = [
+  { fix: "urgency",       hit: function (c) { return c.painLevel >= 8 && c.urgency.label.indexOf("No rush") === 0; } },
+  { fix: "urgency",       hit: function (c) { return c.twist.label === "Only has 20 minutes today" && c.urgency.label.indexOf("No rush") === 0; } },
+  { fix: "urgency",       hit: function (c) { return c.hotButton.label === "Dance at a wedding coming up" && (c.urgency.label.indexOf("No rush") === 0 || c.urgency.label === "Been putting this off for years"); } },
+  { fix: "painPoint",     hit: function (c) { return c.painLevel >= 8 && c.painPoint.label.indexOf("General") === 0; } },
+  { fix: "hotButton",     hit: function (c) { return c.painLevel >= 9 && c.hotButton.label === "Train for a 5K / race"; } },
+  { fix: "hotButton",     hit: function (c) { return c.painPoint.label === "Pain when standing at work all day" && c.hotButton.label === "Finish a full work shift pain-free"; } },
+  { fix: "lifestyleGoal", hit: function (c) { return c.painPoint.label === "Pain when standing at work all day" && c.lifestyleGoal.label === "Standing 8–10 hours at work"; } },
+  { fix: "lifestyleGoal", hit: function (c) { return c.painPoint.label === "Post-surgery recovery on feet" && c.lifestyleGoal.label === "Pickleball 3x a week"; } },
+  { fix: "budgetVibe",    hit: function (c) { return c.twist.label === "Wants the cheapest option first" && (c.budgetVibe.label === "Investment-minded" || c.budgetVibe.label === "Already budgeted for a solution"); } },
+  { fix: "budgetVibe",    hit: function (c) { return c.flag.label === "Price objection before value" && c.budgetVibe.label === "Already budgeted for a solution"; } },
+  { fix: "budgetVibe",    hit: function (c) { return c.communication.label === "Brought a spouse who decides" && c.budgetVibe.label === "Spouse must approve the spend"; } },
+  { fix: "communication", hit: function (c) { return c.flag.label === "Oversharing personal stories" && c.communication.label.indexOf("Storyteller") === 0; } },
+  { fix: "communication", hit: function (c) { return c.flag.label === "One-word / disengaged" && (c.communication.label === "One-word answers" || c.communication.label === "Asks great questions"); } },
+  { fix: "communication", hit: function (c) { return c.flag.label === "Neutral language" && c.communication.label === "Emotional and tearful about pain"; } },
+  { fix: "twist",         hit: function (c) { return c.communication.label === "Brought a spouse who decides" && c.twist.label === "Silent partner watching everything"; } },
+  { fix: "twist",         hit: function (c) { return c.communication.label.indexOf("Comparison shopper") === 0 && c.twist.label === "Mentions a competitor store visit"; } },
+  { fix: "twist",         hit: function (c) { return c.shoeSituation.label === "Old custom orthotics in a bag" && c.twist.label === "Previously bought online orthotics"; } },
+  { fix: "twist",         hit: function (c) { return c.budgetVibe.label === "Comparing to drugstore inserts" && c.twist.label === "Previously bought online orthotics"; } },
+  { fix: "twist",         hit: function (c) { return c.budgetVibe.label.indexOf("Price-sensitive") === 0 && c.twist.label === "Wants the cheapest option first"; } },
+  { fix: "twist",         hit: function (c) { return c.twist.label === "Loves the feel, worried about commitment" && (c.flag.label === "One-word / disengaged" || c.flag.label === "Shoes back on early"); } },
+  { fix: "twist",         hit: function (c) { return c.flag.label === "Puts supports into their own shoes" && c.twist.label === "Afraid supports will feel bulky"; } }
+];
+
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const shuffle = (arr) => {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+};
+const KEY = "ncr-player-names-html";
+const SCORE_KEY = "ncr-check-scores";
+let state = null;
+let check = null;
+let regenArmed = null;
+
+document.getElementById("logoW").src = "data:image/png;base64," + LOGO_WATERMAN;
+document.getElementById("logoC").src = "data:image/png;base64," + LOGO_COGS;
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+function getNames() {
+  return [
+    document.getElementById("p1").value.trim(),
+    document.getElementById("p2").value.trim(),
+    document.getElementById("p3").value.trim(),
+  ];
+}
+function namesReady(n) { return n.every(Boolean); }
+function assignRoles(names) {
+  const s = shuffle(names);
+  return { floorLeader: s[0], specialist: s[1], client: s[2] };
+}
+
+/* Pain is deliberately coupled to the flag: a red flag round runs hotter than a
+   green one. Both generate() and the pain re-spin go through here so the
+   coupling survives a re-spin. */
+function rollPain(flag) {
+  return flag.kind === "red"
+    ? 5 + Math.floor(Math.random() * 5)
+    : 3 + Math.floor(Math.random() * 6);
+}
+const TABLES = {
+  persona: PERSONAS, painPoint: PAIN_POINTS, hotButton: HOT_BUTTONS,
+  lifestyleGoal: LIFESTYLE_GOALS, communication: COMMUNICATION,
+  shoeSituation: SHOE_SITUATIONS, urgency: URGENCY, budgetVibe: BUDGET_VIBES,
+  twist: TWISTS, flag: FLAGS,
+};
+function rollField(c, key) {
+  if (key === "painLevel") { c.painLevel = rollPain(c.flag); return; }
+  c[key] = pick(TABLES[key]);
+  if (key === "flag") c.painLevel = rollPain(c.flag);
+}
+function conflicts(c) {
+  var out = [];
+  for (var i = 0; i < CONFLICTS.length; i++) {
+    try { if (CONFLICTS[i].hit(c)) out.push(CONFLICTS[i].fix); } catch (e) {}
+  }
+  return out;
+}
+/* Re-roll only the fields a rule points at, until the sheet reads straight.
+   Bounded so a pathological table can never spin forever. */
+function harmonize(c, only) {
+  for (var pass = 0; pass < 60; pass++) {
+    var bad = conflicts(c);
+    if (!bad.length) return c;
+    var key = only && bad.indexOf(only) === -1 ? only : bad[0];
+    rollField(c, key);
+  }
+  return c;
+}
+/* Five prompts, one per framework group, re-drawn every round. The flag group
+   follows whichever flag was dealt. */
+function rollPlan(c) {
+  var groups = ["open", "wrap", "product", "solution", c.flag.kind === "green" ? "green" : "red"];
+  return groups.map(function (g) {
+    return { tag: PLAN_BANK[g].tag, q: pick(PLAN_BANK[g].qs) };
+  });
+}
+function planText(c, q) {
+  return String(q)
+    .replace(/\{sp\}/g, c.cast.specialist)
+    .replace(/\{cl\}/g, c.cast.client)
+    .replace(/\{fl\}/g, c.cast.floorLeader);
+}
+function generate() {
+  const names = getNames();
+  const flag = pick(FLAGS);
+  const c = {
+    persona: pick(PERSONAS),
+    painPoint: pick(PAIN_POINTS),
+    painLevel: rollPain(flag),
+    hotButton: pick(HOT_BUTTONS),
+    flag: flag,
+    lifestyleGoal: pick(LIFESTYLE_GOALS),
+    communication: pick(COMMUNICATION),
+    shoeSituation: pick(SHOE_SITUATIONS),
+    urgency: pick(URGENCY),
+    budgetVibe: pick(BUDGET_VIBES),
+    twist: pick(TWISTS),
+    cast: assignRoles(names),
+    view: "sp",
+  };
+  harmonize(c);
+  c.plan = rollPlan(c);
+  return c;
+}
+function respinField(key) {
+  if (!state) return;
+  var kind = state.flag.kind;
+  rollField(state, key);
+  harmonize(state, key);
+  if (key === "flag" && state.flag.kind !== kind) state.plan = rollPlan(state);
+  render();
+}
+function respinRoles() {
+  if (!state) return;
+  const names = getNames();
+  if (!namesReady(names)) return;
+  state.cast = assignRoles(names);
+  render();
+}
+
+/* ------------------------------------------------------------------ views */
+function fieldCard(title, value, detail, key) {
+  return (
+    '<div class="card"><div class="card-top"><div class="card-title">' + esc(title) + "</div>" +
+    (key ? '<button type="button" class="btn-small" data-field="' + key + '" aria-label="Re-spin ' + esc(title) + '">Re-spin</button>' : "") +
+    '</div><div class="card-value">' + esc(value) + "</div>" +
+    (detail ? '<div class="card-detail">' + esc(detail) + "</div>" : "") + "</div>"
+  );
+}
+function clientFields(c, withRespin) {
+  var r = withRespin;
+  return (
+    fieldCard("Pain point", c.painPoint.label, c.painPoint.detail, r && "painPoint") +
+    fieldCard("Hot button", c.hotButton.label, c.hotButton.detail, r && "hotButton") +
+    fieldCard("Lifestyle goal", c.lifestyleGoal.label, c.lifestyleGoal.detail, r && "lifestyleGoal") +
+    fieldCard("Communication", c.communication.label, c.communication.detail, r && "communication") +
+    fieldCard("Shoe situation", c.shoeSituation.label, c.shoeSituation.detail, r && "shoeSituation") +
+    fieldCard("Urgency", c.urgency.label, c.urgency.detail, r && "urgency") +
+    fieldCard("Budget vibe", c.budgetVibe.label, c.budgetVibe.detail, r && "budgetVibe") +
+    fieldCard("Twist", c.twist.label, c.twist.detail, r && "twist")
+  );
+}
+function personaHero(c, opts) {
+  var painClass = c.painLevel >= 8 ? "red" : c.painLevel >= 5 ? "warn" : "green";
+  var flagClass = c.flag.kind === "green" ? "green" : "red";
+  var badges = '<span class="badge primary">New Client</span>';
+  if (opts.showPain) {
+    badges += '<span class="badge ' + painClass + '">Pain ' + c.painLevel + "/10" +
+      (opts.respin ? ' <button type="button" class="btn-small" data-field="painLevel" aria-label="Re-spin pain level">↻</button>' : "") + "</span>";
+  }
+  if (opts.showFlag) {
+    badges += '<span class="badge ' + flagClass + '">' + (c.flag.kind === "green" ? "Green" : "Red") + ": " + esc(c.flag.label) +
+      (opts.respin ? ' <button type="button" class="btn-small" data-field="flag" aria-label="Re-spin flag">↻</button>' : "") + "</span>";
+  }
+  return '<div class="hero"><div class="row-between"><div>' +
+    '<div style="font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-subtle)">' + esc(opts.eyebrow) + "</div>" +
+    "<h2>" + esc(c.persona.name) + "</h2>" +
+    '<p class="meta">' + esc(c.persona.ageRange) + " · " + esc(c.persona.occupation) + "</p>" +
+    '<p class="vibe">“' + esc(c.persona.vibe) + '”</p></div>' +
+    (opts.respin ? '<button type="button" class="btn-small" data-field="persona" aria-label="Re-spin persona">Re-spin</button>' : "") +
+    '</div><div class="badges">' + badges + "</div></div>";
+}
+function viewSpecialist(c) {
+  var best = bestFor(c.cast.specialist);
+  return '<div class="viewnote sp"><strong>' + esc(c.cast.specialist) + '</strong> — this is what you would have on the floor and nothing more. ' +
+    'The flag and the right move are on ' + esc(c.cast.floorLeader) + '’s view. Find them yourself, then take the check.</div>' +
+    personaHero(c, { eyebrow: "Walks in · played by " + c.cast.client, showPain: false, showFlag: false, respin: false }) +
+    '<div class="grid">' +
+    fieldCard("What they say brought them in", c.painPoint.label, "They will give you the details — ask.", null) +
+    fieldCard("What you can see on their feet", c.shoeSituation.label, c.shoeSituation.detail, null) +
+    "</div>" +
+    '<div class="mission"><div class="card-title">Your job this round</div><ul>' +
+    "<li><strong>W.R.A.P.</strong> — Why, Ready, Answer, Pain Better. Educate before anything else moves.</li>" +
+    "<li>Find the hot button. It is not written here; " + esc(c.cast.client) + " is holding it.</li>" +
+    "<li>Present a <strong>Complete Solution</strong>, not a Partial one — the other 16 hours count.</li>" +
+    "<li>On the test walk: stop talking. Let them feel it.</li>" +
+    "<li><strong>One flag is live this round.</strong> Green or red — spot it, name it to yourself, act on it.</li>" +
+    "</ul></div>" +
+    '<div class="actions"><button type="button" class="btn btn-secondary" id="btnCheck" style="flex:1;min-width:12rem">Run the debrief check</button></div>' +
+    (best !== null ? '<p class="history">Best check for ' + esc(c.cast.specialist) + ": <strong>" + best + "</strong>/100.</p>" : "");
+}
+/* One authored flag ("Too much talking on test walk") describes the Specialist,
+   not the Client — it is not something the Client performs. Detect it so the
+   Client sheet does not hand out a stage direction they cannot act. */
+function flagOnSpecialist(f) { return /Specialist \(you\)/.test(f.behavior); }
+function clientStage(c) {
+  if (flagOnSpecialist(c.flag)) {
+    return {
+      head: "This round's flag · " + c.flag.label,
+      lead: "The flag this round is on " + c.cast.specialist + ", not on you — nothing to perform.",
+      body: "Play " + c.persona.name + " straight and let the test walk be quiet. " + c.cast.floorLeader + " is watching for it.",
+      strong: false
+    };
+  }
+  return {
+    head: "Your stage direction · " + c.flag.label,
+    lead: c.flag.kind === "green"
+      ? "If " + c.cast.specialist + " earns it, show this — do not hand it over for free:"
+      : "Somewhere in the demo, do this. Do not announce it:",
+    body: c.flag.behavior,
+    strong: true
+  };
+}
+function viewClient(c) {
+  var st = clientStage(c);
+  return '<div class="viewnote cl"><strong>' + esc(c.cast.client) + '</strong> — you are the Client. Read this, then put the screen down. ' +
+    esc(c.cast.specialist) + " must not see it.</div>" +
+    personaHero(c, { eyebrow: "You are playing", showPain: true, showFlag: false, respin: false }) +
+    '<div class="grid">' + clientFields(c, false) + "</div>" +
+    '<div class="flag-box ' + (c.flag.kind === "green" ? "green" : "red") + '">' +
+    '<div class="label"><span>' + esc(st.head) + "</span></div>" +
+    '<p style="margin:.45rem 0 0">' + esc(st.lead) + "</p>" +
+    '<p style="margin:.35rem 0 0">' + (st.strong ? "<strong>" + esc(st.body) + "</strong>" : esc(st.body)) + "</p>" +
+    '<p class="tip">How ' + esc(c.cast.specialist) + " should answer it is not your problem — that is theirs to find.</p></div>";
+}
+function viewFloorLeader(c) {
+  var flagClass = c.flag.kind === "green" ? "green" : "red";
+  var planLis = c.plan.map(function (p) {
+    return '<li><span class="fwtag">' + esc(p.tag) + "</span>" + esc(planText(c, p.q)) + "</li>";
+  }).join("");
+  return '<div class="viewnote fl"><strong>' + esc(c.cast.floorLeader) + "</strong> — you are the coach. You hold the answer key. " +
+    "Keep this view to yourself until the debrief.</div>" +
+    personaHero(c, { eyebrow: "Client character · played by " + c.cast.client, showPain: true, showFlag: true, respin: true }) +
+    '<div class="grid">' + clientFields(c, true) + "</div>" +
+    '<div class="flag-box ' + flagClass + '"><div class="label"><span>' + (c.flag.kind === "green" ? "Green flag" : "Red flag") + " · " + esc(c.flag.label) + "</span>" +
+    '<button type="button" class="btn-small" data-field="flag" aria-label="Re-spin flag">Re-spin</button></div>' +
+    '<p style="margin:.45rem 0 0"><strong>What ' + esc(c.cast.specialist) + " should see:</strong> " + esc(c.flag.behavior) + "</p>" +
+    '<div class="keyline"><span class="keytag">Answer key — do not show ' + esc(c.cast.specialist) + '</span>' +
+    "<strong>The move:</strong> " + esc(c.flag.specialistMove) + "</div></div>" +
+    '<div class="plan"><div class="card-title">Plan questions · New Client · for ' + esc(c.cast.floorLeader) + "</div>" +
+    "<ol>" + planLis + "</ol>" +
+    '<p class="tip">' + esc(c.cast.specialist) + " runs the demo. " + esc(c.cast.floorLeader) + " watches the flag. " + esc(c.cast.client) + " plays the Client. " +
+    "Use AAH only on red flags — Add, Amplify, then hand it back.</p></div>" +
+    '<div class="actions"><button type="button" class="btn btn-secondary" id="btnCheck" style="flex:1;min-width:12rem">Start the check for ' + esc(c.cast.specialist) + "</button></div>";
+}
+function frameworksHtml() {
+  var blocks = FRAMEWORKS.map(function (f) {
+    var dl = f.items.map(function (it) {
+      return "<dt>" + esc(it[0]) + "</dt><dd>" + esc(it[1]) + "</dd>";
+    }).join("");
+    return '<div class="fw-block"><h4>' + esc(f.name) + " — " + esc(f.sub) + "</h4><dl>" + dl + "</dl></div>";
+  }).join("");
+  return '<details class="fw" id="fwRef"' + (state && state.fwOpen ? " open" : "") + '><summary>Frameworks — CARE · AAH · W.R.A.P. · 3-Step System · Complete Solution</summary>' +
+    blocks + '<p class="fw-src">Wording matches the rest of the Quad: CARE and AAH from Floor Commander, W.R.A.P. from Fear Buster, the 3-Step System and Complete Solution from Tunnel Run.</p></details>';
+}
+
+/* ------------------------------------------------------------------ check */
+function bestFor(name) {
+  try {
+    var all = JSON.parse(localStorage.getItem(SCORE_KEY) || "{}");
+    var r = all[name];
+    return r && typeof r.best === "number" ? r.best : null;
+  } catch (e) { return null; }
+}
+function saveScore(name, score) {
+  try {
+    var all = JSON.parse(localStorage.getItem(SCORE_KEY) || "{}");
+    var r = all[name] || { best: 0, runs: 0 };
+    r.last = score; r.runs = (r.runs || 0) + 1;
+    if (score > (r.best || 0)) r.best = score;
+    all[name] = r;
+    localStorage.setItem(SCORE_KEY, JSON.stringify(all));
+    return r;
+  } catch (e) { return { best: score, last: score, runs: 1 }; }
+}
+/* Build one question with the correct answer dropped into a random slot. */
+function mkQ(cat, prompt, correct, distractors, why) {
+  var opts = shuffle([correct].concat(distractors.slice(0, 3)));
+  return { cat: cat, q: prompt, choices: opts, a: opts.indexOf(correct), why: why };
+}
+function buildCheck(c) {
+  var others = FLAGS.filter(function (f) { return f.label !== c.flag.label; });
+  var oB = shuffle(others).map(function (f) { return f.behavior; });
+  var oM = shuffle(others).map(function (f) { return f.specialistMove; });
+  var kindOpts = [
+    "Green flag — protect the moment, do not steal",
+    "Red flag — answer it fully",
+    "Green flag — jump in and take over",
+    "Red flag — step down on price to keep them warm",
+  ];
+  var kindCorrect = c.flag.kind === "green" ? kindOpts[0] : kindOpts[1];
+  var kindShuffled = shuffle(kindOpts);
+  var fwPool = shuffle(FRAMEWORK_CHECK);
+  var fw = [];
+  var seen = {};
+  for (var i = 0; i < fwPool.length && fw.length < 2; i++) {
+    if (seen[fwPool[i].cat]) continue;
+    seen[fwPool[i].cat] = 1;
+    fw.push(fwPool[i]);
+  }
+  var qs = [
+    mkQ("Spot the flag", "Which of these actually happened in that demo?", c.flag.behavior, oB,
+      (c.flag.kind === "green" ? "Green flag" : "Red flag") + " · " + c.flag.label + " — " + c.flag.behavior),
+    { cat: "Green or red", q: "That flag — what was it, and what does it call for?", choices: kindShuffled,
+      a: kindShuffled.indexOf(kindCorrect),
+      why: c.flag.kind === "green"
+        ? "Green flags mean protect the moment — do not steal. Protect green · amplify WOW · hand back ownership."
+        : "Answer it fully. A red flag unanswered is a sale that walks out the door." },
+    mkQ("The move", "What was the right move on that flag?", c.flag.specialistMove, oM, c.flag.specialistMove),
+    { cat: fw[0].cat, q: fw[0].q, choices: fw[0].choices.slice(), a: fw[0].a, why: fw[0].why },
+    { cat: fw[1].cat, q: fw[1].q, choices: fw[1].choices.slice(), a: fw[1].a, why: fw[1].why },
+  ];
+  return { learner: c.cast.specialist, qs: qs, i: 0, answers: [], locked: false, done: false, result: null };
+}
+function startCheck() {
+  if (!state) return;
+  check = buildCheck(state);
+  renderCheck();
+  document.getElementById("checkPanel").scrollIntoView({ block: "start", behavior: "smooth" });
+}
+function answerCheck(idx) {
+  if (!check || check.locked || check.done) return;
+  check.locked = true;
+  check.answers.push(idx);
+  renderCheck();
+}
+function nextCheck() {
+  if (!check) return;
+  check.locked = false;
+  if (check.i < check.qs.length - 1) { check.i++; }
+  else {
+    check.done = true;
+    var right = check.answers.filter(function (a, i) { return a === check.qs[i].a; }).length;
+    var score = Math.round((right / check.qs.length) * 100);
+    check.result = { right: right, total: check.qs.length, score: score };
+    check.record = saveScore(check.learner, score);
+    try { if (window.QuadScore) window.QuadScore.report(score); } catch (e) {}
+  }
+  renderCheck();
+}
+function closeCheck() { check = null; render(); }
+function renderCheck() {
+  var panel = document.getElementById("checkPanel");
+  var res = document.getElementById("result");
+  if (!check) { panel.classList.add("hidden"); panel.innerHTML = ""; res.classList.remove("hidden"); return; }
+  res.classList.add("hidden");
+  panel.classList.remove("hidden");
+  var html;
+  if (check.done) {
+    var r = check.result;
+    var grade = r.score >= 100 ? "CLEAN READ" : r.score >= 80 ? "STRONG" : r.score >= 60 ? "MIXED" : "NEEDS ANOTHER REP";
+    var rows = check.qs.map(function (q, i) {
+      var ok = check.answers[i] === q.a;
+      return '<div class="brow ' + (ok ? "ok" : "no") + '"><span class="mk">' + (ok ? "✓" : "✗") + "</span><span><strong>" + esc(q.cat) + "</strong> — " +
+        esc(q.q) + "<br/>" + (ok ? "" : '<span style="color:var(--danger)">You said: ' + esc(q.choices[check.answers[i]]) + "</span><br/>") +
+        '<span style="color:var(--fg-muted)">' + esc(q.why) + "</span></span></div>";
+    }).join("");
+    html = '<section class="check"><h3>Debrief check · ' + esc(check.learner) + "</h3>" +
+      '<div class="scorebig">' + r.score + '<span style="font-size:1rem;color:var(--fg-muted)">/100</span></div>' +
+      '<p class="note">' + r.right + " of " + r.total + " · <strong>" + grade + "</strong> · reported to the Locker.</p>" +
+      '<div class="breakdown">' + rows + "</div>" +
+      '<p class="history">' + esc(check.learner) + " — best " + check.record.best + "/100 over " + check.record.runs + " check" + (check.record.runs === 1 ? "" : "s") + ".</p>" +
+      '<div class="actions"><button type="button" class="btn btn-secondary" id="btnCheckAgain" style="flex:1;min-width:10rem">Run it again</button>' +
+      '<button type="button" class="btn btn-ghost" id="btnCheckClose">Back to the sheets</button></div></section>';
+  } else {
+    var q = check.qs[check.i];
+    var answered = check.answers.length > check.i;
+    var given = answered ? check.answers[check.i] : -1;
+    var dots = check.qs.map(function (qq, i) {
+      var cls = i < check.answers.length ? (check.answers[i] === qq.a ? "ok" : "no") : "";
+      return '<span class="dot ' + cls + '"></span>';
+    }).join("");
+    var opts = q.choices.map(function (choice, i) {
+      var cls = "";
+      if (answered) cls = i === q.a ? " correct" : (i === given ? " wrong" : "");
+      return '<button type="button" class="opt' + cls + '" data-opt="' + i + '"' + (answered ? " disabled" : "") + '>' +
+        '<span class="k">' + "ABCD".charAt(i) + "</span><span>" + esc(choice) + "</span></button>";
+    }).join("");
+    html = '<section class="check"><h3>Debrief check · ' + esc(check.learner) + "</h3>" +
+      '<p class="note">Question ' + (check.i + 1) + " of " + check.qs.length + " · " + esc(q.cat) + "</p>" +
+      '<div class="progress">' + dots + "</div>" +
+      '<p class="qprompt">' + esc(q.q) + "</p>" +
+      '<div class="opts">' + opts + "</div>" +
+      (answered ? '<p class="why">' + (given === q.a ? "Correct. " : "Not this time. ") + esc(q.why) + "</p>" +
+        '<div class="actions"><button type="button" class="btn btn-primary" id="btnCheckNext">' +
+        (check.i < check.qs.length - 1 ? "Next question" : "See the result") + "</button></div>" : "") +
+      '<div class="actions"><button type="button" class="btn btn-ghost" id="btnCheckClose">Cancel the check</button></div></section>';
+  }
+  panel.innerHTML = html;
+  panel.querySelectorAll("[data-opt]").forEach(function (b) {
+    b.addEventListener("click", function () { answerCheck(Number(b.getAttribute("data-opt"))); });
+  });
+  var n = document.getElementById("btnCheckNext");
+  if (n) n.addEventListener("click", nextCheck);
+  var a = document.getElementById("btnCheckAgain");
+  if (a) a.addEventListener("click", startCheck);
+  var cl = document.getElementById("btnCheckClose");
+  if (cl) cl.addEventListener("click", closeCheck);
+}
+
+/* ------------------------------------------------------------------ print */
+function printFields(list) {
+  return list.map(function (pair) {
+    return '<div class="print-field"><div class="l">' + esc(pair[0]) + '</div><div class="v">' + esc(pair[1]) +
+      '</div><div class="n">' + esc(pair[2] || "") + "</div></div>";
+  }).join("");
+}
+function printHeader(role, who, warn) {
+  return '<header class="print-header"><div>' +
+    '<img src="data:image/png;base64,' + LOGO_WATERMAN + '" alt="" style="height:28px;background:#fff;padding:3px 6px;border:1px solid #ddd;border-radius:4px" />' +
+    '<img src="data:image/png;base64,' + LOGO_COGS + '" alt="" style="height:36px;width:36px;border-radius:999px;vertical-align:middle;margin-left:6px" />' +
+    '</div><div style="text-align:right"><div style="font-size:7.5pt;letter-spacing:.12em;text-transform:uppercase;color:#555;font-weight:600">CARE training · Floor practice</div>' +
+    "<h1>New Client Roleplay</h1>" +
+    '<div class="print-for">' + esc(role) + " sheet — " + esc(who) + "<span>" + esc(warn) + "</span></div></div></header>";
+}
+function printCast(c) {
+  return '<section class="print-cast">' +
+    "<div><strong>Floor Leader</strong><span>" + esc(c.cast.floorLeader) + "</span></div>" +
+    "<div><strong>Specialist</strong><span>" + esc(c.cast.specialist) + "</span></div>" +
+    "<div><strong>Client (plays " + esc(c.persona.name) + ")</strong><span>" + esc(c.cast.client) + "</span></div></section>";
+}
+function printHero(c, badges) {
+  return '<section class="print-hero"><div>' +
+    '<div class="sec-title">Client character</div>' +
+    "<h2>" + esc(c.persona.name) + "</h2><div>" + esc(c.persona.ageRange) + " · " + esc(c.persona.occupation) + "</div>" +
+    '<div style="font-style:italic;color:#444">“' + esc(c.persona.vibe) + '”</div></div>' +
+    '<div style="text-align:right">' + badges + "</div></section>";
+}
+function buildPrint(c) {
+  var flagWord = c.flag.kind === "green" ? "Green" : "Red";
+  var allFields = [
+    ["Pain point", c.painPoint.label, c.painPoint.detail],
+    ["Hot button", c.hotButton.label, c.hotButton.detail],
+    ["Lifestyle goal", c.lifestyleGoal.label, c.lifestyleGoal.detail],
+    ["Communication", c.communication.label, c.communication.detail],
+    ["Shoe situation", c.shoeSituation.label, c.shoeSituation.detail],
+    ["Urgency", c.urgency.label, c.urgency.detail],
+    ["Budget vibe", c.budgetVibe.label, c.budgetVibe.detail],
+    ["Twist", c.twist.label, c.twist.detail],
+  ];
+  var sp = '<article class="print-card print-page">' +
+    printHeader("Specialist", c.cast.specialist, "Hand this page to the Specialist only") +
+    printCast(c) +
+    printHero(c, '<span class="print-badge">New Client</span>') +
+    '<section class="print-grid">' +
+    printFields([
+      ["What they say brought them in", c.painPoint.label, "They will give you the details — ask."],
+      ["What you can see on their feet", c.shoeSituation.label, c.shoeSituation.detail],
+    ]) + "</section>" +
+    '<section class="print-mission"><div class="sec-title">Your job this round</div><ul>' +
+    "<li><strong>W.R.A.P.</strong> — Why: understand the need first, educate before anything else moves. Ready: let them feel the lift before money enters the room. Answer: specifics — clinical backing, real numbers, real options. Pain Better: put the relief in their hands and confirm the improvement live.</li>" +
+    "<li>Find the hot button — it is not on this page.</li>" +
+    "<li>Present a <strong>Complete Solution</strong>, not a Partial one: supported in one pair and unsupported the other 16 hours is only part of the problem solved.</li>" +
+    "<li>On the test walk: stop talking. Let them feel it.</li>" +
+    "<li><strong>One flag is live this round.</strong> Spot it, name it, act on it — then take the debrief check.</li>" +
+    "</ul></section>" +
+    '<section class="print-notes"><div class="sec-title">What you noticed</div>' +
+    '<div class="print-line"></div><div class="print-line"></div><div class="print-line"></div><div class="print-line"></div></section>' +
+    '<footer class="print-footer">Waterman Arch Supports · COGS — The Good Feet Store · The flag and the move are on the Floor Leader sheet</footer></article>';
+
+  var cl = '<article class="print-card print-page">' +
+    printHeader("Client", c.cast.client, "Hand this page to the Client only") +
+    printCast(c) +
+    printHero(c, '<span class="print-badge">New Client</span><br/><span class="print-badge">Pain ' + c.painLevel + "/10</span>") +
+    '<section class="print-grid">' + printFields(allFields) + "</section>" +
+    '<section class="print-flag"><div class="sec-title">' + esc(clientStage(c).head) + "</div>" +
+    "<p>" + esc(clientStage(c).lead) + "</p>" +
+    "<p>" + (clientStage(c).strong ? "<strong>" + esc(clientStage(c).body) + "</strong>" : esc(clientStage(c).body)) + "</p>" +
+    "<p>How " + esc(c.cast.specialist) + " should answer it is not on this page — that is theirs to find.</p></section>" +
+    '<footer class="print-footer">Waterman Arch Supports · COGS — The Good Feet Store · Play the person, not the script</footer></article>';
+
+  var planLis = c.plan.map(function (p) {
+    return "<li><strong>" + esc(p.tag) + "</strong> — " + esc(planText(c, p.q)) + "</li>";
+  }).join("");
+  /* Print crib only — one line per framework, so the Floor Leader sheet still
+     fits on a single page. The full definitions live in the on-screen
+     Frameworks panel. */
+  var fwDl = "<p>" + FRAMEWORKS.map(function (f) {
+    return "<strong>" + esc(f.name) + "</strong> " + f.items.map(function (it) {
+      return esc(it[0]);
+    }).join(" · ");
+  }).join(" &nbsp;|&nbsp; ") + "</p>";
+  var fl = '<article class="print-card print-page">' +
+    printHeader("Floor Leader", c.cast.floorLeader, "Answer key — coach copy, keep it") +
+    printCast(c) +
+    printHero(c, '<span class="print-badge">New Client</span><br/><span class="print-badge">' + flagWord + ": " + esc(c.flag.label) + '</span><br/><span class="print-badge">Pain ' + c.painLevel + "/10</span>") +
+    '<section class="print-grid">' + printFields(allFields) + "</section>" +
+    '<section class="print-flag"><div class="sec-title">' + flagWord + " flag · " + esc(c.flag.label) + "</div>" +
+    "<p><strong>What " + esc(c.cast.specialist) + " should see:</strong> " + esc(c.flag.behavior) + "</p></section>" +
+    '<section class="print-key"><div class="sec-title">Answer key — do not show ' + esc(c.cast.specialist) + " before the debrief</div>" +
+    "<p><strong>The move:</strong> " + esc(c.flag.specialistMove) + "</p></section>" +
+    '<section class="print-plan"><div class="sec-title">Plan questions · New Client</div><ol>' + planLis + "</ol></section>" +
+    '<section class="print-fw"><div class="sec-title">Framework reference</div>' + fwDl + "</section>" +
+    '<section class="print-notes"><div class="sec-title">Notes / debrief</div>' +
+    '<div class="print-line"></div><div class="print-line"></div><div class="print-line"></div></section>' +
+    '<footer class="print-footer">Waterman Arch Supports · COGS — The Good Feet Store · Protect greens · Answer reds · Own the hand-back</footer></article>';
+
+  return sp + cl + fl;
+}
+
+/* ----------------------------------------------------------------- render */
+function render() {
+  const c = state;
+  const result = document.getElementById("result");
+  const empty = document.getElementById("emptyState");
+  const btnPrint = document.getElementById("btnPrint");
+  const btnCopy = document.getElementById("btnCopy");
+  const btnGen = document.getElementById("btnGenerate");
+  hideCopyOut();
+  if (!c) {
+    result.classList.add("hidden");
+    empty.classList.remove("hidden");
+    btnPrint.classList.add("hidden");
+    btnCopy.classList.add("hidden");
+    btnGen.textContent = "Generate roleplay";
+    btnGen.classList.remove("arming");
+    document.getElementById("printArea").innerHTML = "";
+    return;
+  }
+  empty.classList.add("hidden");
+  btnPrint.classList.remove("hidden");
+  btnCopy.classList.remove("hidden");
+  disarmRegen();
+  if (check) { renderCheck(); return; }
+  result.classList.remove("hidden");
+  document.getElementById("checkPanel").classList.add("hidden");
+
+  var view = c.view || "sp";
+  var body = view === "fl" ? viewFloorLeader(c) : view === "cl" ? viewClient(c) : viewSpecialist(c);
+
+  result.innerHTML =
+    '<div class="cast"><div class="cast-head"><div>' +
+    '<div style="font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--primary)">Role cast</div>' +
+    '<div style="font-size:.75rem;color:var(--fg-muted)">Random assignment for this round</div></div>' +
+    '<button type="button" class="btn-small" id="btnRespinRoles">Re-spin roles</button></div>' +
+    '<div class="cast-grid">' +
+    '<div class="cast-card fl"><div class="cast-role">Floor Leader</div><div class="cast-name">' + esc(c.cast.floorLeader) + '</div><div class="cast-hint">Coaches · holds the flag and the key</div></div>' +
+    '<div class="cast-card sp"><div class="cast-role">Specialist</div><div class="cast-name">' + esc(c.cast.specialist) + '</div><div class="cast-hint">Runs the demo · owns the Client</div></div>' +
+    '<div class="cast-card cl"><div class="cast-role">Client</div><div class="cast-name">' + esc(c.cast.client) + '</div><div class="cast-hint">Plays ' + esc(c.persona.name) + '</div></div>' +
+    "</div></div>" +
+    '<div class="tabs" role="tablist" aria-label="Role view">' +
+    '<button type="button" role="tab" class="tab sp" data-view="sp" aria-selected="' + (view === "sp") + '">Specialist<span class="who">' + esc(c.cast.specialist) + "</span></button>" +
+    '<button type="button" role="tab" class="tab fl" data-view="fl" aria-selected="' + (view === "fl") + '">Floor Leader<span class="who">' + esc(c.cast.floorLeader) + "</span></button>" +
+    '<button type="button" role="tab" class="tab cl" data-view="cl" aria-selected="' + (view === "cl") + '">Client<span class="who">' + esc(c.cast.client) + "</span></button>" +
+    "</div>" + body + frameworksHtml();
+
+  result.querySelectorAll("[data-field]").forEach(function (btn) {
+    btn.addEventListener("click", function () { respinField(btn.getAttribute("data-field")); });
+  });
+  result.querySelectorAll("[data-view]").forEach(function (btn) {
+    btn.addEventListener("click", function () { state.view = btn.getAttribute("data-view"); render(); });
+  });
+  document.getElementById("btnRespinRoles").addEventListener("click", respinRoles);
+  var bc = document.getElementById("btnCheck");
+  if (bc) bc.addEventListener("click", startCheck);
+  var fw = document.getElementById("fwRef");
+  if (fw) fw.addEventListener("toggle", function () { if (state) state.fwOpen = fw.open; });
+
+  document.getElementById("printArea").innerHTML = buildPrint(c);
+}
+
+/* ------------------------------------------------------------------ names */
+function updateNameUI() {
+  var n = getNames();
+  var ready = namesReady(n);
+  document.getElementById("nameReady").classList.toggle("hidden", !ready);
+  document.getElementById("playersPanel").classList.toggle("error", false);
+  try { localStorage.setItem(KEY, JSON.stringify(n)); } catch (e) {}
+}
+/* One mis-tap used to wipe the group's Client mid-drill. The primary button now
+   arms first and only regenerates on a second tap. */
+function disarmRegen() {
+  if (regenArmed) { clearTimeout(regenArmed); regenArmed = null; }
+  var b = document.getElementById("btnGenerate");
+  b.classList.remove("arming");
+  b.textContent = state ? "New roleplay" : "Generate roleplay";
+}
+function onGenerate() {
+  var n = getNames();
+  if (!namesReady(n)) {
+    document.getElementById("nameError").classList.remove("hidden");
+    document.getElementById("playersPanel").classList.add("error");
+    return;
+  }
+  document.getElementById("nameError").classList.add("hidden");
+  document.getElementById("playersPanel").classList.remove("error");
+  if (state && !regenArmed) {
+    var b = document.getElementById("btnGenerate");
+    b.classList.add("arming");
+    b.textContent = "Tap again to replace this Client";
+    regenArmed = setTimeout(disarmRegen, 5000);
+    return;
+  }
+  disarmRegen();
+  check = null;
+  state = generate();
+  render();
+}
+
+/* ------------------------------------------------------------------- copy */
+function sheetText(c) {
+  var view = c.view || "sp";
+  var L = ["NEW CLIENT ROLEPLAY"];
+  L.push("ROLES:");
+  L.push("  Floor Leader: " + c.cast.floorLeader);
+  L.push("  Specialist: " + c.cast.specialist);
+  L.push("  Client (plays " + c.persona.name + "): " + c.cast.client);
+  L.push("");
+  if (view === "sp") {
+    L.push("SPECIALIST SHEET — " + c.cast.specialist + " (no answer key)");
+    L.push("WALKS IN: " + c.persona.name + " · " + c.persona.ageRange + " · " + c.persona.occupation);
+    L.push("VIBE: " + c.persona.vibe);
+    L.push("VISIT: New Client");
+    L.push("THEY SAY: " + c.painPoint.label);
+    L.push("YOU CAN SEE: " + c.shoeSituation.label);
+    L.push("");
+    L.push("YOUR JOB: W.R.A.P. (Why · Ready · Answer · Pain Better) · find the hot button ·");
+    L.push("present a Complete Solution, not a Partial one · stop talking on the test walk ·");
+    L.push("one flag is live — spot it, name it, act on it.");
+  } else if (view === "cl") {
+    L.push("CLIENT SHEET — " + c.cast.client + " (keep this away from " + c.cast.specialist + ")");
+    L.push("YOU ARE: " + c.persona.name + " · " + c.persona.ageRange + " · " + c.persona.occupation);
+    L.push("VIBE: " + c.persona.vibe);
+    L.push("PAIN: " + c.painPoint.label + " (" + c.painLevel + "/10)");
+    L.push("HOT BUTTON: " + c.hotButton.label);
+    L.push("GOAL: " + c.lifestyleGoal.label);
+    L.push("COMMUNICATION: " + c.communication.label);
+    L.push("SHOES: " + c.shoeSituation.label);
+    L.push("URGENCY: " + c.urgency.label);
+    L.push("BUDGET: " + c.budgetVibe.label);
+    L.push("TWIST: " + c.twist.label);
+    L.push("");
+    L.push("STAGE DIRECTION (" + c.flag.kind.toUpperCase() + " · " + c.flag.label + "): " + c.flag.behavior);
+  } else {
+    L.push("FLOOR LEADER SHEET — " + c.cast.floorLeader + " (ANSWER KEY)");
+    L.push("CLIENT CHARACTER: " + c.persona.name + " · " + c.persona.ageRange + " · " + c.persona.occupation);
+    L.push("VIBE: " + c.persona.vibe);
+    L.push("VISIT: New Client");
+    L.push("PAIN: " + c.painPoint.label + " (" + c.painLevel + "/10)");
+    L.push("HOT BUTTON: " + c.hotButton.label);
+    L.push("GOAL: " + c.lifestyleGoal.label);
+    L.push("COMMUNICATION: " + c.communication.label);
+    L.push("SHOES: " + c.shoeSituation.label);
+    L.push("URGENCY: " + c.urgency.label);
+    L.push("BUDGET: " + c.budgetVibe.label);
+    L.push("TWIST: " + c.twist.label);
+    L.push("FLAG (" + c.flag.kind.toUpperCase() + "): " + c.flag.label + " — " + c.flag.behavior);
+    L.push("ANSWER KEY — THE MOVE: " + c.flag.specialistMove);
+    L.push("");
+    L.push("PLAN QUESTIONS:");
+    for (var i = 0; i < c.plan.length; i++) {
+      L.push(i + 1 + ". [" + c.plan[i].tag + "] " + planText(c, c.plan[i].q));
+    }
+  }
+  return L.join("\n");
+}
+function hideCopyOut() {
+  var t = document.getElementById("copyOut");
+  var n = document.getElementById("copyNote");
+  if (t) { t.classList.add("hidden"); t.value = ""; }
+  if (n) { n.classList.add("hidden"); n.textContent = ""; }
+}
+function legacyCopy(text) {
+  try {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;pointer-events:none";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    return !!ok;
+  } catch (e) { return false; }
+}
+function flashCopy(label) {
+  var b = document.getElementById("btnCopy");
+  b.textContent = label;
+  setTimeout(function () { b.textContent = "Copy this sheet"; }, 1800);
+}
+/* The Quad serves this page inside an iframe with no clipboard permission, so
+   navigator.clipboard rejects and used to do so silently while the button still
+   said "Copy". Fall back to execCommand, then to showing the text to select. */
+function onCopy() {
+  if (!state) return;
+  var text = sheetText(state);
+  hideCopyOut();
+  function fallback() {
+    if (legacyCopy(text)) { flashCopy("Copied"); return; }
+    var ta = document.getElementById("copyOut");
+    var note = document.getElementById("copyNote");
+    ta.value = text;
+    ta.classList.remove("hidden");
+    note.textContent = "Copying is blocked here — the text is below, select it and copy.";
+    note.classList.remove("hidden");
+    try { ta.focus(); ta.select(); } catch (e) {}
+    flashCopy("Copy blocked ↓");
+  }
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { flashCopy("Copied"); }, fallback);
+    } else { fallback(); }
+  } catch (e) { fallback(); }
+}
+
+/* -------------------------------------------------------------------- init */
+try {
+  var saved = JSON.parse(localStorage.getItem(KEY) || "[]");
+  if (Array.isArray(saved) && saved.length === 3) {
+    document.getElementById("p1").value = saved[0] || "";
+    document.getElementById("p2").value = saved[1] || "";
+    document.getElementById("p3").value = saved[2] || "";
+  }
+} catch (e) {}
+["p1", "p2", "p3"].forEach(function (id) {
+  document.getElementById(id).addEventListener("input", function () {
+    updateNameUI();
+    disarmRegen();
+  });
+});
+document.getElementById("btnGenerate").addEventListener("click", onGenerate);
+document.getElementById("btnPrint").addEventListener("click", function () { window.print(); });
+document.getElementById("btnCopy").addEventListener("click", onCopy);
+updateNameUI();
+
+</script>
+</body>
+</html>

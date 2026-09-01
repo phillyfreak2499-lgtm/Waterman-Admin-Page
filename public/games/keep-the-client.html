@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Keep the Client — Good Feet Training</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:wght@600;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg:#f3f5f7; --surface:#fff; --surface-2:#e8eef2; --fg:#0b1f33; --muted:#5a6b7d;
+  --primary:#1a3a5c; --primary-fg:#f5f8fb; --accent:#3b9dd6; --success:#1f8a70;
+  --danger:#c44536; --border:#cfd8e2; --hang:#0b1f33;
+  --font-sans:"DM Sans",system-ui,sans-serif; --font-display:"Fraunces",Georgia,serif;
+  --shadow:0 12px 32px -16px rgb(11 31 51 / .18);
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100dvh;font-family:var(--font-sans);background:var(--bg);color:var(--fg);line-height:1.5}
+button{font:inherit;cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.55}
+.app{max-width:42rem;margin:0 auto;padding:1.25rem 1rem 2rem}
+.brand{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;margin-bottom:.5rem}
+.brand img.wm{height:2.5rem;background:#000;border-radius:.5rem;padding:.25rem .5rem;object-fit:contain}
+.brand img.cogs{height:3rem;width:3rem;border-radius:999px;background:#000;object-fit:contain}
+.kicker{display:flex;align-items:center;gap:.4rem;font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--primary);margin:0 0 .25rem}
+h1{font-family:var(--font-display);font-size:clamp(1.75rem,5vw,2.25rem);margin:0;letter-spacing:-.02em}
+.sub{color:var(--muted);font-size:.9rem;margin:.4rem 0 0;max-width:28rem}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem}
+.icon-btn{border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:.55rem;color:var(--muted);display:inline-flex;min-width:2.75rem;min-height:2.75rem;align-items:center;justify-content:center}
+.icon-btn:hover{color:var(--fg)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:1rem;box-shadow:var(--shadow);overflow:hidden}
+.card-pad{padding:1rem 1.15rem 1.25rem}
+.scene-wrap{background:linear-gradient(180deg,rgb(26 58 92 / .08),transparent);padding:.75rem .6rem 0}
+.scene{position:relative;border-radius:.75rem;overflow:hidden;background:var(--surface-2);border:1px solid var(--border)}
+.scene.i3{box-shadow:0 0 0 2px rgb(224 122 95 / .35)}
+.scene.i4{box-shadow:0 0 0 2px rgb(196 69 54 / .45)}
+.scene.i5{box-shadow:0 0 0 3px rgb(196 69 54 / .65);animation:shake .4s ease-in-out infinite}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-1.5px)}75%{transform:translateX(1.5px)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes flash{0%,100%{opacity:0}50%{opacity:1}}
+.walking .client-body{animation:bob .28s ease-in-out infinite}
+.status{text-align:center;font-size:.85rem;font-weight:700;margin:.55rem 0 .1rem;color:var(--muted)}
+.status.danger{color:var(--danger)}
+.status.accent{color:var(--accent)}
+.status.success{color:var(--success)}
+.substatus{text-align:center;font-size:.7rem;color:var(--muted);margin:0}
+.meter{height:6px;max-width:200px;margin:.35rem auto 0;background:var(--border);border-radius:999px;overflow:hidden}
+.meter>i{display:block;height:100%;background:var(--primary);width:0;transition:width .4s ease}
+.meter>i.hot{background:var(--danger)}
+.pips{display:flex;justify-content:center;gap:6px;margin-top:.45rem}
+.pips span{width:10px;height:10px;border-radius:999px;background:rgb(26 58 92 / .3)}
+.pips span.on{background:var(--danger)}
+.clock{display:flex;align-items:center;justify-content:center;gap:.4rem;margin:.5rem auto 0;max-width:14rem}
+.clock .bar{flex:1;height:5px;background:var(--border);border-radius:999px;overflow:hidden}
+.clock .bar>i{display:block;height:100%;width:100%;background:var(--accent);transition:width .12s linear}
+.clock.warn .bar>i{background:var(--danger)}
+.clock .n{font-size:.72rem;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums;min-width:2.4rem;text-align:right}
+.clock.warn .n{color:var(--danger)}
+.btn{display:flex;width:100%;align-items:center;justify-content:center;gap:.5rem;border:0;border-radius:.75rem;padding:.9rem 1rem;font-weight:700;font-size:.9rem;min-height:2.75rem}
+.btn-primary{background:var(--primary);color:var(--primary-fg)}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-secondary{background:var(--surface-2);color:var(--fg);border:1px solid var(--border);margin-top:.6rem}
+.btn-row{display:flex;flex-direction:column;gap:.5rem;margin-top:1rem}
+@media(min-width:480px){.btn-row{flex-direction:row}.btn-row .btn{flex:1}.btn-secondary{margin-top:0}}
+.help{background:var(--surface);border:1px solid var(--border);border-radius:.875rem;padding:1rem;margin:1rem 0;font-size:.9rem}
+.help h2{font-family:var(--font-display);margin:0 0 .5rem;font-size:1.1rem}
+.help h3{font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:1rem 0 .35rem}
+.help ul{margin:0;padding-left:1.1rem;color:var(--muted)}
+.help li{margin:.3rem 0}
+.tip{background:rgb(59 157 214 / .12);border-radius:.5rem;padding:.6rem .75rem;margin-top:.75rem;font-size:.8rem}
+.tip.rule{background:rgb(196 69 54 / .1);border:1px solid rgb(196 69 54 / .22)}
+.stats{display:flex;flex-wrap:wrap;gap:.4rem;margin:0.75rem 0}
+.chip{font-size:.75rem;padding:.25rem .65rem;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-weight:600}
+.chip.gold{background:rgb(232 168 56 / .16);border-color:rgb(232 168 56 / .4);color:#8a6414}
+.meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;gap:.5rem;flex-wrap:wrap}
+.badge{background:rgb(26 58 92 / .1);color:var(--primary);font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:999px}
+.linkish{background:transparent;border:1px solid var(--border);border-radius:999px;padding:.45rem .8rem;font-size:.75rem;color:var(--muted);min-height:2.25rem}
+.linkish:disabled{opacity:.4}
+.alert{display:flex;align-items:center;justify-content:center;gap:.5rem;text-align:center;font-size:.85rem;font-weight:700;padding:.65rem .75rem;border-radius:.75rem;margin-bottom:.75rem}
+.alert.warn{background:rgb(59 157 214 / .12);color:var(--accent);border:1px solid rgb(59 157 214 / .25)}
+.alert.crit{background:rgb(196 69 54 / .1);color:var(--danger);border:1px solid rgb(196 69 54 / .25)}
+.alert.last{background:rgb(196 69 54 / .18);color:var(--danger);border:2px solid rgb(196 69 54 / .4);animation:flash .9s ease-in-out infinite}
+.word{display:flex;flex-wrap:wrap;justify-content:center;gap:.35rem .7rem;margin:1rem 0 .5rem;min-height:2.5rem}
+.wordchunk{display:flex;gap:.3rem}
+.word .letter{width:1.5rem;height:2rem;border-bottom:3px solid var(--primary);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;letter-spacing:.02em}
+.word .letter.free{border-bottom-color:var(--accent);color:var(--accent)}
+.word .space{width:.65rem;border:0}
+.word.shake{animation:shake .35s ease-in-out}
+.hint{text-align:center;font-size:.75rem;color:var(--muted);margin:0 0 .6rem}
+.prompt-label{text-align:center;font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:.75rem 0 -.4rem}
+.kb{display:flex;flex-direction:column;align-items:center;gap:.3rem;width:100%;max-width:26rem;margin:0 auto}
+.kb-row{display:flex;gap:.28rem;justify-content:center;width:100%}
+.kb-row.r2{padding:0 5%}
+.kb-row.r3{padding:0 15%}
+.kb button{flex:1 1 0;min-width:0;max-width:2.6rem;height:2.9rem;padding:0;border-radius:.4rem;border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:.95rem;touch-action:manipulation}
+.kb button.ok{background:var(--success);color:#fff;border-color:transparent}
+.kb button.bad{background:var(--surface-2);color:var(--muted);text-decoration:line-through}
+.kb-tools{display:flex;gap:.5rem;justify-content:center;margin-top:.6rem;flex-wrap:wrap}
+.reveal-head{text-align:center;font-family:var(--font-display);font-size:1.35rem;font-weight:700;padding:.85rem;border-radius:.75rem;margin-bottom:.75rem}
+.reveal-head.win{background:rgb(31 138 112 / .15);color:var(--success);border:1px solid rgb(31 138 112 / .3)}
+.reveal-head.lose{background:rgb(196 69 54 / .1);color:var(--danger);border:1px solid rgb(196 69 54 / .25)}
+.fact{background:rgb(243 245 247 / .8);border-radius:.5rem;padding:.65rem .75rem;margin:.5rem 0}
+.fact.hi{background:rgb(26 58 92 / .08);border:1px solid rgb(26 58 92 / .2)}
+.fact.quote{background:rgb(59 157 214 / .1);border:1px solid rgb(59 157 214 / .22)}
+.fact.locked{background:repeating-linear-gradient(135deg,rgb(207 216 226 / .3),rgb(207 216 226 / .3) 8px,rgb(232 238 242 / .5) 8px,rgb(232 238 242 / .5) 16px);border:1px dashed var(--border)}
+.fact .t{font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.2rem}
+.fact p{margin:0;font-size:.875rem}
+.fact p.said{font-weight:700;font-size:1rem;font-family:var(--font-display)}
+.clinical{margin:.75rem 0 0;border:1px solid var(--border);border-radius:.5rem;overflow:hidden;background:rgb(243 245 247 / .8)}
+.clinical>summary{cursor:pointer;padding:.6rem .75rem;font-size:.75rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);list-style:none}
+.clinical>summary::-webkit-details-marker{display:none}
+.clinical>summary::after{content:" ▾";color:var(--accent)}
+.clinical[open]>summary::after{content:" ▴"}
+.clinical .inner{padding:0 .75rem .7rem}
+.quiz{margin-top:1rem}
+.quiz .q{font-weight:700;font-size:.95rem;margin:0 0 .6rem}
+.quiz .opt{display:block;width:100%;text-align:left;border:1px solid var(--border);background:var(--surface);border-radius:.6rem;padding:.7rem .85rem;margin-bottom:.45rem;font-size:.85rem;line-height:1.35;min-height:2.75rem}
+.quiz .opt:hover:not(:disabled){border-color:var(--accent)}
+.quiz .opt:disabled{opacity:1;cursor:default}
+.quiz .opt.right{background:rgb(31 138 112 / .14);border-color:var(--success);font-weight:700}
+.quiz .opt.wrong{background:rgb(196 69 54 / .1);border-color:var(--danger)}
+.quiz .verdict{font-size:.85rem;font-weight:700;margin:.5rem 0 0}
+.quiz .verdict.ok{color:var(--success)}
+.quiz .verdict.no{color:var(--danger)}
+.tierlist{display:flex;flex-direction:column;gap:.5rem;margin:.75rem 0 0}
+.tierbtn{display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;border:1px solid var(--border);background:var(--surface);border-radius:.75rem;padding:.7rem .85rem;min-height:3.25rem}
+.tierbtn[aria-pressed="true"]{border-color:var(--primary);box-shadow:0 0 0 2px rgb(26 58 92 / .18)}
+.tierbtn:disabled{opacity:.55}
+.tierbtn .n{flex:0 0 1.9rem;height:1.9rem;border-radius:999px;background:var(--surface-2);color:var(--primary);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.85rem}
+.tierbtn[aria-pressed="true"] .n{background:var(--primary);color:var(--primary-fg)}
+.tierbtn .tx{flex:1;min-width:0}
+.tierbtn .tx b{display:block;font-size:.9rem}
+.tierbtn .tx span{display:block;font-size:.72rem;color:var(--muted)}
+.footer{margin-top:1.5rem;padding-top:1rem;border-top:1px solid rgb(207 216 226 / .7);text-align:center;font-size:.65rem;color:var(--muted);line-height:1.5}
+.hidden{display:none!important}
+svg{display:block;width:100%;height:auto}
+.center-note{text-align:center;font-size:.85rem;color:var(--muted);margin:.5rem 0 0}
+.play-grid{display:block}
+/* on a phone the 26 keys are the whole input surface — get them above the fold */
+@media (max-width:560px){
+  body.playing .sub{display:none}
+  body.playing h1{font-size:1.5rem}
+  body.playing .kicker{margin-bottom:.1rem}
+}
+@media (orientation:landscape) and (max-height:560px){
+  .app{max-width:60rem;padding:.6rem .75rem 1rem}
+  .topbar h1{font-size:1.4rem}
+  .sub,.stats{display:none}
+  .play-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:.75rem;align-items:start}
+  .play-grid .card-pad{padding:.6rem .7rem .7rem}
+  .word{margin:.25rem 0 .35rem;min-height:2rem}
+  .word .letter{width:1.25rem;height:1.7rem;font-size:.95rem}
+  .kb button{height:2.35rem;font-size:.85rem}
+  .kb-tools{margin-top:.4rem}
+  .alert{padding:.4rem .6rem;font-size:.75rem;margin-bottom:.4rem}
+  .meta{margin-bottom:.4rem}
+}
+</style>
+<script src="/games/quad-bridge.js"></script></head>
+<body>
+<div class="app" id="app">
+  <div class="topbar">
+    <div>
+      <div class="brand">
+        <img class="wm" id="wmLogo" alt="Waterman Arch Supports" width="60" height="40" />
+        <img class="cogs" id="cogsLogo" alt="COGS" width="48" height="48" />
+      </div>
+      <p class="kicker">The Good Feet Store · Training</p>
+      <h1>Keep the Client</h1>
+      <p class="sub">Spell out what the client actually said — or what you say back — before they walk. Then earn the How It Helps card.</p>
+    </div>
+    <div style="display:flex;gap:.35rem">
+      <button type="button" class="icon-btn" id="muteBtn" aria-label="Mute" title="Mute">🔊</button>
+      <button type="button" class="icon-btn" id="helpBtn" aria-label="Help">?</button>
+    </div>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="help hidden" id="help">
+    <h2>How to play</h2>
+    <ul>
+      <li>A client is talking. Guess letters to spell <strong>their line</strong> — the words they actually used at the booth.</li>
+      <li>Each wrong letter walks them <strong>one step closer to the exit</strong>. Run out of steps and they leave.</li>
+      <li>Keep them and you earn the <strong>How It Helps</strong> card — then answer one question on what you just read.</li>
+      <li>Lose them and you get the model line only. The card stays locked until you win that client back.</li>
+    </ul>
+    <h3>Three tiers</h3>
+    <ul>
+      <li><strong>1 · New on the floor</strong> — short client lines, 6 steps, one free letter.</li>
+      <li><strong>2 · Taking clients</strong> — every client line, 5 steps, a hint costs you a step.</li>
+      <li><strong>3 · Specialist</strong> — you spell <em>your own</em> response, 4 steps, no hints.</li>
+    </ul>
+    <h3>Rush hour</h3>
+    <ul><li>The same clients on a clock. Let it run out and they are gone, however many steps you had left.</li></ul>
+    <div class="tip rule"><strong>The rule this game runs on:</strong> never tell a client they have a condition. You are spelling out <em>their</em> words and <em>your</em> response — never a diagnosis. The clinical background on each card is for your understanding only.</div>
+  </div>
+
+  <div id="menu">
+    <div class="card">
+      <div class="scene-wrap">
+        <div class="scene" id="menuScene"></div>
+        <p class="center-note" id="menuNote">Good Feet booth · Waterman Arch Supports</p>
+      </div>
+      <div class="card-pad">
+        <div class="tierlist" id="tierList"></div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-primary" id="btnNext">Next client</button>
+          <button type="button" class="btn btn-secondary" id="btnDeck">Full shift · 8 clients</button>
+        </div>
+        <button type="button" class="btn btn-secondary" id="btnRush" style="margin-top:.5rem">⏱ Rush hour</button>
+      </div>
+    </div>
+    <p class="center-note" style="margin-top:1rem" id="progressNote"></p>
+  </div>
+
+  <div id="play" class="hidden">
+    <div class="meta">
+      <span class="badge" id="catBadge"></span>
+      <button type="button" class="linkish" id="btnFloor">Floor</button>
+    </div>
+    <div class="alert hidden" id="alert"></div>
+    <div class="play-grid">
+      <div class="card">
+        <div class="card-pad" style="padding-top:.75rem">
+          <div class="scene" id="playScene"></div>
+          <p class="status" id="playStatus"></p>
+          <p class="substatus" id="playSub"></p>
+          <div class="meter"><i id="meterBar"></i></div>
+          <div class="pips" id="pips"></div>
+          <div class="clock hidden" id="clock"><span class="bar"><i id="clockBar"></i></span><span class="n" id="clockNum"></span></div>
+        </div>
+      </div>
+      <div>
+        <p class="prompt-label" id="promptLabel"></p>
+        <div class="word" id="word"></div>
+        <p class="hint" id="hint"></p>
+        <div class="kb" id="kb"></div>
+        <div class="kb-tools">
+          <button type="button" class="linkish" id="btnHint">💡 Hint</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="reveal" class="hidden">
+    <div class="card">
+      <div class="card-pad">
+        <div class="scene" id="revealScene"></div>
+        <div class="word" id="revealWord" style="margin-top:.75rem"></div>
+      </div>
+    </div>
+    <div id="revealCard" style="margin-top:1rem"></div>
+  </div>
+
+  <footer class="footer">The Good Feet Store · COGS training · Waterman Arch Supports · How It Helps deck · Not medical advice · We do not diagnose · We serve clients</footer>
+</div>
+
+<script>
+const WATERMAN = "data:image/png;base64,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";
+const COGS = "data:image/png;base64,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";
+const CONTENT = [{"id":"plantar-fasciitis","label":"Plantar Fasciitis","category":"Foot","heard":"THE FIRST STEP OUT OF BED KILLS","say":"SHOW ME WHERE THAT FIRST STEP HURTS","heardText":"The first step out of bed kills.","sayText":"Show me where that first step hurts.","tell":"Worst on the very first steps of the day, easing once they get moving. A morning-heel pattern — you note it, you never announce it.","why":"You ask them to point, in their own words, without naming anything. You learn the spot and they feel heard.","howItHelps":"The Strengthener lifts and supports the plantar fascia, reducing strain. The Maintainer spreads weight evenly to avoid overloading the heel, while The Relaxer cushions the arch to ease tension.","whatItIs":"Inflammation of the plantar fascia — the thick band of tissue along the bottom of the foot from heel to toes.","symptoms":"Sharp heel pain, especially first thing in the morning or after long periods of standing.","check":["Which support takes the strain off the band along the bottom of the foot?",["The Strengthener — it lifts and supports the arch, reducing the strain","The Maintainer — it cushions the heel pad on impact","None of them; only rest will do anything"],0]},{"id":"heel-spurs","label":"Heel Spurs","category":"Foot","heard":"IT FEELS LIKE A NAIL IN MY HEEL","say":"LETS GET THAT HEEL OFF THE HARD EDGE","heardText":"It feels like a nail in my heel.","sayText":"Let's get that heel off the hard edge.","tell":"Sharp and pinpoint under the heel. Plenty of people with the same picture feel nothing at all — which is exactly why you never put a name on it.","why":"Names the relief, not the condition. Describing what the supports do is always safe ground.","howItHelps":"The Strengthener supports the arch to limit over-pronation that strains the heel. The Relaxer adds cushioning to absorb shock, and the Maintainer balances weight so the spur isn't constantly irritated.","whatItIs":"Calcium deposits that create a bony growth under the heel bone.","symptoms":"Stabbing heel pain — though some people don't feel it at all.","check":["What do the supports actually change for this client?",["They dissolve the bony growth over a few months","They limit over-pronation and absorb shock so the spot is not constantly irritated","They numb the heel so the pain stops registering"],1]},{"id":"metatarsalgia","label":"Metatarsalgia","category":"Foot","heard":"THE BALL OF MY FOOT BURNS ALL DAY","say":"TELL ME WHEN THE BURNING STARTS","heardText":"The ball of my foot burns all day.","sayText":"Tell me when the burning starts.","tell":"Burning under the forefoot that worsens the longer they are up — pressure concentrating where it should be spread.","why":"An open question about timing. You get the shift pattern you need for the fitting and you have still named nothing.","howItHelps":"The Maintainer supports the metatarsal arch to spread pressure that usually concentrates there. The Strengthener and Relaxer align the foot to reduce overcompensating.","whatItIs":"Pain and inflammation in the ball of the foot (the metatarsal area).","symptoms":"Burning or aching pain, worse with walking or standing.","check":["Which support is doing the main work in the ball of the foot?",["The Maintainer — it supports the metatarsal arch and spreads the pressure","The Relaxer — it holds the toes straight","The Strengthener — it raises the heel off the ground"],0]},{"id":"bunions","label":"Bunions","category":"Foot","heard":"NOTHING I OWN FITS THIS BUMP","say":"LETS TAKE THE PRESSURE OFF THAT JOINT","heardText":"Nothing I own fits this bump.","sayText":"Let's take the pressure off that joint.","tell":"A fit problem first and a pain problem second. Shoes are the frustration they lead with, so start there.","why":"Honest about the benefit without over-promising. Setting the expectation now prevents a return later.","howItHelps":"Supporting all four arches helps align the foot better. The Maintainer reduces forefoot pressure, easing pain at the big toe joint. It won't reverse a bunion, but it can make standing and walking less aggravating.","whatItIs":"A bony bump that forms at the base of the big toe, pushing it outward.","symptoms":"Pain, swelling, redness, and sometimes difficulty fitting into shoes.","check":["What should you be straight with this client about?",["The supports will straighten the toe back over time","The supports will not reverse the bump, but standing and walking can be less aggravating","Nothing — never raise a limitation before the close"],1]},{"id":"neuromas","label":"Morton's Neuroma","category":"Nerve","heard":"IT IS LIKE A PEBBLE IN MY SOCK","say":"WHICH TOES DOES THAT PEBBLE SIT BETWEEN","heardText":"It's like a pebble in my sock.","sayText":"Which toes does that pebble sit between?","tell":"The pebble line, with tingling or burning between the toes, is one of the most repeated phrases on the floor.","why":"You borrow their own word back. It proves you were listening and it gets you the location without a label.","howItHelps":"The Maintainer lifts the metatarsal arch, opening space between the toes to reduce nerve compression. The Strengthener and Relaxer align the foot to help prevent pinching.","whatItIs":"Thickened nerve tissue, usually between the third and fourth toes.","symptoms":"Tingling, burning, or a feeling like there's a pebble in your shoe.","check":["How do the supports create relief here?",["The Maintainer lifts the metatarsal arch, opening space between the toes and easing the compression","The Strengthener presses the toes together to hold the nerve still","They shrink the thickened tissue back down"],0]},{"id":"flat-feet","label":"Flat Feet","category":"Foot","heard":"MY ARCHES JUST GAVE OUT","say":"LETS SEE WHAT SUPPORT UNDER THERE FEELS LIKE","heardText":"My arches just gave out.","sayText":"Let's see what support under there feels like.","tell":"They already have a theory about their own feet. You do not confirm it and you do not correct it — you go to the demo.","why":"Moves from talk to feel. Their foot on a support answers the question better than any sentence you own.","howItHelps":"The Strengthener recreates the missing arch structure. The Relaxer supports the midfoot to prevent collapse, and the Maintainer keeps weight balanced across the whole foot.","whatItIs":"When the arches of the feet collapse, making the entire sole touch the ground.","symptoms":"Foot fatigue, arch or heel pain, and sometimes knee or back discomfort.","check":["Which support recreates the structure they say is missing?",["The Relaxer","The Strengthener","The Maintainer"],1]},{"id":"high-arches","label":"High Arches","category":"Foot","heard":"MY ARCH IS TOO HIGH FOR ANY SHOE","say":"LETS FILL THE GAP UNDER THAT ARCH","heardText":"My arch is too high for any shoe.","sayText":"Let's fill the gap under that arch.","tell":"The opposite complaint to a fallen arch and it needs the opposite conversation — the gap under the foot is the problem.","why":"Plain physical language. The client can picture it, and you have diagnosed nothing.","howItHelps":"The Strengthener supports and balances the high arch to reduce tension. The Relaxer cushions the midfoot, and the Maintainer distributes weight evenly.","whatItIs":"A condition where the foot's arch is unusually high, creating a pronounced curve along the inner sole.","symptoms":"Tightness or pain in the arches, discomfort in the ball or heel, and sometimes toe curling or ankle instability.","check":["What does the Strengthener do for a very high arch?",["Flattens it down toward neutral","Supports and balances it so the tension comes off","Nothing — a high arch needs no support"],1]},{"id":"achilles-tendonitis","label":"Achilles Tendonitis","category":"Tendon & Leg","heard":"THE BACK OF MY HEEL IS TIGHT","say":"WHEN DOES THAT TIGHTNESS SHOW UP","heardText":"The back of my heel is tight.","sayText":"When does that tightness show up?","tell":"Tightness behind the heel that turns up after activity rather than during it.","why":"Timing tells you whether this is a standing job, a walking job or a workout — and that drives the whole fitting.","howItHelps":"Arch support from the Strengthener helps keep the heel in a neutral position, reducing pull on the Achilles. The Relaxer cushions the midfoot, and the Maintainer eases stress during movement.","whatItIs":"Inflammation of the Achilles tendon, which connects the calf muscle to the heel.","symptoms":"Stiffness or pain at the back of the heel, worse after activity.","check":["How does arch support reach the back of the heel?",["It keeps the heel in a neutral position, which reduces the pull on the tendon","It stretches the tendon directly with every step","It does not — nothing under the foot affects the heel"],0]},{"id":"overpronation","label":"Overpronation","category":"Foot","heard":"MY SHOES WEAR OUT ON ONE SIDE","say":"BRING ME THE PAIR YOU WEAR MOST","heardText":"My shoes wear out on one side.","sayText":"Bring me the pair you wear most.","tell":"A wear pattern is evidence they brought you for free. Ask to see the shoes.","why":"Turns their own observation into the demo. The worn shoe becomes the proof instead of your opinion.","howItHelps":"The Strengthener holds up the arch to limit that exaggerated roll. The Relaxer supports the midfoot, and the Maintainer keeps weight centered to stabilize every step.","whatItIs":"Excessive inward rolling of the foot during walking or running.","symptoms":"Arch or heel pain, ankle instability, or even knee discomfort from misalignment.","check":["What is the Strengthener limiting here?",["The exaggerated inward roll of the foot","The length of their stride","The height of the heel on their shoe"],0]},{"id":"hammertoes","label":"Hammertoes","category":"Foot","heard":"MY TOES CURL UNDER AND RUB","say":"LETS GET YOUR TOES SOME ROOM","heardText":"My toes curl under and rub.","sayText":"Let's get your toes some room.","tell":"Friction and corns from toes that sit bent. Shoe room and forefoot pressure are the two levers you have.","why":"Room is something you can actually deliver today. A name is not.","howItHelps":"The Strengthener improves arch posture to ease toe strain. The Relaxer cushions the midfoot, and the Maintainer reduces forefoot pressure.","whatItIs":"A deformity bending one or more toes into a claw-like shape at the middle joint.","symptoms":"Pain from shoe friction, corns, or stiffness in the bent toes.","check":["Which support reduces the forefoot pressure for this client?",["The Maintainer","The Strengthener","Neither — only a wider shoe changes anything"],0]},{"id":"shin-splints","label":"Shin Splints","category":"Tendon & Leg","heard":"MY SHINS ACHE AFTER EVERY WALK","say":"HOW FAR IN DOES THE ACHE START","heardText":"My shins ache after every walk.","sayText":"How far in does the ache start?","tell":"Pain along the inner shin that arrives after the activity, not during it.","why":"Distance is a number you can measure again after the fitting — you are building your own before and after.","howItHelps":"The Strengthener helps correct overpronation to reduce shin strain. The Relaxer absorbs midfoot impact, and the Maintainer balances the stride.","whatItIs":"Pain along the shinbone (tibia) from inflamed muscles, tendons, or bone tissue.","symptoms":"Dull or sharp pain along the inner shin, often after running or jumping.","check":["Why would supports under the foot change a shin complaint?",["They correct the over-pronation, which reduces the strain travelling up the leg","They warm the shin muscle through the sole of the shoe","They do not — send this client away without a fitting"],0]},{"id":"neuropathy","label":"Neuropathy","category":"Nerve","heard":"MY FEET GO NUMB AND TINGLE","say":"LETS FIND STEADY SUPPORT FOR EVERY STEP","heardText":"My feet go numb and tingle.","sayText":"Let's find steady support for every step.","tell":"Numbness is the one to slow down for. Support changes how they stand; it is not a treatment, and this client may already be under someone's care.","why":"Careful and true. Steady support is what you sell — anything past that is a claim you cannot make.","howItHelps":"The Strengthener and Relaxer cradle the foot with steady support. The Maintainer spreads pressure evenly so no spot is overloaded.","whatItIs":"Nerve trouble in the feet that sends irregular signals.","symptoms":"Tingling, numbness, or a \"are my feet still there?\" feeling.","check":["What do the supports offer a client whose feet feel numb?",["They bring the feeling back to the nerves","They cradle the foot with steady support and spread pressure so no one spot is overloaded","They replace what their doctor has told them"],1]},{"id":"sciatica-pain","label":"Sciatica Pain","category":"Nerve","heard":"THE PAIN SHOOTS DOWN MY LEG","say":"HOW LONG ARE YOU ON YOUR FEET EACH DAY","heardText":"The pain shoots down my leg.","sayText":"How long are you on your feet each day?","tell":"The complaint lives in the leg, but they are standing on a large part of their day.","why":"Hours on the floor is the number that makes the case. Get it before you talk about anything else.","howItHelps":"The Strengthener aligns the feet to support better posture. The Relaxer cushions steps, and the Maintainer stabilizes weight distribution.","whatItIs":"Irritation of the sciatic nerve, running from the lower back through the legs.","symptoms":"Sharp or aching pain from the buttocks to the calf, sometimes with foot tingling.","check":["What is the supports' role for this client?",["Aligning the feet to support better posture and steady the weight distribution","Treating the irritated nerve directly","Removing their need to sit down at all"],0]},{"id":"back-pain","label":"Back Pain","category":"Kinetic Chain","heard":"MY LOWER BACK IS DONE BY NOON","say":"LETS START WITH WHAT YOU STAND ON","heardText":"My lower back is done by noon.","sayText":"Let's start with what you stand on.","tell":"A whole-body complaint with a floor underneath it. This is the kinetic chain conversation.","why":"Connects their back to your product in one sentence, without claiming to fix a back.","howItHelps":"The Strengthener aligns the feet to improve posture and reduce back strain. The Relaxer cushions the midfoot, and the Maintainer distributes weight evenly.","whatItIs":"Discomfort or soreness in the back, typically in the lower region (lumbar spine).","symptoms":"Aching, stiffness, or sharp pain — often worsened by standing, walking, or sitting for long periods.","check":["How does the back get reached from the foot?",["The Strengthener aligns the feet, which improves posture and reduces the strain on the back","The Maintainer braces the lower spine directly","It does not — a back complaint is outside what supports touch"],0]},{"id":"knee-pain","label":"Knee Pain","category":"Kinetic Chain","heard":"STAIRS ARE THE WORST PART OF MY DAY","say":"TELL ME ABOUT YOUR HARDEST HOUR","heardText":"Stairs are the worst part of my day.","sayText":"Tell me about your hardest hour.","tell":"They handed you a specific moment. Moments are what you check again at the end of the fitting.","why":"Opens up the whole day instead of the one staircase. The real driver is usually in that answer.","howItHelps":"The Strengthener corrects foot posture to lessen knee strain. The Relaxer cushions impact, and the Maintainer balances weight.","whatItIs":"Discomfort in the knee joint from excessive pressure or poor alignment.","symptoms":"Aching, stiffness, or pain during movement like stair-climbing.","check":["Which support corrects the foot posture that loads the knee?",["The Relaxer","The Strengthener","The Maintainer"],1]},{"id":"hip-pain","label":"Hip Pain","category":"Kinetic Chain","heard":"MY HIP ACHES WHEN I STAND ALL DAY","say":"LETS LOOK AT HOW YOU ARE STANDING","heardText":"My hip aches when I stand all day.","sayText":"Let's look at how you are standing.","tell":"Standing all day is the trigger they named themselves. That is your fitting brief.","why":"Turns the conversation into something you can both watch happen, right there on the floor.","howItHelps":"The Strengthener aligns the foot to improve overall posture and reduce hip strain. The Relaxer cushions the midfoot, and the Maintainer distributes weight evenly.","whatItIs":"Discomfort or soreness in the hip joint or surrounding muscles.","symptoms":"Aching, stiffness, or sharp pain in the hip area — sometimes radiating to the lower back, thigh, or groin.","check":["What are the supports doing for a client like this?",["Aligning the foot to improve overall posture and distribute weight evenly","Lifting one leg higher than the other to level the hips","Holding the hip joint still while they walk"],0]},{"id":"arthritis-feet","label":"Arthritis in the Feet","category":"Foot","heard":"MY FEET ARE STIFF AND SORE","say":"WHAT DOES A GOOD DAY LOOK LIKE","heardText":"My feet are stiff and sore.","sayText":"What does a good day look like?","tell":"Stiffness and soreness that limits how far they will go. Comfort today matters more to them than any long-term promise.","why":"Gives you their goal in their own words — the thing you hand straight back to them at the close.","howItHelps":"The Strengthener supports achy joints, the Relaxer pads with cushioning, and the Maintainer keeps pressure light across the foot.","whatItIs":"Joint inflammation in the feet from degenerative changes.","symptoms":"Swelling, soreness, or stiffness limiting mobility.","check":["What is the honest promise for this client?",["Supported joints, cushioning, and lighter pressure across the whole foot","A cure for the changes in the joints","Faster healing between flare-ups"],0]},{"id":"gout","label":"Gout","category":"Foot","heard":"MY BIG TOE IS ON FIRE","say":"LETS BE GENTLE WITH THAT TOE TODAY","heardText":"My big toe is on fire.","sayText":"Let's be gentle with that toe today.","tell":"Sudden, intense, hot and red at the big toe joint. If they are mid-flare, be gentle and do not push a long fitting.","why":"Reads the room. Pushing a full fitting through a flare-up costs you the client and the trust behind them.","howItHelps":"The Strengthener aligns the foot to reduce strain on the affected joint. The Relaxer cushions the midfoot during flare-ups, and the Maintainer distributes weight evenly.","whatItIs":"A form of arthritis caused by uric acid buildup, leading to sudden inflammation — often in the big toe joint.","symptoms":"Intense, throbbing pain in the big toe, swelling, redness, warmth, and tenderness.","check":["What do you do when a client is in a hot, painful flare?",["Fit as normal — their pain is not your department","Keep it gentle and short, and talk about how the supports spread weight for when they are ready","Tell them what it is and send them home"],1]},{"id":"ankle-pain","label":"Ankle Pain","category":"Foot","heard":"MY ANKLE FEELS LIKE IT WILL GIVE","say":"LETS GET THAT ANKLE SOME STABILITY","heardText":"My ankle feels like it will give.","sayText":"Let's get that ankle some stability.","tell":"Instability, not only pain. They are describing something they no longer trust.","why":"Answers the actual worry — trust — rather than the pain they mentioned second.","howItHelps":"The Strengthener stabilizes the arch for better ankle alignment. The Relaxer cushions the foot when needed, and the Maintainer ensures even weight distribution.","whatItIs":"Discomfort or instability in the ankle joint from strain or misalignment.","symptoms":"Tenderness, pain, or weakness during movement.","check":["Which support stabilises the arch for better ankle alignment?",["The Strengthener","The Relaxer","The Maintainer"],0]}];
+const ROWS = ["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"];
+const STAGE_X = [56,95,134,173,212,251,310];
+const MAX_STAGE = 6;
+/* The client always ends up at the door on the last miss, whatever the tier's
+   letter budget is. WALK maps misses -> the six-step walk to the exit. */
+const WALK = {6:[0,1,2,3,4,5,6], 5:[0,1,2,3,5,6], 4:[0,2,3,5,6]};
+const WALK_MS = [720,680,600,520,420,340,280];
+const STATUS = {
+  0:"Client at the booth — all calm",
+  1:"They're drifting… stay with them",
+  2:"Interest fading — pick up the pace",
+  3:"Getting tense — don't lose them",
+  4:"Critical — almost at the door!",
+  5:"LAST STEP — stop them now!",
+  6:"Client left the store"
+};
+const SPEECH = {1:"Hmm…",2:"Not sure…",3:"Maybe later",4:"I should go…",5:"Bye!"};
+
+const TIERS = {
+  1:{n:1, name:"New on the floor", blurb:"Their shorter lines · 6 steps · one free letter",
+     field:"heard", limit:6, hints:1, hintCost:false, rush:50, pool:"short",
+     need:0, needText:""},
+  2:{n:2, name:"Taking clients", blurb:"Every client line · 5 steps · a hint costs a step",
+     field:"heard", limit:5, hints:1, hintCost:true, rush:42, pool:"all",
+     need:4, needText:"Keep 4 clients to unlock"},
+  3:{n:3, name:"Specialist", blurb:"Spell YOUR response · 4 steps · no hints",
+     field:"say", limit:4, hints:0, hintCost:false, rush:36, pool:"all",
+     need:10, needCards:3, needText:"Keep 10 clients and pass 3 checks to unlock"}
+};
+const SHIFT_LEN = 8;
+
+/* ---- persistence ---- */
+const SAVE_KEY = "ktc.save.v2";
+function blankSave(){
+  return {v:2, wins:0, losses:0, best:0, streak:0, checksRight:0, checksWrong:0,
+          checksAsked:0, tier:1, sittings:0, lastPlay:0, cards:{}};
+}
+function loadSave(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return null;
+    const d = JSON.parse(raw);
+    if(!d || d.v!==2 || typeof d.cards!=="object" || !d.cards) return null;
+    const b = blankSave();
+    for(const k in b) if(!(k in d)) d[k]=b[k];
+    return d;
+  }catch(e){ return null }
+}
+function persist(){
+  try{ save.lastPlay = Date.now(); localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){}
+}
+const priorSave = loadSave();
+const save = priorSave || blankSave();
+const returning = !!priorSave && (save.wins + save.losses) > 0;
+save.sittings = (save.sittings|0) + 1;
+
+function card(id){
+  if(!save.cards[id]) save.cards[id] = {w:0,l:0,c:0,f:0};
+  return save.cards[id];
+}
+function isMastered(id){ const c=save.cards[id]; return !!c && c.w>=2 && c.c>=1 }
+function masteredCount(){ return CONTENT.filter(a=>isMastered(a.id)).length }
+
+function unlockedTier(n){
+  const t=TIERS[n];
+  if(save.wins < t.need) return false;
+  if(t.needCards && save.checksRight < t.needCards) return false;
+  return true;
+}
+
+/* ---- content selection ---- */
+function lettersOnly(p){ return p.replace(/[^A-Z]/g,"") }
+function phraseFor(a, tier){ return a[TIERS[tier].field] }
+function poolFor(tier){
+  const t=TIERS[tier];
+  if(t.pool==="short") return CONTENT.filter(a=>lettersOnly(a.heard).length<=23);
+  return CONTENT.slice();
+}
+/* Weight what the learner has missed, and retire what they have mastered, so a
+   second sitting is not the first one again. */
+/* missed (3.5+) > never seen (2.5) > failed the check (2.15)
+   > kept once (0.65) > mastered (0.25) */
+function weightFor(id){
+  const c=save.cards[id];
+  if(!c || (c.w+c.l)===0) return 2.5;
+  if(isMastered(id)) return 0.25;
+  const w = 1 + (c.l*2.5) + (c.f*1.5) - (c.w*0.35);
+  return Math.max(0.4, Math.min(12, w));
+}
+function weightedDraw(list, n){
+  const rest = list.slice(), out = [];
+  while(out.length < n && rest.length){
+    let total = 0;
+    for(const a of rest) total += weightFor(a.id);
+    let r = Math.random()*total, k = rest.length-1;
+    for(let i=0;i<rest.length;i++){ r -= weightFor(rest[i].id); if(r<=0){ k=i; break } }
+    out.push(rest.splice(k,1)[0]);
+  }
+  return out;
+}
+
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+const SKINS=["#f0c4a8","#e8b896","#d4a07e","#c6865a","#a56b45","#8d5524","#f5d0b5","#c9a07a"];
+const HAIRS=["#1a1a1a","#2c1810","#3d2b1f","#4a3728","#6b4423","#8b5a2b","#c4a35a","#d4c4a8"];
+const TOPS=["#3b9dd6","#1a3a5c","#e07a5f","#1f8a70","#7c5cbf","#c44536","#e8a838","#4a6fa5","#d4768a"];
+const STAFF_TOPS=["#1a3a5c","#0f2740","#243f5c","#1e4d6b"];
+const PANTS=["#3d4a55","#2c353d","#4a5560","#1f2933"];
+const HAIR_STYLES=["short","long","bun","pony","bald","cap","curly","side"];
+const ACCESSORIES=["none","glasses","bag","watch","scarf","none","none"];
+
+function randomPerson(role){
+  let hairStyle=pick(HAIR_STYLES);
+  if(role==="staff" && (hairStyle==="bald"||hairStyle==="cap") && Math.random()>0.35)
+    hairStyle=pick(["short","side","curly","bun"]);
+  return {
+    skin:pick(SKINS), hair:pick(HAIRS), hairStyle,
+    top: role==="staff"?pick(STAFF_TOPS):pick(TOPS),
+    pants:pick(PANTS),
+    accessory: role==="staff"?pick(["none","glasses","watch","none"]):pick(ACCESSORIES),
+    face:Math.floor(Math.random()*3), scale:0.92+Math.random()*0.16
+  };
+}
+function randomCast(){return {client:randomPerson("client"), staff:randomPerson("staff"), seed:Math.random()}}
+
+/* ---- sound ---- */
+let muted=false, actx=null, hbTimer=null;
+function ctx(){if(!actx){const A=window.AudioContext||window.webkitAudioContext;if(A)actx=new A()}if(actx&&actx.state==="suspended")actx.resume();return actx}
+function unlock(){ctx()}
+function tone({freq,duration=0.12,type="sine",gain=0.12,delay=0,freqEnd}){
+  if(muted)return; const c=ctx(); if(!c)return;
+  const t0=c.currentTime+delay, o=c.createOscillator(), g=c.createGain();
+  o.type=type; o.frequency.setValueAtTime(freq,t0);
+  if(freqEnd)o.frequency.exponentialRampToValueAtTime(Math.max(20,freqEnd),t0+duration);
+  g.gain.setValueAtTime(0.0001,t0);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.0001,gain),t0+0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001,t0+duration);
+  o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0+duration+0.05);
+}
+function noise(dur=0.08,gain=0.06){
+  if(muted)return; const c=ctx(); if(!c)return;
+  const n=Math.floor(c.sampleRate*dur), buf=c.createBuffer(1,n,c.sampleRate), d=buf.getChannelData(0);
+  for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);
+  const s=c.createBufferSource(); s.buffer=buf;
+  const g=c.createGain(), f=c.createBiquadFilter(); f.type="lowpass"; f.frequency.value=800; g.gain.value=gain;
+  s.connect(f); f.connect(g); g.connect(c.destination); s.start(); s.stop(c.currentTime+dur);
+}
+function playCorrect(){tone({freq:523,duration:0.09});tone({freq:659,duration:0.12,delay:0.07});tone({freq:784,duration:0.16,type:"triangle",delay:0.14})}
+function playWrong(stage){
+  const s=Math.max(1,Math.min(6,stage));
+  noise(0.06+s*0.01,0.05+s*0.012);
+  tone({freq:120-s*6,freqEnd:55,duration:0.1,type:"triangle",gain:0.08});
+  const base=180+s*40; tone({freq:base,freqEnd:base*1.4,duration:0.14+s*0.02,type:"sawtooth",gain:0.03+s*0.012,delay:0.05});
+  if(s>=4)tone({freq:440,freqEnd:220,duration:0.22,type:"square",gain:0.04,delay:0.12});
+  if(s>=5)tone({freq:880,freqEnd:110,duration:0.35,type:"sawtooth",gain:0.055,delay:0.08});
+}
+function playWin(){[523,659,784,1047].forEach((f,i)=>tone({freq:f,duration:0.18,delay:i*0.09}))}
+function playLose(){noise(0.2,0.1);tone({freq:300,freqEnd:80,duration:0.45,type:"sawtooth",gain:0.09});tone({freq:70,freqEnd:40,duration:0.25,gain:0.14,delay:0.25})}
+function playStart(){tone({freq:392,duration:0.1,gain:0.07});tone({freq:523,duration:0.14,type:"triangle",gain:0.07,delay:0.08})}
+function playTick(){tone({freq:1100,duration:0.05,gain:0.05,type:"square"})}
+function stopHB(){if(hbTimer){clearInterval(hbTimer);hbTimer=null}}
+function syncHB(stage,playing){
+  stopHB(); if(muted||!playing||stage<3)return;
+  const beat=()=>{tone({freq:70,freqEnd:45,duration:0.09,gain:0.07});tone({freq:90,freqEnd:55,duration:0.08,gain:0.05,delay:0.12})};
+  beat(); hbTimer=setInterval(beat, stage>=5?480:stage>=4?620:800);
+}
+
+/* ---- SVG scene ---- */
+function hairSVG(look,s=1){
+  const c=look.hair, st=look.hairStyle;
+  if(st==="bald")return `<path d="M${-5*s} ${-5*s} Q0 ${-8*s} ${5*s} ${-5*s}" stroke="${c}" stroke-width="${1.2*s}" fill="none" opacity="0.35"/>`;
+  if(st==="cap")return `<ellipse cx="0" cy="${-2*s}" rx="${9.5*s}" ry="${3*s}" fill="${look.top}"/><path d="M${-9*s} ${-1*s} Q0 ${-14*s} ${9*s} ${-1*s}" fill="${look.top}"/>`;
+  if(st==="long")return `<path d="M${-9*s} ${-1*s} Q0 ${-14*s} ${9*s} ${-1*s} Q4 ${-8*s} ${-9*s} ${-1*s}" fill="${c}"/><path d="M${-9*s} 0 Q${-11*s} ${12*s} ${-8*s} ${18*s}" fill="${c}"/><path d="M${9*s} 0 Q${11*s} ${12*s} ${8*s} ${18*s}" fill="${c}"/>`;
+  if(st==="bun")return `<path d="M${-8.5*s} ${-1*s} Q0 ${-13*s} ${8.5*s} ${-1*s}" fill="${c}"/><circle cx="0" cy="${-12*s}" r="${3.2*s}" fill="${c}"/>`;
+  if(st==="pony")return `<path d="M${-8.5*s} ${-1*s} Q0 ${-13*s} ${8.5*s} ${-1*s}" fill="${c}"/><path d="M${6*s} ${-6*s} Q${14*s} ${-4*s} ${12*s} ${10*s}" fill="${c}"/>`;
+  if(st==="curly")return `<path d="M${-9*s} ${-1*s} Q0 ${-14*s} ${9*s} ${-1*s}" fill="${c}"/><circle cx="${-7*s}" cy="${-6*s}" r="${2.4*s}" fill="${c}"/><circle cx="0" cy="${-9*s}" r="${2.6*s}" fill="${c}"/><circle cx="${7*s}" cy="${-6*s}" r="${2.4*s}" fill="${c}"/>`;
+  if(st==="side")return `<path d="M${-8.5*s} ${-2*s} Q${-2*s} ${-14*s} ${8*s} ${-4*s}" fill="${c}"/><path d="M${6*s} ${-3*s} Q${11*s} 0 ${9*s} ${6*s}" fill="${c}"/>`;
+  return `<path d="M${-8.5*s} ${-1*s} Q0 ${-13*s} ${8.5*s} ${-1*s} Q4 ${-8*s} ${-8.5*s} ${-1*s}" fill="${c}"/>`;
+}
+function faceSVG(mood,look){
+  if(mood==="sad")return `<path d="M-3.5 -1.5 L-1.5 1 M-1.5 -1.5 L-3.5 1" stroke="#5c3a28" stroke-width="1.1" stroke-linecap="round"/><path d="M1.5 -1.5 L3.5 1 M3.5 -1.5 L1.5 1" stroke="#5c3a28" stroke-width="1.1" stroke-linecap="round"/><path d="M-2.5 4 Q0 2 2.5 4" stroke="#5c3a28" stroke-width="1.1" fill="none" stroke-linecap="round"/>`;
+  const mouth = mood==="happy"?"M-3 2.5 Q0 6 3 2.5":mood==="worried"?"M-2.5 4.5 Q0 1.2 2.5 4.5":mood==="flat"?"M-2.5 3.5 L2.5 3.5":"M-2.5 2.5 Q0 5 2.5 2.5";
+  return `<circle cx="-2.5" cy="-1" r="1" fill="#2c3e3d"/><circle cx="2.5" cy="-1" r="1" fill="#2c3e3d"/><path d="${mouth}" stroke="#5c3a28" stroke-width="1.1" fill="none" stroke-linecap="round"/>`;
+}
+function glassesSVG(){return `<g stroke="#2c3e3d" stroke-width="1" fill="none" opacity="0.85"><circle cx="-2.6" cy="-1" r="2.4"/><circle cx="2.6" cy="-1" r="2.4"/><line x1="-0.2" y1="-1" x2="0.2" y2="-1"/></g>`}
+
+function renderScene(el, {stage=0, lost=false, won=false, cast, walking=false, displayX}){
+  stage=Math.min(stage,MAX_STAGE);
+  const x = displayX!=null ? displayX : (won?STAGE_X[stage]:STAGE_X[stage]);
+  const critical=!won && stage>=4;
+  const lastChance=!won && !lost && stage>=5;
+  const tense=!won && stage>=3;
+  const client=cast.client, staff=cast.staff;
+  let top=client.top;
+  if(lost&&!walking)top="#8a939c";
+  else if(won)top="#1f8a70";
+  else if(lastChance)top="#c44536";
+  const limb=lost&&!walking?"#6b7574":client.pants;
+  const mood=lost&&!walking?"sad":won?"happy":stage>=4?"worried":stage>=2?"flat":"neutral";
+  const staffMood=won?"happy":lastChance?"worried":"neutral";
+  const intensity = won?"":stage>=5?"i5":stage>=4?"i4":stage>=3?"i3":"";
+  el.className="scene "+intensity+(walking?" walking":"");
+
+  const steps=[95,134,173,212,251].map((sx,i)=>`
+    <circle cx="${sx}" cy="120" r="4" fill="${i<stage?"#c44536":"#0b1f33"}" fill-opacity="${i<stage?0.95:0.15}"/>
+    <text x="${sx}" y="134" text-anchor="middle" fill="${i<stage?"#c44536":"#8a939c"}" style="font-size:7px;font-weight:700;font-family:var(--font-sans)">${i+1}</text>`).join("");
+
+  const speech = (walking||(stage>=1&&!lost&&!won))&&stage>0 ? `
+    <rect x="-8" y="-36" width="${stage>=4?56:44}" height="15" rx="5" fill="${lastChance?"#c44536":"#fff"}" stroke="${critical?"#c44536":"#cfd8e2"}"/>
+    <text x="${stage>=4?20:14}" y="-25" text-anchor="middle" fill="${lastChance?"#fff":"#0b1f33"}" style="font-size:6.5px;font-weight:700;font-family:var(--font-sans)">${SPEECH[Math.min(stage,5)]||"Hmm…"}</text>`:"";
+
+  const banner = lost&&!walking?`<rect x="90" y="48" width="140" height="22" rx="6" fill="#c44536"/><text x="160" y="63" text-anchor="middle" fill="#fff5f3" style="font-size:10px;font-weight:700;font-family:var(--font-display)">They walked out!</text>`:
+    won?`<rect x="90" y="48" width="140" height="22" rx="6" fill="#1f8a70"/><text x="160" y="63" text-anchor="middle" fill="#f0fffc" style="font-size:10px;font-weight:700;font-family:var(--font-display)">Client stayed!</text>`:"";
+
+  el.innerHTML=`<svg viewBox="0 0 340 168" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${critical?"#f5e8e6":"#eef3f7"}"/><stop offset="100%" stop-color="${critical?"#e8d4d0":"#dce5ed"}"/></linearGradient>
+      <linearGradient id="f" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e8e0d4"/><stop offset="100%" stop-color="#d0c4b2"/></linearGradient>
+      <linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#243f5c"/><stop offset="100%" stop-color="#1a3a5c"/></linearGradient>
+      <clipPath id="cc"><circle cx="16" cy="16" r="16"/></clipPath>
+    </defs>
+    <rect width="340" height="92" fill="url(#w)"/>
+    <rect y="92" width="340" height="76" fill="url(#f)"/>
+    <line x1="0" y1="92" x2="340" y2="92" stroke="#c5b8a6" stroke-width="1.5"/>
+    <text x="170" y="22" text-anchor="middle" fill="${lastChance?"#c44536":"#1a3a5c"}" style="font-size:9px;font-weight:800;letter-spacing:.16em;font-family:var(--font-sans)">THE GOOD FEET STORE</text>
+    <path d="M118 28 Q170 34 222 28" stroke="${lastChance?"#c44536":"#3b9dd6"}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <g transform="translate(248,36)"><circle cx="16" cy="16" r="17" fill="#0b1f33"/><g clip-path="url(#cc)"><image href="${COGS}" x="0" y="0" width="32" height="32" preserveAspectRatio="xMidYMid slice"/></g></g>
+    <rect x="12" y="38" width="48" height="42" rx="3" fill="#fff" stroke="#cfd8e2"/>
+    <rect x="16" y="44" width="12" height="10" rx="1.5" fill="#3b9dd6" opacity="0.35"/>
+    <rect x="30" y="44" width="12" height="10" rx="1.5" fill="#1a3a5c" opacity="0.35"/>
+    <rect x="44" y="44" width="12" height="10" rx="1.5" fill="#1f8a70" opacity="0.35"/>
+    <text x="36" y="76" text-anchor="middle" fill="#5a6b7d" style="font-size:5.5px;font-weight:700;font-family:var(--font-sans)">SUPPORTS</text>
+    <line x1="70" y1="120" x2="280" y2="120" stroke="${critical?"#c44536":"#1a3a5c"}" stroke-opacity="${0.08+stage*0.03}" stroke-width="16" stroke-linecap="round"/>
+    <line x1="70" y1="120" x2="280" y2="120" stroke="${critical?"#c44536":"#3b9dd6"}" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="4 6"/>
+    ${steps}
+    <rect x="6" y="86" width="66" height="52" rx="4" fill="url(#b)"/>
+    <rect x="6" y="76" width="66" height="14" rx="3" fill="#0f2740"/>
+    <text x="39" y="86" text-anchor="middle" fill="#7ec8ef" style="font-size:6.5px;font-weight:800;letter-spacing:.08em;font-family:var(--font-sans)">GOOD FEET</text>
+    <rect x="10" y="94" width="58" height="24" rx="2" fill="#000"/>
+    <image href="${WATERMAN}" x="11" y="95" width="56" height="22" preserveAspectRatio="xMidYMid meet"/>
+    <line x1="12" y1="89" x2="66" y2="89" stroke="#5bb8e8" stroke-width="1.5" stroke-linecap="round"/>
+    <g transform="translate(39,72) scale(${staff.scale*0.95})">
+      <circle cx="0" cy="0" r="6.5" fill="${staff.skin}"/>
+      ${hairSVG(staff,0.78)}
+      <path d="M-7.5 8 Q0 4 7.5 8 L8.5 18 L-8.5 18 Z" fill="${staff.top}"/>
+      <circle cx="4" cy="12" r="1.6" fill="#3b9dd6"/>
+      ${faceSVG(staffMood,staff)}
+      ${staff.accessory==="glasses"?glassesSVG():""}
+    </g>
+    <text x="39" y="150" text-anchor="middle" fill="#5a6b7d" style="font-size:6px;font-weight:700;font-family:var(--font-sans)">BOOTH</text>
+    <rect x="292" y="70" width="${lost?14:36}" height="62" rx="2" fill="${lost||critical?"#c44536":"#1a3a5c"}"/>
+    ${!lost?`<rect x="298" y="76" width="24" height="28" rx="1" fill="${critical?"#f0a090":"#a8d4e8"}" opacity="0.45"/><circle cx="318" cy="108" r="2" fill="${critical?"#fff":"#5bb8e8"}"/>`:""}
+    <text x="310" y="146" text-anchor="middle" fill="${lost||critical?"#c44536":"#5a6b7d"}" style="font-size:7px;font-weight:800;font-family:var(--font-sans)">EXIT</text>
+    ${lastChance?`<text x="310" y="64" text-anchor="middle" fill="#c44536" style="font-size:7px;font-weight:800;font-family:var(--font-sans)">DANGER</text>`:""}
+    <g transform="translate(${x},88) scale(${client.scale})" opacity="${lost&&!walking?0.4:1}">
+      <ellipse cx="0" cy="46" rx="10" ry="3.5" fill="${critical?"#c44536":"#0b1f33"}" fill-opacity="0.18"/>
+      <g class="client-body">
+        <path d="M-8 14 L-12 28" stroke="${limb}" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M8 14 L12 28" stroke="${limb}" stroke-width="2.6" stroke-linecap="round"/>
+        ${client.accessory==="bag"?`<path d="M10 18 Q16 20 14 32 Q10 34 8 30" fill="${client.pants}" opacity="0.85"/>`:""}
+        <circle cx="0" cy="0" r="8.5" fill="${client.skin}"/>
+        ${hairSVG(client)}
+        <path d="M-9 12 Q0 8 9 12 L10 34 L-10 34 Z" fill="${top}"/>
+        ${client.accessory==="scarf"?`<path d="M-7 12 Q0 18 7 12 Q4 22 0 28 Q-4 22 -7 12" fill="#7ec8ef" opacity="0.85"/>`:""}
+        <path d="M-4 34 L-6 48" stroke="${client.pants}" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M4 34 L7 48" stroke="${client.pants}" stroke-width="3.2" stroke-linecap="round"/>
+        ${faceSVG(mood,client)}
+        ${client.accessory==="glasses"?glassesSVG():""}
+        ${tense&&!lost?`<path d="M10 -4 L12 -10" stroke="#3b9dd6" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>`:""}
+      </g>
+      ${speech}
+    </g>
+    ${banner}
+  </svg>`;
+}
+
+/* ---- state ---- */
+const state = {
+  phase:"menu", mode:"random", tier:1, queue:[], index:0,
+  guessed:new Set(), freed:new Set(), wrong:0, limit:6,
+  hintsLeft:0, usedHint:false, lastWon:false, timedOut:false,
+  cast:randomCast(), scored:false, rush:false, quizAnswered:false
+};
+if(save.tier>=1 && save.tier<=3 && unlockedTier(save.tier)) state.tier = save.tier;
+
+const $ = (id)=>document.getElementById(id);
+function show(id){
+  ["menu","play","reveal"].forEach(p=>$(p).classList.toggle("hidden", p!==id));
+  document.body.classList.toggle("playing", id==="play");
+}
+function cur(){ return state.queue[state.index] }
+function activePhrase(){ return phraseFor(cur(), state.tier) }
+function stageFor(w,limit){ const m=WALK[limit]||WALK[6]; const v=m[Math.min(w,limit)]; return v==null?MAX_STAGE:v }
+
+/* ---- timer (Rush hour) ---- */
+let clockId=null, deadline=0, lastTick=99;
+function stopTimer(){ if(clockId){clearInterval(clockId);clockId=null} }
+function startTimer(sec){
+  stopTimer(); lastTick=99;
+  if(!sec){ $("clock").classList.add("hidden"); return }
+  $("clock").classList.remove("hidden");
+  deadline = performance.now() + sec*1000;
+  state.rushTotal = sec;
+  clockId = setInterval(tickTimer, 100);
+  tickTimer();
+}
+function tickTimer(){
+  const left = Math.max(0, (deadline - performance.now())/1000);
+  const pct = Math.max(0, Math.min(100, (left/state.rushTotal)*100));
+  $("clockBar").style.width = pct+"%";
+  $("clockNum").textContent = left.toFixed(1)+"s";
+  $("clock").classList.toggle("warn", left<=10);
+  const whole = Math.ceil(left);
+  if(left<=5 && whole!==lastTick){ lastTick=whole; playTick() }
+  if(left<=0){
+    stopTimer();
+    if(state.phase==="playing"){
+      state.phase="over"; state.timedOut=true;
+      const fromS = stageFor(state.wrong, state.limit);
+      state.wrong = state.limit;
+      playLose();
+      finish(false, 900);
+      animateWalk(fromS, MAX_STAGE, true, null);
+    }
+  }
+}
+
+/* ---- rendering ---- */
+function renderStats(){
+  const played = save.wins + save.losses;
+  if(!played){ $("stats").innerHTML=""; return }
+  const m = masteredCount();
+  $("stats").innerHTML=`
+    <span class="chip">${save.wins} stayed</span>
+    <span class="chip">${save.losses} walked out</span>
+    <span class="chip">Streak ${save.streak}</span>
+    ${save.best?`<span class="chip gold">Best ${save.best}</span>`:""}
+    ${m?`<span class="chip gold">${m}/${CONTENT.length} mastered</span>`:""}`;
+}
+
+/* Words are kept whole so a long client line never breaks mid-word. */
+function renderWord(el, phrase, guessed, revealAll, shake, freed){
+  el.className="word"+(shake?" shake":"");
+  el.innerHTML = phrase.split(" ").map(w=>
+    `<span class="wordchunk">` + w.split("").map(ch=>{
+      if(ch<"A"||ch>"Z")return `<span class="letter">${esc(ch)}</span>`;
+      const on = revealAll || guessed.has(ch);
+      const free = freed && freed.has(ch) ? " free" : "";
+      return `<span class="letter${free}">${on?ch:""}</span>`;
+    }).join("") + `</span>`
+  ).join("");
+}
+
+function renderKB(){
+  const phrase=activePhrase();
+  $("kb").innerHTML = ROWS.map((row,ri)=>`<div class="kb-row r${ri+1}">${row.split("").map(L=>{
+    const used=state.guessed.has(L);
+    const cls=used?(phrase.includes(L)?"ok":"bad"):"";
+    return `<button type="button" data-l="${L}" class="${cls}" ${used?"disabled":""}>${L}</button>`;
+  }).join("")}</div>`).join("");
+  $("kb").querySelectorAll("button[data-l]").forEach(b=>b.onclick=()=>guess(b.dataset.l));
+}
+
+function remaining(){
+  return lettersOnly(activePhrase()).split("").filter(c=>!state.guessed.has(c)).length;
+}
+
+function updatePlayChrome(){
+  const a=cur(), t=TIERS[state.tier];
+  const s = stageFor(state.wrong, state.limit);
+  const left = state.limit - state.wrong;
+  $("catBadge").textContent = `T${state.tier} · ${a.category}` +
+    (state.mode==="deck"?` · ${state.index+1}/${state.queue.length}`:"") +
+    (state.rush?" · Rush":"");
+  /* The seven authored mood lines are the status. */
+  const st=$("playStatus");
+  st.textContent = STATUS[s];
+  st.className = "status" + (s>=5?" danger":s>=3?" accent":"");
+  $("playSub").textContent = `${left} step${left===1?"":"s"} before they reach the door`;
+  const bar=$("meterBar");
+  bar.style.width=`${(state.wrong/state.limit)*100}%`;
+  bar.className = state.wrong >= state.limit-1 ? "hot" : "";
+  $("pips").innerHTML=Array.from({length:state.limit},(_,i)=>`<span class="${i<state.wrong?"on":""}"></span>`).join("");
+  const al=$("alert");
+  if(s>=5){al.className="alert last";al.textContent="LAST CHANCE — one more miss and they're gone!";al.classList.remove("hidden")}
+  else if(s>=4){al.className="alert crit";al.textContent="Almost at the exit — choose carefully!";al.classList.remove("hidden")}
+  else if(s>=3){al.className="alert warn";al.textContent="They're walking away — focus!";al.classList.remove("hidden")}
+  else al.classList.add("hidden");
+  const phrase=activePhrase();
+  const words=phrase.split(" ").length;
+  $("promptLabel").textContent = t.field==="say" ? "What you say back" : "What the client said";
+  $("hint").textContent=`${words} word${words===1?"":"s"} · ${lettersOnly(phrase).length} letters · ${a.category}`;
+  const hb=$("btnHint");
+  hb.disabled = state.hintsLeft<=0 || state.phase!=="playing";
+  hb.textContent = state.hintsLeft<=0 ? (t.hints?"💡 Hint used":"💡 No hints at T3")
+    : (t.hintCost?"💡 Hint (costs a step)":"💡 Free hint");
+}
+
+function animateWalk(fromStage,toStage,lost,done){
+  const fromX=STAGE_X[fromStage], toX=STAGE_X[toStage];
+  const ms=WALK_MS[toStage]||400;
+  const start=performance.now();
+  const cast=state.cast;
+  function tick(now){
+    const t=Math.min(1,(now-start)/ms);
+    const e=1-Math.pow(1-t, toStage>=4?2:3);
+    const x=fromX+(toX-fromX)*e;
+    renderScene($("playScene"),{stage:toStage,lost,cast,walking:t<1,displayX:x});
+    if(t<1)requestAnimationFrame(tick);
+    else{ renderScene($("playScene"),{stage:toStage,lost,cast,walking:false}); done&&done() }
+  }
+  requestAnimationFrame(tick);
+}
+
+/* A miss: the round closes the moment the loss is determined, not when the
+   walk animation finishes. */
+function advanceWalk(){
+  const fromS=stageFor(state.wrong,state.limit);
+  state.wrong++;
+  const lost = state.wrong >= state.limit;
+  if(lost){ state.phase="over"; stopTimer(); stopHB() }
+  const toS=stageFor(state.wrong,state.limit);
+  playWrong(toS); syncHB(toS, !lost);
+  updatePlayChrome(); renderKB();
+  const ms=WALK_MS[toS]||400;
+  if(lost) finish(false, ms+450);
+  animateWalk(fromS,toS,lost,()=>{ if(!lost && remaining()===0) finish(true) });
+  return lost;
+}
+
+function finish(won, delay){
+  if(state.scored)return;
+  state.scored=true; state.lastWon=won; state.phase="over";
+  stopHB(); stopTimer();
+  const c=card(cur().id);
+  if(won){
+    save.wins++; c.w++; save.streak++;
+    save.best=Math.max(save.best,save.streak);
+    playWin();
+  } else {
+    save.losses++; c.l++; save.streak=0;
+    if(!state.timedOut) playLose();
+  }
+  save.tier=state.tier;
+  persist();
+  try { if (window.QuadScore) window.QuadScore.report(save.best); } catch(e){}
+  renderStats();
+  setTimeout(showReveal, delay!=null ? delay : (won?260:400));
+}
+
+/* ---- reveal ---- */
+function nextLabel(){
+  if(state.mode!=="deck") return state.rush?"Next client (Rush)":"Next client";
+  const left=Math.max(0,state.queue.length-state.index-1);
+  return left===0?"Shift over — back to floor":`Next client (${left} left)`;
+}
+function goNext(){
+  if(state.mode==="deck"){
+    const n=state.index+1;
+    if(n<state.queue.length) return startRound(state.queue,n,"deck",state.rush);
+    return goMenu();
+  }
+  startRound(weightedDraw(poolFor(state.tier),1),0,"random",state.rush);
+}
+
+function showReveal(){
+  const a=cur(), won=state.lastWon;
+  show("reveal");
+  const s = won ? stageFor(state.wrong,state.limit) : MAX_STAGE;
+  renderScene($("revealScene"),{stage:s, won, lost:!won, cast:state.cast});
+  renderWord($("revealWord"), activePhrase(), state.guessed, true, false, state.freed);
+  state.quizAnswered=false;
+  $("revealCard").innerHTML = won ? winCardHTML(a) : loseCardHTML(a);
+  wireReveal();
+}
+
+function loseCardHTML(a){
+  const why = state.timedOut
+    ? "The clock ran out. On the floor the clock is their patience, and it runs whether you are ready or not."
+    : STATUS[6] + ". Six wrong letters is six moments where you were not with them.";
+  return `
+    <div class="reveal-head lose">They walked out… next time.
+      <div style="font-family:var(--font-sans);font-size:.85rem;font-weight:500;margin-top:.25rem;color:var(--fg)">${esc(why)}</div>
+    </div>
+    <div class="card card-pad">
+      <div class="fact quote"><div class="t">What they told you</div><p class="said">“${esc(a.heardText)}”</p></div>
+      <div class="fact"><div class="t">What you say to that</div><p class="said">“${esc(a.sayText)}”</p><p style="margin-top:.35rem;color:var(--muted)">${esc(a.why)}</p></div>
+      <div class="fact locked"><div class="t">🔒 How It Helps — locked</div>
+        <p>What their words tell you, and how the Strengthener, Relaxer and Maintainer answer them, unlock when you keep this client. They are back near the top of your queue.</p></div>
+      <div class="tip rule"><strong>Still true either way:</strong> you never tell a client what they have. You repeat what they said and you offer what you have.</div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-primary" id="btnRevealNext">${esc(nextLabel())}</button>
+        <button type="button" class="btn btn-secondary" id="btnRevealMenu">Floor</button>
+      </div>
+    </div>`;
+}
+
+function winCardHTML(a){
+  return `
+    <div class="reveal-head win">They stayed — great work!
+      <div style="font-family:var(--font-sans);font-size:.85rem;font-weight:500;margin-top:.25rem;color:var(--fg)">How It Helps card unlocked <span style="color:var(--muted)">· ${esc(a.category)}</span></div>
+    </div>
+    <div class="card card-pad">
+      <div class="fact quote"><div class="t">1 · What you are hearing</div><p class="said">“${esc(a.heardText)}”</p></div>
+      <div class="fact"><div class="t">2 · What that tells you <span style="font-weight:600;text-transform:none;letter-spacing:0">(your read — never said aloud)</span></div><p>${esc(a.tell)}</p></div>
+      <div class="fact"><div class="t">3 · What you say back</div><p class="said">“${esc(a.sayText)}”</p><p style="margin-top:.35rem;color:var(--muted)">${esc(a.why)}</p></div>
+      <div class="fact hi"><div class="t">4 · How our supports help</div><p>${esc(a.howItHelps)}</p></div>
+      <details class="clinical">
+        <summary>Clinical background — for your understanding only</summary>
+        <div class="inner">
+          <p style="font-size:.8rem;color:var(--danger);font-weight:700;margin:0 0 .4rem">Never say this to a client. We do not diagnose.</p>
+          <div class="fact" style="margin-top:0"><div class="t">${esc(a.label)}</div><p>${esc(a.whatItIs)}</p></div>
+          <div class="fact"><div class="t">Commonly reported</div><p>${esc(a.symptoms)}</p></div>
+        </div>
+      </details>
+      <div id="quizSlot" class="quiz"></div>
+    </div>`;
+}
+
+/* Retention check: one question drawn from the card just read. Alternates
+   between the product knowledge on the card and the rule the game runs on. */
+function buildQuiz(a){
+  if(save.checksAsked % 2 === 1){
+    const opts=[
+      {t:`“You have ${a.label}.”`, ok:true},
+      {t:`“${a.sayText}”`, ok:false},
+      {t:`“Tell me more about what you are feeling.”`, ok:false}
+    ];
+    return {q:"Which of these must never come out of your mouth on the floor?", opts:shuffle(opts)};
+  }
+  const [q, choices, correct] = a.check;
+  return {q, opts:shuffle(choices.map((t,i)=>({t, ok:i===correct})))};
+}
+
+function wireReveal(){
+  const nextBtn=$("btnRevealNext");
+  if(nextBtn) nextBtn.onclick=goNext;
+  const menuBtn=$("btnRevealMenu");
+  if(menuBtn) menuBtn.onclick=goMenu;
+  const slot=$("quizSlot");
+  if(!slot) return;
+  slot.innerHTML=`<button type="button" class="btn btn-primary" id="btnCheckMe">I've read it — check me</button>
+    <div class="kb-tools"><button type="button" class="linkish" id="btnSkipQuiz">Skip the check · back to the floor</button></div>`;
+  $("btnCheckMe").onclick=()=>renderQuiz(cur());
+  $("btnSkipQuiz").onclick=goMenu;
+}
+
+function renderQuiz(a){
+  const slot=$("quizSlot");
+  const quiz=buildQuiz(a);
+  slot.innerHTML=`<p class="q">${esc(quiz.q)}</p>` +
+    quiz.opts.map((o,i)=>`<button type="button" class="opt" data-i="${i}">${esc(o.t)}</button>`).join("") +
+    `<p class="verdict hidden" id="verdict"></p><div class="btn-row hidden" id="quizNext">
+      <button type="button" class="btn btn-primary" id="btnRevealNext">${esc(nextLabel())}</button>
+      <button type="button" class="btn btn-secondary" id="btnRevealMenu">Floor</button></div>`;
+  slot.querySelectorAll(".opt").forEach(b=>{
+    b.onclick=()=>{
+      if(state.quizAnswered)return;
+      state.quizAnswered=true;
+      const i=+b.dataset.i, ok=quiz.opts[i].ok;
+      const c=card(a.id);
+      save.checksAsked++;
+      if(ok){ save.checksRight++; c.c++; tone({freq:784,duration:0.14}); tone({freq:1047,duration:0.18,delay:0.1}) }
+      else { save.checksWrong++; c.f++; tone({freq:220,freqEnd:140,duration:0.3,type:"sawtooth",gain:0.07}) }
+      save.tier=state.tier; persist(); renderStats();
+      slot.querySelectorAll(".opt").forEach((btn,j)=>{
+        btn.disabled=true;
+        if(quiz.opts[j].ok) btn.classList.add("right");
+        else if(j===i) btn.classList.add("wrong");
+      });
+      const v=$("verdict");
+      v.className="verdict "+(ok?"ok":"no");
+      v.textContent = ok
+        ? (isMastered(a.id)?"Right — this client is now mastered and moves to the back of your queue.":"Right. Keep this one and it is mastered.")
+        : "Not quite — the right answer is highlighted. This client comes round again.";
+      $("quizNext").classList.remove("hidden");
+      $("btnRevealNext").onclick=goNext;
+      $("btnRevealMenu").onclick=goMenu;
+    };
+  });
+}
+
+/* ---- play ---- */
+function guess(raw){
+  if(state.phase!=="playing")return;
+  const L=String(raw).toUpperCase();
+  if(L.length!==1||L<"A"||L>"Z"||state.guessed.has(L))return;
+  unlock(); state.guessed.add(L);
+  const phrase=activePhrase();
+  if(!phrase.includes(L)){
+    renderWord($("word"),phrase,state.guessed,false,true,state.freed);
+    setTimeout(()=>{ if(state.phase!=="menu") renderWord($("word"),phrase,state.guessed,false,false,state.freed) },350);
+    advanceWalk();
+  } else {
+    playCorrect();
+    renderKB(); renderWord($("word"),phrase,state.guessed,false,false,state.freed);
+    updatePlayChrome();
+    if(remaining()===0){ state.phase="over"; finish(true) }
+  }
+}
+
+function useHint(){
+  if(state.phase!=="playing" || state.hintsLeft<=0) return;
+  const phrase=activePhrase();
+  const unrev=[...new Set(lettersOnly(phrase).split(""))].filter(c=>!state.guessed.has(c));
+  if(!unrev.length) return;
+  unlock();
+  const L=pick(unrev);
+  state.hintsLeft--; state.usedHint=true;
+  state.guessed.add(L); state.freed.add(L);
+  playCorrect();
+  renderKB(); renderWord($("word"),phrase,state.guessed,false,false,state.freed);
+  updatePlayChrome();
+  if(remaining()===0){ state.phase="over"; return finish(true) }
+  if(TIERS[state.tier].hintCost) advanceWalk();
+}
+
+function startRound(queue,index,mode,rush){
+  unlock(); playStart();
+  const t=TIERS[state.tier];
+  state.phase="playing"; state.mode=mode; state.queue=queue; state.index=index;
+  state.guessed=new Set(); state.freed=new Set();
+  state.wrong=0; state.limit=t.limit; state.hintsLeft=t.hints;
+  state.usedHint=false; state.timedOut=false; state.scored=false;
+  state.rush=!!rush; state.cast=randomCast();
+  show("play");
+  renderScene($("playScene"),{stage:0,cast:state.cast});
+  renderWord($("word"),activePhrase(),state.guessed,false,false,state.freed);
+  renderKB(); updatePlayChrome(); syncHB(0,true);
+  startTimer(rush?t.rush:0);
+}
+
+function goMenu(){
+  stopHB(); stopTimer();
+  state.phase="menu"; state.cast=randomCast();
+  show("menu");
+  renderScene($("menuScene"),{stage:0,cast:state.cast});
+  renderMenu();
+}
+
+function renderMenu(){
+  $("tierList").innerHTML = [1,2,3].map(n=>{
+    const t=TIERS[n], open=unlockedTier(n);
+    const sub = open ? t.blurb : t.needText;
+    return `<button type="button" class="tierbtn" data-tier="${n}" aria-pressed="${state.tier===n}" ${open?"":"disabled"}>
+      <span class="n">${open?n:"🔒"}</span>
+      <span class="tx"><b>${esc(t.name)}</b><span>${esc(sub)}</span></span>
+    </button>`;
+  }).join("");
+  $("tierList").querySelectorAll("[data-tier]").forEach(b=>b.onclick=()=>{
+    state.tier=+b.dataset.tier; save.tier=state.tier; persist(); renderMenu();
+  });
+  const pool=poolFor(state.tier).length;
+  $("menuNote").textContent = `Good Feet booth · Waterman Arch Supports · ${pool} client lines at this tier`;
+  const m=masteredCount(), played=save.wins+save.losses;
+  const bits=[];
+  if(returning) bits.push(`Sitting ${save.sittings}`);
+  if(played) bits.push(`${m}/${CONTENT.length} mastered`);
+  if(save.best) bits.push(`best streak ${save.best}`);
+  if(save.checksAsked) bits.push(`${save.checksRight}/${save.checksAsked} checks`);
+  const nextTier=[2,3].find(n=>!unlockedTier(n));
+  if(nextTier) bits.push(TIERS[nextTier].needText);
+  $("progressNote").textContent = bits.length ? bits.join(" · ") : "Categories: Foot · Nerve · Tendon & Leg · Kinetic Chain";
+}
+
+/* ---- init ---- */
+$("wmLogo").src = WATERMAN;
+$("cogsLogo").src = COGS;
+$("btnNext").onclick=()=>startRound(weightedDraw(poolFor(state.tier),1),0,"random",false);
+$("btnDeck").onclick=()=>startRound(weightedDraw(poolFor(state.tier),Math.min(SHIFT_LEN,poolFor(state.tier).length)),0,"deck",false);
+$("btnRush").onclick=()=>startRound(weightedDraw(poolFor(state.tier),1),0,"random",true);
+$("btnFloor").onclick=goMenu;
+$("btnHint").onclick=useHint;
+$("helpBtn").onclick=()=>$("help").classList.toggle("hidden");
+$("muteBtn").onclick=()=>{
+  muted=!muted; $("muteBtn").textContent=muted?"🔇":"🔊";
+  if(muted)stopHB(); else unlock();
+};
+window.addEventListener("keydown",e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  const k=e.key.toUpperCase();
+  if(k.length===1&&k>="A"&&k<="Z"){e.preventDefault();guess(k)}
+});
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="hidden"){ stopHB(); stopTimer() }
+});
+persist();
+renderScene($("menuScene"),{stage:0,cast:state.cast});
+renderMenu();
+renderStats();
+window.__KTC = {state, save, TIERS, CONTENT, guess, startRound, useHint, goMenu,
+  phrase:activePhrase, remaining, weightFor, persist, SAVE_KEY};
+
+</script>
+</body>
+</html>

@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Fit Clue - Good Feet Training Game</title>
+<style>
+
+:root{--bg:#f4f1eb;--surface:#fffcf7;--ink:#0f2430;--soft:#3d5563;--muted:#6b7f8a;--border:#d4cbc0;--navy:#0a3a4a;--teal:#0e6b7a;--teal2:#148a9c;--cream:#f7f2e8;--str:#c4782a;--strbg:#fdf0e0;--mnt:#3d7a4a;--mntbg:#e8f3ea;--rlx:#3a6d9a;--rlxbg:#e6f0f7;--danger:#a33b3b;--dangbg:#f8e8e8;--ok:#2f6b45;--display:Georgia,"Times New Roman",serif;--body:system-ui,-apple-system,Segoe UI,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:var(--body);background:var(--bg);color:var(--ink);line-height:1.45}
+h1,h2,h3,.disp{font-family:var(--display);letter-spacing:-.02em}button{font:inherit;cursor:pointer;border:0;border-radius:10px}button:disabled{opacity:.45;cursor:not-allowed}
+.wrap{max-width:1100px;margin:0 auto;padding:1rem 1rem 3rem}.hidden{display:none!important}
+.kicker{font-size:.7rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin:0 0 .35rem}
+.hero h1{font-size:clamp(2rem,5vw,3rem);color:var(--navy);margin:0 0 .5rem}.hero p{color:var(--soft);max-width:36rem}
+.row{display:flex;flex-wrap:wrap;gap:.55rem}.grid3{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin:1.25rem 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem}.card h3{margin:.35rem 0 .2rem;color:var(--navy);font-size:1.05rem}.card p{margin:0;color:var(--muted);font-size:.9rem}
+.btn{padding:.75rem 1.15rem;font-weight:700;min-height:44px}.btn-p{background:var(--teal);color:#fff}.btn-p:hover{background:var(--teal2)}.btn-s{background:var(--surface);color:var(--navy);border:1px solid var(--border)}
+.btn-n{background:var(--navy);color:var(--cream);padding:.65rem .95rem;font-weight:700;min-height:44px}.btn-d{background:var(--dangbg);color:var(--danger);border:1px solid rgba(163,59,59,.35);padding:.65rem .95rem;font-weight:700;min-height:44px}.btn-g{background:var(--bg);color:var(--soft);border:1px solid var(--border);padding:.65rem .95rem;font-weight:700;min-height:44px}
+header.bar{display:flex;flex-wrap:wrap;gap:.75rem;justify-content:space-between;align-items:center;margin-bottom:.85rem}header.bar h1{margin:0;font-size:1.5rem;color:var(--navy)}
+.pill{display:inline-flex;align-items:center;gap:.35rem;border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:.25rem .6rem;font-size:.75rem;font-weight:700}.dot{width:.55rem;height:.55rem;border-radius:50%}
+.tip{display:flex;gap:.75rem;border:1px solid rgba(14,107,122,.25);background:rgba(14,107,122,.06);border-radius:14px;padding:.75rem .9rem;margin-bottom:.85rem}
+.tip i{width:2.1rem;height:2.1rem;border-radius:10px;background:var(--teal);color:#fff;display:grid;place-items:center;font-style:normal;font-weight:800;flex:0 0 auto}
+.tip small{display:block;font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--teal)}.tip p{margin:.15rem 0 0;font-size:.9rem;color:var(--soft)}
+.action{display:flex;flex-wrap:wrap;gap:.75rem;justify-content:space-between;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:.85rem;margin-bottom:1rem}
+.die{width:3rem;height:3rem;border-radius:10px;border:2px solid var(--navy);background:var(--cream);display:grid;place-items:center;font-family:var(--display);font-size:1.5rem;font-weight:800;color:var(--navy)}
+.die.pop{animation:pop .45s cubic-bezier(.34,1.36,.64,1)}@keyframes pop{from{transform:scale(.55) rotate(-20deg);opacity:.4}to{transform:scale(1) rotate(0);opacity:1}}
+.layout{display:grid;gap:1rem;grid-template-columns:1.35fr 1fr;min-width:0}.layout>*{min-width:0}@media(max-width:860px){.layout{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:.85rem;min-width:0}.panel h2{margin:0 0 .35rem;font-size:1.15rem;color:var(--navy)}.sub{margin:0 0 .65rem;font-size:.75rem;color:var(--muted)}
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.3rem}
+.cell{min-height:3.6rem;border-radius:10px;padding:.35rem;border:1px solid var(--border);background:var(--surface);text-align:left;display:flex;flex-direction:column;justify-content:space-between;font-size:.72rem;font-weight:700;color:var(--navy)}
+.cell.hall{border-style:dashed;background:radial-gradient(circle,rgba(184,174,160,.5) 1px,transparent 1.5px) 0 0/10px 10px,rgba(232,226,214,.45);color:var(--muted);font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.cell.legal{border-color:var(--teal);background:rgba(20,138,156,.12);box-shadow:0 0 0 2px rgba(20,138,156,.25)}.cell.here:not(.legal){background:var(--cream);border-color:rgba(10,58,74,.35)}
+.tokens{display:flex;flex-wrap:wrap;gap:.2rem;margin-top:.2rem}.piece{width:1.05rem;height:1.05rem;border-radius:50%;color:#fff;font-size:.58rem;font-weight:800;display:grid;place-items:center}
+.hand{display:flex;flex-wrap:wrap;gap:.5rem;min-width:0;padding-bottom:.25rem}.hcard{flex:1 1 8.2rem;min-width:0;border-radius:10px;border:1px solid var(--border);padding:.55rem}
+.hcard .cat{font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.hcard .name{font-family:var(--display);font-weight:700;margin:.15rem 0}.hcard .blurb{font-size:.72rem;color:var(--soft)}
+.cs{background:var(--strbg);border-color:rgba(196,120,42,.3)}.cs .cat{color:var(--str)}.cm{background:var(--mntbg);border-color:rgba(61,122,74,.3)}.cm .cat{color:var(--mnt)}.cr{background:var(--rlxbg);border-color:rgba(58,109,154,.3)}.cr .cat{color:var(--rlx)}
+.toast{border:1px solid rgba(196,120,42,.35);background:var(--strbg);border-radius:12px;padding:.7rem;margin-bottom:.65rem}.toast strong{color:var(--str);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase}
+.clist{display:flex;flex-direction:column;gap:.45rem}.citem{border:1px solid var(--border);background:var(--bg);border-radius:10px;padding:.55rem .65rem;font-size:.85rem}.citem b{display:block;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.note-row{display:flex;flex-wrap:wrap;gap:.35rem}.note{min-width:5.4rem;min-height:44px;padding:.55rem .6rem;border:1px solid var(--border);background:var(--bg);border-radius:10px;font-size:.82rem;font-weight:700;text-align:center}
+.note.mine{background:var(--navy);color:#fff;border-color:var(--navy)}.note.cleared{background:var(--dangbg);color:var(--danger);text-decoration:line-through}.note.maybe{background:var(--strbg);color:var(--str)}.note.seen{background:var(--mntbg);color:var(--mnt);border-color:rgba(61,122,74,.4);text-decoration:line-through}.note.ruledout{background:var(--dangbg);color:var(--danger);border-style:dashed;border-color:rgba(163,59,59,.45);text-decoration:line-through}.note-legend{font-size:.7rem;color:var(--muted);margin:.1rem 0 .5rem}.note-cap{font-size:.68rem;font-weight:600;color:var(--muted);text-transform:none;letter-spacing:0}
+.log{max-height:28rem;overflow:auto;display:flex;flex-direction:column;gap:.45rem;font-size:.86rem}.log div{border-left:2px solid var(--border);padding-left:.5rem;color:var(--soft)}
+.log .you{border-color:var(--teal);color:var(--teal)}.log .ai{border-color:var(--navy);color:var(--navy)}.log .success{border-color:var(--ok);color:var(--ok)}.log .danger{border-color:var(--danger);color:var(--danger)}.log .clue{border-color:var(--str);color:var(--str)}.log .tip{border-color:var(--mnt);color:var(--mnt)}
+.waiting{background:var(--navy);color:rgba(247,242,232,.92);border-radius:14px;padding:.85rem 1rem;text-align:center;margin-bottom:1rem}
+.backdrop{position:fixed;inset:0;background:rgba(6,40,51,.55);display:flex;align-items:flex-end;justify-content:center;padding:.75rem;z-index:50}@media(min-width:640px){.backdrop{align-items:center}}
+.modal{width:min(32rem,100%);max-height:92dvh;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1rem 1.1rem}.modal h2{margin:0 0 .25rem;color:var(--navy)}.modal>p{margin:0 0 .85rem;color:var(--muted);font-size:.9rem}
+.pl{font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin:.7rem 0 .35rem}.pl.s{color:var(--str)}.pl.m{color:var(--mnt)}.pl.r{color:var(--rlx)}
+.picks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.35rem}@media(min-width:480px){.picks{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.pick{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:.5rem .55rem;min-height:44px;font-size:.78rem;font-weight:700;text-align:left}.pick[data-note='cleared'],.pick[data-note='ruledout'],.pick[data-note='seen'],.pick[data-note='mine']{border-style:dashed;opacity:.82}.pick .pn{display:block;font-size:.62rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}.pick.on .pn{color:rgba(255,255,255,.85)}
+.pick.on.s{background:var(--str);color:#fff;border-color:transparent}.pick.on.m{background:var(--mnt);color:#fff;border-color:transparent}.pick.on.r{background:var(--rlx);color:#fff;border-color:transparent}
+.mact{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:flex-end;margin-top:1rem}.stack{display:flex;flex-direction:column;gap:.85rem;min-width:0}.ol{padding-left:1.2rem;color:var(--soft)}.ol li{margin:.45rem 0}
+.err{background:var(--dangbg);color:var(--danger);border:1px solid rgba(163,59,59,.35);padding:.75rem 1rem;border-radius:12px;margin:1rem 0}.badge{font-size:.75rem;font-weight:700;background:var(--strbg);color:var(--str);padding:.2rem .55rem;border-radius:999px}
+.spark{color:var(--str)}.found{width:.4rem;height:.4rem;border-radius:50%;background:var(--ok);display:inline-block}
+.flash{position:fixed;left:0;right:0;bottom:1rem;z-index:40;display:flex;justify-content:center;padding:0 .75rem;pointer-events:none}
+
+</style>
+<script src="/games/quad-bridge.js"></script></head>
+<body>
+<div class="wrap">
+  <div id="boot-error" class="err hidden"></div>
+  <section id="title">
+    <div class="hero">
+      <p class="kicker">The Good Feet Store - Training Game</p>
+      <h1>Fit Clue</h1>
+      <p>A mystery customer left without a 3-Step System on file. Deduce the <b style="color:var(--str)">Strengthener</b>, <b style="color:var(--mnt)">Maintainer</b>, and <b style="color:var(--rlx)">Relaxer</b>.</p>
+      <div class="grid3">
+        <div class="card"><h3>Deduce</h3><p>Clue logic with real Good Feet product cards.</p></div>
+        <div class="card"><h3>Clue drops</h3><p>Visit rooms to unlock arch, lifestyle, and shoe facts.</p></div>
+        <div class="card"><h3>Professor tips</h3><p>A new product-knowledge tip every round.</p></div>
+      </div>
+      <div class="row">
+        <button type="button" class="btn btn-p" id="btn-start">Open a new case</button>
+        <button type="button" class="btn btn-s" id="btn-howto">How to play</button>
+      </div>
+      <p style="margin-top:1.25rem;font-size:.8rem;color:var(--muted)">Offline single-file edition. Open this file in Chrome, Safari, Edge, or Firefox.</p>
+    </div>
+  </section>
+  <section id="howto" class="hidden">
+    <div class="panel" style="max-width:40rem;margin:2rem auto">
+      <h2>How to Play</h2>
+      <ol class="ol">
+        <li><b>Envelope</b> holds one Strengthener, one Maintainer, one Relaxer.</li>
+        <li><b>Your hand</b> cannot be in the envelope - mark them in the notebook.</li>
+        <li><b>Explore rooms</b> for clue drops. Hallways connect rooms like Clue.</li>
+        <li><b>Suggest</b> only from a room. Cards you hold or have seen are hidden.</li>
+        <li><b>Professor tips</b> rotate each of your rounds.</li>
+        <li><b>Wall notes</b> rule whole fit families out - they cross cards off your notebook for you.</li>
+        <li><b>Your rivals deduce too</b> - they remember every card they are shown and will accuse the moment they can.</li>
+        <li><b>Closing time</b> ends the case after round 10 whether or not anyone has solved it.</li>
+        <li><b>Accuse</b> only when sure - a wrong final accusation ends the case. The accusation list always shows every card.</li>
+      </ol>
+      <div class="row" style="margin-top:1rem">
+        <button type="button" class="btn btn-p" id="btn-start2">Start a case</button>
+        <button type="button" class="btn btn-g" id="btn-back">Back</button>
+      </div>
+    </div>
+  </section>
+  <section id="play" class="hidden">
+    <header class="bar">
+      <div>
+        <p class="kicker">Fit Clue</p>
+        <h1>Case in progress</h1>
+        <div id="turn-line" class="sub" style="margin:0"></div>
+      </div>
+      <div class="row" id="player-pills"></div>
+      <div class="row">
+        <button type="button" class="btn-g" id="btn-new">New</button>
+        <button type="button" class="btn-g" id="btn-menu">Menu</button>
+      </div>
+    </header>
+    <div class="tip"><i>!</i><div><small id="tip-round">Professor tip</small><p id="tip-text"></p></div></div>
+    <div id="action-area"></div>
+    <div class="layout">
+      <div class="stack">
+        <div class="panel">
+          <h2>Store Map</h2>
+          <p class="sub">Rooms drop clues - hallways connect them - suggest only from a room</p>
+          <div class="board" id="board"></div>
+        </div>
+        <div class="panel"><h2>Your Hand</h2><div class="hand" id="hand"></div></div>
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem">
+            <h2 style="margin:0">Customer Clues</h2><span class="badge" id="clue-count">0/9</span>
+          </div>
+          <p class="sub">Visit rooms to drop case facts.</p>
+          <div id="clue-toast"></div>
+          <div class="clist" id="clue-list"></div>
+        </div>
+        <div class="panel">
+          <h2>Detective Notebook</h2>
+          <p class="sub">Tap to cycle blank &rarr; eliminated &rarr; maybe. Facts lock themselves: <b>(held)</b> your card, <b>(shown)</b> shown to you, <b>(clue)</b> ruled out by a wall note. Accusations always list every card.</p>
+          <div id="notebook"></div>
+        </div>
+      </div>
+      <div class="panel"><h2>Case Log</h2><div class="log" id="log"></div></div>
+    </div>
+  </section>
+</div>
+<div id="modal-root"></div>
+<script>
+/* Fit Clue - offline single-file game logic */
+(function () {
+  "use strict";
+  try {
+    var STRENGTHENERS = [
+      { id: "max", name: "Max", short: "Max", cat: "strengthener", blurb: "Firmest strengthener - high arches and pronounced pressure.", traits: ["Most firm", "High arches"] },
+      { id: "honeycomb", name: "Honeycomb", short: "Honeycomb", cat: "strengthener", blurb: "Rigid stability with heel cup, stabilizer and metatarsal rise.", traits: ["Very rigid", "High arches"] },
+      { id: "classic", name: "Classic", short: "Classic", cat: "strengthener", blurb: "Most popular - metatarsal support for heel and ball-of-foot relief.", traits: ["Most popular", "Heel pain"] },
+      { id: "sls", name: "Slimline Strengthener (SLS)", short: "SLS", cat: "strengthener", blurb: "55% lighter, 5x thinner, with Gait Enhancement Technology.", traits: ["Thin/light", "GeT technology"] },
+      { id: "diamond", name: "Diamond", short: "Diamond", cat: "strengthener", blurb: "Flexible polymer - flatter or more sensitive feet.", traits: ["More flexible", "Sensitive"] },
+      { id: "hug", name: "Hug", short: "Hug", cat: "strengthener", blurb: "Great intermediate - flexible strengthener support.", traits: ["Intermediate", "Flexible"] },
+    ];
+    var MAINTAINERS = [
+      { id: "ultra", name: "Ultra", short: "Ultra", cat: "maintainer", blurb: "More rigid than Miracle - lower arches, center of arch support.", traits: ["More rigid", "Lower arches"] },
+      { id: "miracle", name: "Miracle Flex", short: "Miracle", cat: "maintainer", blurb: "Most rigid in Flex line - high arches, unstable feet, can run.", traits: ["Very high arches", "Running OK"] },
+      { id: "slm", name: "Slimline Maintainer (SLM)", short: "SLM", cat: "maintainer", blurb: "Thinner, wider platform - wider feet and lower arches.", traits: ["Thin", "Wider feet"] },
+      { id: "midflex", name: "Mid-Flex", short: "Mid-Flex", cat: "maintainer", blurb: "Mid-range flex for average arches and higher-impact activity.", traits: ["Average arches", "Higher impact"] },
+      { id: "flex", name: "Flex", short: "Flex", cat: "maintainer", blurb: "Good support for flatter feet and lightweight shoes.", traits: ["Flatter feet", "Light shoes"] },
+      { id: "deluxe", name: "Deluxe", short: "Deluxe", cat: "maintainer", blurb: "No metatarsal rise, deep heel cup - flat, wide, or sensitive feet.", traits: ["Deep heel cup", "No meta rise"] },
+    ];
+    var RELAXERS = [
+      { id: "flex-relaxer", name: "Flex Relaxer", short: "Flex Relaxer", cat: "relaxer", blurb: "Mild support without metatarsal rise - heels, slippers, sandals.", traits: ["No meta rise", "Heels OK"] },
+      { id: "slr", name: "Slimline Relaxer (SLR)", short: "SLR", cat: "relaxer", blurb: "Supports all 4 arches with mild meta rise - great for wider feet.", traits: ["All 4 arches", "Wider feet"] },
+      { id: "skinny", name: "Skinny", short: "Skinny", cat: "relaxer", blurb: "Lower longitudinal arch, slight heel cup - slender feet and dress shoes.", traits: ["Slender feet", "Dress shoes"] },
+    ];
+    var ALL = STRENGTHENERS.concat(MAINTAINERS, RELAXERS);
+    var BY = {};
+    ALL.forEach(function (c) {
+      BY[c.id] = c;
+    });
+    var TIPS = [
+      "The 3-Step System: Strengthen by day, Maintain in lower-profile shoes, Relax at night.",
+      "Max is the firmest Strengthener - best for high arches and pronounced pressure.",
+      "Honeycomb is very rigid with a heel cup and little side-to-side flex.",
+      "Classic is the most popular Strengthener - great for heel pain and metatarsalgia.",
+      "SLS is 55% lighter and 5x thinner, with Gait Enhancement Technology (GeT).",
+      "Diamond is more flexible - flatter or sensitive feet often prefer it.",
+      "Hug is a great intermediate Strengthener when you need balanced flex.",
+      "Miracle Flex is the most rigid in the Flex line - high arches, unstable feet.",
+      "Deluxe has no metatarsal rise and a deep heel cup - flat, wide, or sensitive feet.",
+      "SLR supports all four arches with a mild meta rise - excellent for wider feet.",
+      "Always measure arch length with the Brannock - size drives the right fit.",
+      "Match lifestyle first: standing all day is not the same as a weekend runner.",
+      "Eliminate cards in your notebook the moment you hold or see them.",
+      "Do not accuse early - one wrong final accusation ends the case.",
+      "Visit every room: each one can drop a customer clue for your case file.",
+    ];
+    var ROOMS = [
+      { id: "welcome", name: "Welcome Desk", short: "Welcome", r: 0, c: 0 },
+      { id: "brannock", name: "Brannock Station", short: "Brannock", r: 0, c: 2 },
+      { id: "fitting", name: "Fitting Room", short: "Fitting", r: 0, c: 4 },
+      { id: "strength-wall", name: "Strengthener Wall", short: "S-Wall", r: 2, c: 0 },
+      { id: "maintain-wall", name: "Maintainer Wall", short: "M-Wall", r: 2, c: 2 },
+      { id: "relax-wall", name: "Relaxer Wall", short: "R-Wall", r: 2, c: 4 },
+      { id: "tryon", name: "Try-On Path", short: "Try-On", r: 4, c: 0 },
+      { id: "salesfloor", name: "Sales Floor", short: "Floor", r: 4, c: 2 },
+      { id: "checkout", name: "Checkout", short: "Checkout", r: 4, c: 4 },
+    ];
+    var ROOM_AT = {};
+    ROOMS.forEach(function (x) {
+      ROOM_AT[x.r + "," + x.c] = x;
+    });
+    var ROOM_CELL = {};
+    ROOMS.forEach(function (x) {
+      ROOM_CELL[x.id] = "c" + x.r + "-" + x.c;
+    });
+    var CASES = [
+      {
+        match: { s: "classic", m: "midflex", r: "flex-relaxer" },
+        name: "Maria Alvarez",
+        age: 42,
+        occ: "Retail manager",
+        complaint: "Heel pain after long shifts on hard floors",
+        lifestyle: "Standing 8-10 hrs, light walking, evening slippers",
+        shoes: "Athletic sneakers at work, flats and slippers at home",
+        arch: "Average arches, metatarsal pressure, mild heel tenderness",
+      },
+      {
+        match: { s: "max", m: "miracle", r: "skinny" },
+        name: "James Porter",
+        age: 38,
+        occ: "Recreational runner",
+        complaint: "High-arch fatigue and pressure under the ball of the foot",
+        lifestyle: "Runs 20+ miles/week, gym 3x, dress shoes for work",
+        shoes: "Running shoes, dress shoes, low-profile trainers",
+        arch: "High arches, pronounced pressure areas",
+      },
+      {
+        match: { s: "diamond", m: "flex", r: "flex-relaxer" },
+        name: "Linda Chen",
+        age: 55,
+        occ: "Office admin",
+        complaint: "Sensitive, flatter feet that tire easily",
+        lifestyle: "Desk job, evening walks, occasional shopping",
+        shoes: "Flats, lightweight sneakers, sandals on weekends",
+        arch: "Lower arches, sensitive feet, needs flexible support",
+      },
+      {
+        match: { s: "honeycomb", m: "ultra", r: "slr" },
+        name: "Robert Hale",
+        age: 49,
+        occ: "Warehouse supervisor",
+        complaint: "Needs rigid stability and wider platform options",
+        lifestyle: "Standing, lifting, hard surfaces all day",
+        shoes: "Work boots, athletic shoes, casual boots",
+        arch: "Higher arches, wants rigid stability, wider feet",
+      },
+      {
+        match: { s: "sls", m: "slm", r: "skinny" },
+        name: "Priya Shah",
+        age: 31,
+        occ: "Consultant",
+        complaint: "Tight dress shoes - needs thin supports that still work",
+        lifestyle: "Travel, presentations, city walking",
+        shoes: "Dress shoes, heels, slim loafers, occasional athletic",
+        arch: "Needs slimline / GeT system for tight footwear",
+      },
+      {
+        match: { s: "hug", m: "deluxe", r: "slr" },
+        name: "Elena Vargas",
+        age: 61,
+        occ: "Retired teacher",
+        complaint: "Wide, flat, sensitive feet; wants quick comfort",
+        lifestyle: "Gardening, shopping, church, gentle walks",
+        shoes: "Wide sneakers, slippers, casual dress shoes",
+        arch: "Sensitive / flat / wide - intermediate strengthener + Deluxe",
+      },
+      {
+        match: { s: "classic", m: "flex", r: "skinny" },
+        name: "Dana Whitfield",
+        age: 36,
+        occ: "Charge nurse",
+        complaint: "Heel pain and ball-of-foot burning by the end of a 12-hour shift",
+        lifestyle: "Twelve-hour hospital shifts, constant walking, dinners out after work",
+        shoes: "Lightweight nursing clogs and sneakers, narrow dress shoes off shift",
+        arch: "Flatter feet, tender heel, metatarsal pressure - needs a popular all-round build",
+      },
+      {
+        match: { s: "honeycomb", m: "miracle", r: "flex-relaxer" },
+        name: "Tomas Berger",
+        age: 44,
+        occ: "Trail runner and site foreman",
+        complaint: "Unstable, very high arches that roll on uneven ground",
+        lifestyle: "Trail running most mornings, on rough job sites all day, slippers at night",
+        shoes: "Trail runners, steel-toe boots, house slippers",
+        arch: "Very high arches, unstable feet, wants maximum rigidity and can run in it",
+      },
+      {
+        match: { s: "sls", m: "midflex", r: "flex-relaxer" },
+        name: "Noor Haddad",
+        age: 29,
+        occ: "Flight attendant",
+        complaint: "Uniform shoes are too tight for anything thick",
+        lifestyle: "Long-haul flights, fast concourse walking, heels on duty, slippers in the crew hotel",
+        shoes: "Slim uniform pumps, low-profile trainers, hotel slippers",
+        arch: "Average arches, higher-impact walking, needs the thinnest possible support",
+      },
+      {
+        match: { s: "diamond", m: "deluxe", r: "slr" },
+        name: "Gloria Mbeki",
+        age: 58,
+        occ: "Hospital housekeeping",
+        complaint: "Wide, flat, very sensitive feet that cannot take a metatarsal rise",
+        lifestyle: "On concrete floors all shift, gardening on days off",
+        shoes: "Wide sneakers, wide slip-ons, garden clogs",
+        arch: "Flat, wide and sensitive - deep heel cup, no meta rise, flexible support only",
+      },
+      {
+        match: { s: "hug", m: "slm", r: "slr" },
+        name: "Curtis Nolan",
+        age: 47,
+        occ: "Barber",
+        complaint: "Aching wide feet from standing behind the chair",
+        lifestyle: "Standing at the chair 9 hours, weekend errands, no running",
+        shoes: "Wide sneakers, wide loafers, wide sandals",
+        arch: "Lower arches on a wide foot - balanced intermediate flex, wide platforms",
+      },
+      {
+        match: { s: "classic", m: "ultra", r: "slr" },
+        name: "Bea Okonjo",
+        age: 51,
+        occ: "Letter carrier",
+        complaint: "Heel pain on the route and arches that give out by mile six",
+        lifestyle: "Walking a delivery route daily, feet up every evening",
+        shoes: "Postal walking shoes, wide sneakers, wide house shoes",
+        arch: "Lower arches on a wider foot, sore heel - needs firm center-of-arch support",
+      },
+    ];
+    // Fit families used by the wall clues. Each family is a fitting concept, never a product name,
+    // so a wall note eliminates a subset only if the learner knows the products.
+    var GROUPS = {
+      strengthener: [
+        { cards: ["max", "honeycomb"], text: "the firmest, most rigid strengtheners built for high arches" },
+        { cards: ["diamond", "hug"], text: "the softer, more forgiving strengtheners for sensitive or flatter feet" },
+        { cards: ["sls"], text: "the barely-there strengthener with gait enhancement technology for tight footwear" },
+        { cards: ["classic"], text: "the most popular metatarsal-forward strengthener" },
+      ],
+      maintainer: [
+        { cards: ["ultra", "miracle"], text: "the rigid maintainers meant for firm high-arch control" },
+        { cards: ["slm", "deluxe"], text: "the thin, wide-platform maintainers for flat or wide feet" },
+        { cards: ["midflex", "flex"], text: "the mid-range everyday maintainers for average or flatter arches" },
+      ],
+      relaxer: [
+        { cards: ["flex-relaxer"], text: "the no-meta-rise evening relaxer for heels and slippers" },
+        { cards: ["slr"], text: "the four-arch evening relaxer for wider feet" },
+        { cards: ["skinny"], text: "the narrow-profile evening relaxer for dress shoes" },
+      ],
+    };
+    var ELIM_BUDGET = { strengthener: 2, maintainer: 2, relaxer: 1 };
+    var FN = ["Alex", "Jordan", "Casey", "Morgan", "Riley", "Avery", "Quinn", "Cameron", "Taylor", "Jamie", "Skyler", "Reese", "Parker", "Hayden", "Drew", "Sam", "Charlie", "Blake"];
+    var LN = ["Brooks", "Nguyen", "Patel", "Garcia", "Wright", "Foster", "Reed", "Coleman", "Hughes", "Bennett", "Rivera", "Kim", "Torres", "Bailey", "Cooper", "Hayes"];
+    var TITLES = ["Store Associate", "Sales Professor", "Fitting Specialist", "Floor Lead", "New Hire Buddy"];
+    var COLORS = ["#0a3a4a", "#c4782a", "#3d7a4a", "#6b3fa0", "#a33b3b"];
+
+    function cellId(r, c) {
+      return "c" + r + "-" + c;
+    }
+    var CELLS = [],
+      CELLS_BY = {};
+    (function build() {
+      for (var r = 0; r < 5; r++)
+        for (var c = 0; c < 5; c++) {
+          var room = ROOM_AT[r + "," + c];
+          var cell = room
+            ? { id: cellId(r, c), kind: "room", r: r, c: c, roomId: room.id, name: room.name, short: room.short, n: [] }
+            : { id: cellId(r, c), kind: "hall", r: r, c: c, name: "Hallway", short: "Hall", n: [] };
+          CELLS.push(cell);
+          CELLS_BY[cell.id] = cell;
+        }
+      CELLS.forEach(function (cell) {
+        [
+          [0, 1],
+          [0, -1],
+          [1, 0],
+          [-1, 0],
+        ].forEach(function (d) {
+          var nr = cell.r + d[0],
+            nc = cell.c + d[1];
+          if (nr >= 0 && nr < 5 && nc >= 0 && nc < 5) cell.n.push(cellId(nr, nc));
+        });
+      });
+    })();
+
+    function dist(from, to) {
+      if (from === to) return 0;
+      var q = [{ id: from, d: 0 }],
+        seen = {};
+      seen[from] = 1;
+      while (q.length) {
+        var cur = q.shift();
+        var ns = CELLS_BY[cur.id].n;
+        for (var i = 0; i < ns.length; i++) {
+          var n = ns[i];
+          if (seen[n]) continue;
+          if (n === to) return cur.d + 1;
+          seen[n] = 1;
+          q.push({ id: n, d: cur.d + 1 });
+        }
+      }
+      return 99;
+    }
+    function reachable(from, steps) {
+      if (steps <= 0) return [];
+      var out = [],
+        q = [{ id: from, d: 0 }],
+        best = {};
+      best[from] = 0;
+      while (q.length) {
+        var cur = q.shift();
+        if (cur.d > 0) out.push(cur.id);
+        if (cur.d >= steps) continue;
+        var ns = CELLS_BY[cur.id].n;
+        for (var i = 0; i < ns.length; i++) {
+          var n = ns[i],
+            nd = cur.d + 1;
+          if (nd > steps) continue;
+          if (best[n] != null && best[n] <= nd) continue;
+          best[n] = nd;
+          q.push({ id: n, d: nd });
+        }
+      }
+      return out;
+    }
+    function isRoom(id) {
+      return CELLS_BY[id] && CELLS_BY[id].kind === "room";
+    }
+    function roomOf(id) {
+      return CELLS_BY[id] && CELLS_BY[id].roomId ? CELLS_BY[id].roomId : null;
+    }
+    function label(id) {
+      var c = CELLS_BY[id];
+      return c && c.kind === "room" ? c.name : "a hallway";
+    }
+    function catClass(cat) {
+      return cat === "strengthener" ? "cs" : cat === "maintainer" ? "cm" : "cr";
+    }
+    function esc(s) {
+      return String(s)
+        .replace(/&/g, "\u0026amp;")
+        .replace(/</g, "\u0026lt;")
+        .replace(/>/g, "\u0026gt;")
+        .replace(/"/g, "\u0026quot;");
+    }
+    function pick(a) {
+      return a[Math.floor(Math.random() * a.length)];
+    }
+    function shuffle(a) {
+      var x = a.slice();
+      for (var i = x.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = x[i];
+        x[i] = x[j];
+        x[j] = t;
+      }
+      return x;
+    }
+    function randName(used) {
+      for (var i = 0; i < 40; i++) {
+        var n = pick(FN) + " " + pick(LN);
+        if (!used[n]) {
+          used[n] = 1;
+          return n;
+        }
+      }
+      return pick(FN) + " " + pick(LN);
+    }
+
+    var muted = false,
+      audioCtx = null;
+    function tone(f, d, type, g, when) {
+      if (muted) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        var t0 = audioCtx.currentTime + (when || 0);
+        var o = audioCtx.createOscillator(),
+          gain = audioCtx.createGain();
+        o.type = type || "sine";
+        o.frequency.setValueAtTime(f, t0);
+        gain.gain.setValueAtTime(0.0001, t0);
+        gain.gain.exponentialRampToValueAtTime(g || 0.06, t0 + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+        o.connect(gain);
+        gain.connect(audioCtx.destination);
+        o.start(t0);
+        o.stop(t0 + d + 0.02);
+      } catch (e) {}
+    }
+    var sfx = {
+      roll: function () {
+        tone(520, 0.06, "triangle", 0.07);
+        tone(380, 0.05, "triangle", 0.06, 0.05);
+        tone(600, 0.08, "sine", 0.05, 0.16);
+      },
+      move: function () {
+        tone(280, 0.05);
+        tone(340, 0.06, "sine", 0.04, 0.04);
+      },
+      clue: function () {
+        tone(440, 0.1);
+        tone(554, 0.12, "sine", 0.06, 0.08);
+        tone(659, 0.16, "triangle", 0.05, 0.16);
+      },
+      card: function () {
+        tone(720, 0.05, "triangle", 0.05);
+        tone(480, 0.08, "sine", 0.06, 0.04);
+      },
+      win: function () {
+        tone(392, 0.12, "triangle", 0.07);
+        tone(494, 0.12, "triangle", 0.07, 0.1);
+        tone(587, 0.18, "triangle", 0.08, 0.2);
+      },
+      lose: function () {
+        tone(300, 0.15, "sawtooth", 0.04);
+        tone(220, 0.22, "sawtooth", 0.04, 0.12);
+      },
+      ui: function () {
+        tone(500, 0.04, "sine", 0.03);
+      },
+    };
+
+    var G = null,
+      logSeq = 0,
+      aiTimer = null;
+    function $(id) {
+      return document.getElementById(id);
+    }
+    function show(id) {
+      ["title", "howto", "play"].forEach(function (s) {
+        $(s).classList.toggle("hidden", s !== id);
+      });
+    }
+    function pushLog(text, toneName) {
+      logSeq++;
+      G.log.unshift({ id: logSeq, text: text, tone: toneName || "neutral" });
+      if (G.log.length > 50) G.log.length = 50;
+    }
+    function curP() {
+      return G.players[G.cur];
+    }
+    // The case file is drawn first and the envelope is derived from it, so the customer
+    // narrative and the answer can never contradict each other.
+    function pickCase() {
+      return pick(CASES);
+    }
+    function solutionFor(cf) {
+      return { s: cf.match.s, m: cf.match.m, r: cf.match.r };
+    }
+    // Choose which fit families this customer's wall note rules OUT. The family holding the
+    // answer is never offered, so a wall clue eliminates a subset and never names the card.
+    function wallElim(cat, solId) {
+      var budget = ELIM_BUDGET[cat];
+      var groups = GROUPS[cat].filter(function (g) {
+        return g.cards.indexOf(solId) < 0;
+      });
+      var combos = [];
+      groups.forEach(function (g) {
+        if (g.cards.length === budget) combos.push([g]);
+      });
+      for (var i = 0; i < groups.length; i++)
+        for (var j = i + 1; j < groups.length; j++)
+          if (groups[i].cards.length + groups[j].cards.length === budget) combos.push([groups[i], groups[j]]);
+      if (!combos.length) combos.push([groups[0]]);
+      var chosen = pick(combos);
+      var ids = [];
+      chosen.forEach(function (g) {
+        g.cards.forEach(function (id) {
+          if (ids.indexOf(id) < 0) ids.push(id);
+        });
+      });
+      return {
+        ids: ids,
+        text: chosen
+          .map(function (g) {
+            return g.text;
+          })
+          .join(", and "),
+      };
+    }
+    function buildClues(cf, sol) {
+      var eS = wallElim("strengthener", sol.s),
+        eM = wallElim("maintainer", sol.m),
+        eR = wallElim("relaxer", sol.r);
+      return [
+        { id: "welcome", roomId: "welcome", label: "Welcome notes", text: "Front desk recalled a " + cf.age + "-year-old " + cf.occ + ". Name on the sign-in sheet was " + cf.name.split(" ")[0] + ".", discovered: false },
+        { id: "brannock", roomId: "brannock", label: "Brannock reading", text: "Arch profile from measuring: " + cf.arch + ".", discovered: false },
+        { id: "fitting", roomId: "fitting", label: "First steps", text: "In the fitting room they described: " + cf.complaint + ".", discovered: false },
+        { id: "strength-wall", roomId: "strength-wall", label: "Strengthener wall note", text: "Sticky note on the Strengthener wall: the fitter pulled and re-shelved " + eS.text + " - wrong family for this customer. (" + eS.ids.length + " card" + (eS.ids.length > 1 ? "s" : "") + " crossed off in your notebook.)", eliminates: eS.ids, discovered: false },
+        { id: "maintain-wall", roomId: "maintain-wall", label: "Maintainer wall note", text: "Sticky note on the Maintainer wall: re-shelved " + eM.text + " - not a fit for this customer's day. (" + eM.ids.length + " card" + (eM.ids.length > 1 ? "s" : "") + " crossed off in your notebook.)", eliminates: eM.ids, discovered: false },
+        { id: "relax-wall", roomId: "relax-wall", label: "Relaxer wall note", text: "Sticky note on the Relaxer wall: re-shelved " + eR.text + " - ruled out for their evenings. (" + eR.ids.length + " card" + (eR.ids.length > 1 ? "s" : "") + " crossed off in your notebook.)", eliminates: eR.ids, discovered: false },
+        { id: "tryon", roomId: "tryon", label: "Try-on path feedback", text: "On the walk path they mentioned lifestyle: " + cf.lifestyle + ".", discovered: false },
+        { id: "salesfloor", roomId: "salesfloor", label: "Shoe conversation", text: "Lifestyle chart talk pointed to these shoes: " + cf.shoes + ".", discovered: false },
+        { id: "checkout", roomId: "checkout", label: "Checkout chatter", text: "They almost checked out a full 3-Step System. Occupation: " + cf.occ + ".", discovered: false },
+      ];
+    }
+    function discover(cell) {
+      var rid = roomOf(cell);
+      if (!rid) return false;
+      var clue = null;
+      for (var i = 0; i < G.clues.length; i++) if (G.clues[i].roomId === rid) clue = G.clues[i];
+      if (!clue || clue.discovered) return false;
+      clue.discovered = true;
+      G.lastClueId = clue.id;
+      pushLog("Clue drop - " + clue.label + ": " + clue.text, "clue");
+      applyElim(clue);
+      return true;
+    }
+    // Wall notes are public sticky notes: they cross cards off the player's notebook and out of
+    // every investigator's deduction, so reading clues and counting cards feed the same solution.
+    function applyElim(clue) {
+      if (!clue || !clue.eliminates) return;
+      clue.eliminates.forEach(function (id) {
+        if (G.notebook[id] !== "mine" && G.notebook[id] !== "seen") G.notebook[id] = "ruledout";
+        G.players.forEach(function (pl) {
+          if (pl.mem) pl.mem.out[id] = true;
+        });
+      });
+    }
+    var ROUND_LIMIT = 10;
+    var SPEED = 1;
+    // ---- opponent notebooks -------------------------------------------------
+    // holds: card -> player known to hold it. no: player -> cards they publicly could not show.
+    // out: cards a wall note ruled out. env: cards proven to be in the envelope.
+    // cons: witnessed disproofs ("that player holds one of these three").
+    function newMem(pid, hand) {
+      var m = { self: pid, holds: {}, no: {}, out: {}, env: {}, cons: [] };
+      hand.forEach(function (id) {
+        m.holds[id] = pid;
+      });
+      return m;
+    }
+    function memNo(m, pid, ids) {
+      if (!m.no[pid]) m.no[pid] = {};
+      ids.forEach(function (id) {
+        m.no[pid][id] = 1;
+      });
+    }
+    function noteCannotShow(pid, ids) {
+      G.players.forEach(function (pl) {
+        if (pl.mem) memNo(pl.mem, pid, ids);
+      });
+    }
+    function aiDeduce(p) {
+      var m = p.mem;
+      if (!m) return;
+      var changed = true,
+        guard = 0;
+      while (changed && guard++ < 24) {
+        changed = false;
+        for (var i = 0; i < m.cons.length; i++) {
+          var cn = m.cons[i];
+          if (cn.done) continue;
+          var poss = cn.cards.filter(function (id) {
+            var h = m.holds[id];
+            if (h && h !== cn.who) return false;
+            if (m.no[cn.who] && m.no[cn.who][id]) return false;
+            return true;
+          });
+          if (poss.length === 1) {
+            if (!m.holds[poss[0]]) {
+              m.holds[poss[0]] = cn.who;
+              changed = true;
+            }
+            cn.done = true;
+          } else if (poss.length === 0) {
+            cn.done = true;
+          }
+        }
+      }
+    }
+    function aiCands(p, list) {
+      return list.filter(function (c) {
+        return !p.mem.holds[c.id] && !p.mem.out[c.id];
+      });
+    }
+    function aiSolution(p) {
+      var out = {},
+        keys = [
+          ["s", STRENGTHENERS],
+          ["m", MAINTAINERS],
+          ["r", RELAXERS],
+        ];
+      for (var i = 0; i < keys.length; i++) {
+        var list = keys[i][1];
+        var env = list.filter(function (c) {
+          return p.mem.env[c.id];
+        });
+        if (env.length === 1) {
+          out[keys[i][0]] = env[0].id;
+          continue;
+        }
+        var cand = aiCands(p, list);
+        if (cand.length === 1) {
+          out[keys[i][0]] = cand[0].id;
+          continue;
+        }
+        return null;
+      }
+      return out;
+    }
+    function finish(phase, reason, by, score) {
+      G.phase = phase;
+      G.endReason = reason;
+      G.endBy = by || null;
+      G.modal = null;
+      G.showQueue = [];
+      if (aiTimer) {
+        clearTimeout(aiTimer);
+        aiTimer = null;
+      }
+      try {
+        if (window.QuadScore) window.QuadScore.report(score);
+      } catch (e) {}
+      if (phase === "won") sfx.win();
+      else sfx.lose();
+      render();
+    }
+    function closingTime() {
+      pushLog("Closing time. The store locked up before anyone named the 3-Step System.", "danger");
+      finish("lost", "closing", null, 0);
+    }
+    function aiAccuse(p, s3) {
+      p.accused = true;
+      pushLog(p.name + " files a final accusation: " + BY[s3.s].short + " + " + BY[s3.m].short + " + " + BY[s3.r].short + ".", "ai");
+      if (s3.s === G.sol.s && s3.m === G.sol.m && s3.r === G.sol.r) {
+        pushLog(p.name + " deduced it first. The case closes without you.", "danger");
+        finish("lost", "ai", p.name, 0);
+        return true;
+      }
+      pushLog(p.name + " was wrong and is out of the running.", "success");
+      render();
+      aiTimer = setTimeout(endTurn, 500 * SPEED);
+      return true;
+    }
+    function newGame() {
+      if (aiTimer) {
+        clearTimeout(aiTimer);
+        aiTimer = null;
+      }
+      var cf = pickCase();
+      var sol = solutionFor(cf);
+      var deck = shuffle(
+        ALL.map(function (c) {
+          return c.id;
+        }).filter(function (id) {
+          return id !== sol.s && id !== sol.m && id !== sol.r;
+        })
+      );
+      var hands = [[], [], []];
+      deck.forEach(function (id, i) {
+        hands[i % 3].push(id);
+      });
+      var used = { You: 1 };
+      var a1 = randName(used),
+        a2 = randName(used);
+      var c1 = pick(COLORS),
+        c2 = pick(COLORS);
+      if (c2 === c1) c2 = "#6b3fa0";
+      var notebook = {};
+      ALL.forEach(function (c) {
+        notebook[c.id] = "unknown";
+      });
+      hands[0].forEach(function (id) {
+        notebook[id] = "mine";
+      });
+      var tip = TIPS[0];
+      G = {
+        phase: "playing",
+        sol: sol,
+        caseFile: cf,
+        clues: buildClues(cf, sol),
+        lastClueId: null,
+        players: [
+          { id: "you", name: "You", title: "New Hire", color: "#148a9c", human: true, cell: ROOM_CELL.welcome, hand: hands[0] },
+          { id: "ai1", name: a1, title: pick(TITLES), color: c1, human: false, cell: ROOM_CELL.checkout, hand: hands[1], mem: newMem("ai1", hands[1]), accused: false, ready: null },
+          { id: "ai2", name: a2, title: pick(TITLES), color: c2, human: false, cell: ROOM_CELL.fitting, hand: hands[2], mem: newMem("ai2", hands[2]), accused: false, ready: null },
+        ],
+        cur: 0,
+        turn: 1,
+        limit: ROUND_LIMIT,
+        endReason: null,
+        endBy: null,
+        die: null,
+        dieKey: 0,
+        moves: 0,
+        rolled: false,
+        suggested: false,
+        notebook: notebook,
+        tip: tip,
+        log: [],
+        suggestion: null,
+        showQueue: [],
+        modal: null,
+        pickS: null,
+        pickM: null,
+        pickR: null,
+        showChoices: null,
+        flashCard: null,
+      };
+      logSeq = 0;
+      pushLog("Case opened: a mystery customer left without their 3-Step System on file.", "neutral");
+      pushLog("The store closes after round " + ROUND_LIMIT + " - solve it before then.", "danger");
+      pushLog("Investigating with " + a1 + " and " + a2 + ". They keep notebooks too and will accuse the moment they can.", "you");
+      pushLog("Professor tip: " + tip, "tip");
+      if (discover(ROOM_CELL.welcome)) sfx.clue();
+    }
+    function endTurn() {
+      if (G.phase !== "playing") return;
+      G.cur = (G.cur + 1) % G.players.length;
+      if (G.cur === 0) {
+        G.turn++;
+        if (G.turn > G.limit) {
+          closingTime();
+          return;
+        }
+      }
+      G.die = null;
+      G.moves = 0;
+      G.rolled = false;
+      G.suggested = false;
+      G.suggestion = null;
+      G.showQueue = [];
+      G.modal = null;
+      G.pickS = G.pickM = G.pickR = null;
+      G.lastClueId = null;
+      G.showChoices = null;
+      var p = curP();
+      pushLog(p.human ? "Your turn." : p.name + "'s turn.", p.human ? "you" : "ai");
+      if (p.human) {
+        G.tip = TIPS[(G.turn - 1) % TIPS.length];
+        pushLog("Professor tip: " + G.tip, "tip");
+      }
+      render();
+      if (!p.human) aiTimer = setTimeout(aiTurn, 700 * SPEED);
+    }
+    function roll() {
+      var p = curP();
+      if (!p.human || G.rolled || G.phase !== "playing") return;
+      G.die = 1 + Math.floor(Math.random() * 6);
+      G.dieKey++;
+      G.moves = G.die;
+      G.rolled = true;
+      pushLog("You rolled a " + G.die + ". Move up to " + G.die + " space(s).", "you");
+      sfx.roll();
+      render();
+    }
+    function moveTo(id) {
+      var p = curP();
+      if (!p.human || G.moves <= 0 || G.phase !== "playing") return;
+      var opts = reachable(p.cell, G.moves);
+      if (opts.indexOf(id) < 0) return;
+      var cost = dist(p.cell, id);
+      if (cost <= 0 || cost > G.moves) return;
+      p.cell = id;
+      G.moves -= cost;
+      pushLog("You moved to " + label(id) + ".", "you");
+      sfx.move();
+      if (discover(id)) sfx.clue();
+      render();
+    }
+    function openSuggest(accuse) {
+      var p = curP();
+      if (!p.human || G.phase !== "playing") return;
+      if (!accuse) {
+        if (G.suggested || !G.rolled) return;
+        if (!isRoom(p.cell)) {
+          pushLog("You must be in a room to make a suggestion.", "danger");
+          render();
+          return;
+        }
+      }
+      G.modal = accuse ? "accuse" : "suggest";
+      G.pickS = G.pickM = G.pickR = null;
+      sfx.ui();
+      render();
+    }
+    // A card is hidden from the suggestion picker only when it is a proven fact - held, shown to
+    // you, or ruled out by a wall note. A manual "cleared" tap is an opinion and never hides a card.
+    function isFact(id) {
+      var m = G.notebook[id];
+      return m === "mine" || m === "seen" || m === "ruledout";
+    }
+    function available(list) {
+      return list.filter(function (c) {
+        return !isFact(c.id);
+      });
+    }
+    function inPlay(list) {
+      return list.filter(function (c) {
+        return !isFact(c.id) && G.notebook[c.id] !== "cleared";
+      });
+    }
+    function submitSuggest() {
+      if (!G.pickS || !G.pickM || !G.pickR) return;
+      var p = curP();
+      var rid = roomOf(p.cell);
+      if (!rid) return;
+      G.suggestion = { by: p.id, roomId: rid, s: G.pickS, m: G.pickM, r: G.pickR };
+      G.suggested = true;
+      G.moves = 0;
+      G.modal = null;
+      pushLog((p.human ? "You" : p.name) + " suggested " + BY[G.pickS].short + " + " + BY[G.pickM].short + " + " + BY[G.pickR].short + " in the " + CELLS_BY[p.cell].name + ".", p.human ? "you" : "ai");
+      G.showQueue = [];
+      for (var i = 1; i < G.players.length; i++) G.showQueue.push(G.players[(G.cur + i) % G.players.length].id);
+      resolveShow();
+    }
+    function resolveShow() {
+      while (G.showQueue.length) {
+        var pid = G.showQueue[0];
+        var pl = null;
+        for (var i = 0; i < G.players.length; i++) if (G.players[i].id === pid) pl = G.players[i];
+        var matches = pl.hand.filter(function (id) {
+          return id === G.suggestion.s || id === G.suggestion.m || id === G.suggestion.r;
+        });
+        if (!matches.length) {
+          G.showQueue.shift();
+          noteCannotShow(pl.id, [G.suggestion.s, G.suggestion.m, G.suggestion.r]);
+          pushLog(pl.name + " cannot disprove the suggestion.", "ai");
+          continue;
+        }
+        if (pl.human) {
+          G.modal = "show";
+          G.showChoices = matches;
+          render();
+          return;
+        }
+        var shown = matches[Math.floor(Math.random() * matches.length)];
+        applyShow(pl.id, shown);
+        return;
+      }
+      pushLog("Nobody could disprove the suggestion!", "success");
+      G.modal = null;
+      var by = null;
+      for (var k = 0; k < G.players.length; k++) if (G.players[k].id === G.suggestion.by) by = G.players[k];
+      if (by && by.mem) {
+        // Nobody else holds these and the suggester does not either - they are in the envelope.
+        [G.suggestion.s, G.suggestion.m, G.suggestion.r].forEach(function (id) {
+          if (!by.mem.holds[id]) by.mem.env[id] = 1;
+        });
+      }
+      if (!curP().human) {
+        render();
+        aiTimer = setTimeout(endTurn, 500 * SPEED);
+        return;
+      }
+      render();
+    }
+    function applyShow(fromId, cardId) {
+      var from = null,
+        sugg = null;
+      for (var i = 0; i < G.players.length; i++) {
+        if (G.players[i].id === fromId) from = G.players[i];
+        if (G.players[i].id === G.suggestion.by) sugg = G.players[i];
+      }
+      G.showQueue = [];
+      G.modal = null;
+      G.showChoices = null;
+      var trio = [G.suggestion.s, G.suggestion.m, G.suggestion.r];
+      G.players.forEach(function (o) {
+        if (!o.mem) return;
+        if (o.id === sugg.id || o.id === from.id) o.mem.holds[cardId] = from.id;
+        else o.mem.cons.push({ who: from.id, cards: trio.slice(), done: false });
+      });
+      if (sugg.human) {
+        G.notebook[cardId] = "seen";
+        pushLog(from.name + " showed you: " + BY[cardId].name + " (" + BY[cardId].cat + ").", "success");
+        sfx.card();
+        G.flashCard = { from: from.name, id: cardId };
+        setTimeout(function () {
+          if (G) {
+            G.flashCard = null;
+            render();
+          }
+        }, 3200);
+      } else {
+        pushLog(from.name + " showed a card to " + sugg.name + ".", "ai");
+      }
+      if (!sugg.human && curP().id === sugg.id) {
+        render();
+        aiTimer = setTimeout(endTurn, 500 * SPEED);
+        return;
+      }
+      render();
+    }
+    function humanShow(cardId) {
+      if (G.modal !== "show") return;
+      applyShow("you", cardId);
+    }
+    function submitAccuse() {
+      if (!G.pickS || !G.pickM || !G.pickR) return;
+      var ok = G.pickS === G.sol.s && G.pickM === G.sol.m && G.pickR === G.sol.r;
+      G.modal = null;
+      if (ok) {
+        pushLog("Correct! You cracked the 3-Step System on file.", "success");
+        finish("won", "you", null, 100);
+      } else {
+        pushLog("Wrong accusation. The customer file stays sealed - case lost.", "danger");
+        finish("lost", "wrong", null, 0);
+      }
+    }
+    function cycleNote(id) {
+      var m = G.notebook[id];
+      if (isFact(id)) return; // held, shown or ruled out - a fact, not a guess
+      var order = ["unknown", "cleared", "maybe"];
+      var i = order.indexOf(m);
+      G.notebook[id] = order[(i < 0 ? 0 : i + 1) % order.length];
+      sfx.ui();
+      render();
+    }
+    function nearestRoom(from, steps) {
+      var rooms = reachable(from, steps).filter(isRoom);
+      if (!rooms.length) {
+        var opts = reachable(from, steps);
+        return opts.length ? opts[Math.floor(Math.random() * opts.length)] : from;
+      }
+      return rooms[Math.floor(Math.random() * rooms.length)];
+    }
+    function aiTurn() {
+      if (!G || G.phase !== "playing") return;
+      var p = curP();
+      if (p.human) return;
+      aiDeduce(p);
+      if (!p.accused) {
+        var solved = aiSolution(p);
+        if (solved && p.ready) {
+          aiAccuse(p, p.ready);
+          return;
+        }
+        if (solved && !p.ready) {
+          // One turn of grace: the opponent double-checks the file, and the log warns you.
+          p.ready = solved;
+          pushLog(p.name + " stops writing and re-reads their notebook - they look certain. You have one turn.", "danger");
+        }
+      }
+      var die = 1 + Math.floor(Math.random() * 6);
+      G.die = die;
+      G.dieKey++;
+      G.moves = die;
+      G.rolled = true;
+      pushLog(p.name + " rolled a " + die + ".", "ai");
+      var dest = nearestRoom(p.cell, die);
+      if (dest !== p.cell) {
+        var cost = dist(p.cell, dest);
+        p.cell = dest;
+        G.moves = Math.max(0, die - cost);
+        pushLog(p.name + " moved to " + label(dest) + ".", "ai");
+      }
+      if (isRoom(p.cell)) {
+        function pickC(list) {
+          var pool = aiCands(p, list);
+          if (!pool.length) pool = list;
+          return pool[Math.floor(Math.random() * pool.length)].id;
+        }
+        G.pickS = pickC(STRENGTHENERS);
+        G.pickM = pickC(MAINTAINERS);
+        G.pickR = pickC(RELAXERS);
+        submitSuggest();
+      } else {
+        render();
+        aiTimer = setTimeout(endTurn, 450 * SPEED);
+      }
+    }
+
+    function render() {
+      if (!G) return;
+      show("play");
+      var left = Math.max(0, G.limit - G.turn + 1);
+      $("turn-line").textContent = "Round " + G.turn + " of " + G.limit + " · " + (curP().human ? "Your turn" : curP().name);
+      $("player-pills").innerHTML =
+        G.players
+          .map(function (p) {
+            return '<span class="pill"><span class="dot" style="background:' + p.color + '"></span>' + esc(p.human ? "You" : p.name.split(" ")[0]) + (p.accused ? " (out)" : "") + "</span>";
+          })
+          .join("") +
+        '<span class="pill" style="border-color:rgba(163,59,59,.4);background:var(--dangbg);color:var(--danger)">Closing in ' + left + "</span>";
+      $("tip-round").textContent = "Professor tip · Round " + G.turn;
+      $("tip-text").textContent = G.tip;
+
+      var p = curP();
+      var aa = $("action-area");
+      if (G.phase === "won" || G.phase === "lost") {
+        aa.innerHTML = "";
+      } else if (!p.human) {
+        aa.innerHTML = '<div class="waiting">' + (G.modal === "show" ? "Someone needs a card from you..." : esc(p.name) + " is investigating...") + "</div>";
+      } else {
+        var inRoom = isRoom(p.cell);
+        var status = !G.rolled
+          ? "Roll, explore rooms for clues, then suggest"
+          : G.moves > 0
+            ? G.moves + " space(s) remaining"
+            : G.suggested
+              ? "Suggestion done - end turn when ready"
+              : inRoom
+                ? "You are in a room - suggest, accuse, or end turn"
+                : "Move into a room to suggest, or end turn";
+        aa.innerHTML =
+          '<div class="action"><div style="display:flex;gap:.75rem;align-items:center"><div class="die ' +
+          (G.rolled ? "pop" : "") +
+          '">' +
+          (G.die == null ? "—" : G.die) +
+          '</div><div><div style="font-weight:700;color:var(--navy)">Your turn</div><div style="font-size:.85rem;color:var(--muted)">' +
+          esc(status) +
+          '</div></div></div><div class="row" id="act-btns"></div></div>';
+        var btns = $("act-btns");
+        function addBtn(label, cls, dis, fn) {
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = cls;
+          b.textContent = label;
+          b.disabled = !!dis;
+          b.onclick = fn;
+          btns.appendChild(b);
+        }
+        addBtn("Roll", "btn btn-p", G.rolled, roll);
+        addBtn("Suggest", "btn-n", !G.rolled || G.suggested || !inRoom, function () {
+          openSuggest(false);
+        });
+        addBtn("Accuse", "btn-d", false, function () {
+          openSuggest(true);
+        });
+        addBtn("End turn", "btn-g", !G.rolled, function () {
+          sfx.ui();
+          endTurn();
+        });
+        addBtn(muted ? "Sound off" : "Sound on", "btn-g", false, function () {
+          muted = !muted;
+          render();
+        });
+      }
+
+      var legal = {};
+      if (G.phase === "playing" && p.human && G.moves > 0) {
+        reachable(p.cell, G.moves).forEach(function (id) {
+          legal[id] = 1;
+        });
+      }
+      var board = $("board");
+      board.innerHTML = "";
+      CELLS.forEach(function (cell) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "cell " + (cell.kind === "room" ? "room" : "hall") + (legal[cell.id] ? " legal" : "") + (p.cell === cell.id ? " here" : "");
+        btn.disabled = !legal[cell.id];
+        if (legal[cell.id])
+          btn.onclick = function () {
+            moveTo(cell.id);
+          };
+        var clue = null;
+        if (cell.roomId) {
+          for (var i = 0; i < G.clues.length; i++) if (G.clues[i].roomId === cell.roomId) clue = G.clues[i];
+        }
+        var tokens = G.players
+          .filter(function (pl) {
+            return pl.cell === cell.id;
+          })
+          .map(function (pl) {
+            return '<span class="piece" style="background:' + pl.color + '" title="' + esc(pl.name) + '">' + esc(pl.name.charAt(0)) + "</span>";
+          })
+          .join("");
+        btn.innerHTML =
+          '<div style="display:flex;justify-content:space-between;gap:2px;width:100%"><span>' +
+          esc(cell.kind === "room" ? cell.short : "hall") +
+          "</span>" +
+          (clue && !clue.discovered ? '<span class="spark">*</span>' : "") +
+          (clue && clue.discovered ? '<span class="found"></span>' : "") +
+          '</div><div class="tokens">' +
+          tokens +
+          "</div>";
+        board.appendChild(btn);
+      });
+
+      $("hand").innerHTML = G.players[0].hand
+        .map(function (id) {
+          var c = BY[id];
+          return '<div class="hcard ' + catClass(c.cat) + '"><div class="cat">' + esc(c.cat) + '</div><div class="name">' + esc(c.short) + '</div><div class="blurb">' + esc(c.blurb) + "</div></div>";
+        })
+        .join("");
+
+      var found = G.clues.filter(function (c) {
+        return c.discovered;
+      });
+      $("clue-count").textContent = found.length + "/9 rooms";
+      var latest = null;
+      if (G.lastClueId) {
+        for (var i = 0; i < G.clues.length; i++) if (G.clues[i].id === G.lastClueId) latest = G.clues[i];
+      }
+      $("clue-toast").innerHTML = latest
+        ? '<div class="toast"><strong>New clue drop</strong><div class="disp" style="font-weight:700;margin:.2rem 0;color:var(--navy)">' +
+          esc(latest.label) +
+          '</div><div style="font-size:.9rem;color:var(--soft)">' +
+          esc(latest.text) +
+          "</div></div>"
+        : "";
+      $("clue-list").innerHTML = found.length
+        ? found
+            .map(function (c) {
+              return '<div class="citem"><b>' + esc(c.label) + "</b>" + esc(c.text) + "</div>";
+            })
+            .join("")
+        : '<div class="citem" style="color:var(--muted)">No clues yet - start exploring rooms.</div>';
+
+      var nb = $("notebook");
+      nb.innerHTML = "";
+      [
+        ["Strengthener", STRENGTHENERS, "var(--str)"],
+        ["Maintainer", MAINTAINERS, "var(--mnt)"],
+        ["Relaxer", RELAXERS, "var(--rlx)"],
+      ].forEach(function (block) {
+        var wrap = document.createElement("div");
+        wrap.style.marginBottom = ".75rem";
+        wrap.innerHTML = '<h3 style="margin:0 0 .35rem;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:' + block[2] + '">' + block[0] + "</h3>";
+        var row = document.createElement("div");
+        row.className = "note-row";
+        var open = inPlay(block[1]).length;
+        wrap.querySelector("h3").innerHTML += ' <span class="note-cap">' + open + " still in play</span>";
+        block[1].forEach(function (c) {
+          var m = G.notebook[c.id];
+          var locked = isFact(c.id);
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = "note " + m;
+          b.textContent = c.short + (m === "cleared" ? " X" : m === "maybe" ? " ?" : m === "mine" ? " (held)" : m === "seen" ? " (shown)" : m === "ruledout" ? " (clue)" : "");
+          b.title = locked ? "Locked - this is a proven fact" : "Tap to cycle: blank, eliminated, maybe";
+          b.setAttribute("aria-pressed", m === "cleared" || m === "maybe" ? "true" : "false");
+          b.onclick = function () {
+            cycleNote(c.id);
+          };
+          row.appendChild(b);
+        });
+        wrap.appendChild(row);
+        nb.appendChild(wrap);
+      });
+
+      $("log").innerHTML = G.log
+        .map(function (e) {
+          return '<div class="' + esc(e.tone || "") + '">' + esc(e.text) + "</div>";
+        })
+        .join("");
+
+      var root = $("modal-root");
+      root.innerHTML = "";
+      if (G.phase === "won" || G.phase === "lost") {
+        var S = BY[G.sol.s],
+          M = BY[G.sol.m],
+          R = BY[G.sol.r],
+          cf = G.caseFile;
+        var back = document.createElement("div");
+        back.className = "backdrop";
+        back.innerHTML =
+          '<div class="modal"><h2>' +
+          esc(G.phase === "won" ? "Case closed - you got it!" : G.endReason === "closing" ? "Closing time - case unsolved" : G.endReason === "ai" ? (G.endBy || "A colleague") + " closed the case first" : "Case lost") +
+          "</h2><p>" +
+          esc(
+            G.phase === "won"
+              ? "You matched the customer 3-Step System."
+              : G.endReason === "closing"
+                ? "The store shut after round " + G.limit + ". Nobody named the system in time - here is what was on file."
+                : G.endReason === "ai"
+                  ? (G.endBy || "Your colleague") + " deduced the full system before you did. Here is what was on file."
+                  : "The true system is revealed for learning."
+          ) +
+          '</p><div class="stack">' +
+          '<div class="hcard cs"><div class="cat">Strengthener</div><div class="name">' +
+          esc(S.name) +
+          '</div><div class="blurb">' +
+          esc(S.blurb) +
+          "</div></div>" +
+          '<div class="hcard cm"><div class="cat">Maintainer</div><div class="name">' +
+          esc(M.name) +
+          '</div><div class="blurb">' +
+          esc(M.blurb) +
+          "</div></div>" +
+          '<div class="hcard cr"><div class="cat">Relaxer</div><div class="name">' +
+          esc(R.name) +
+          '</div><div class="blurb">' +
+          esc(R.blurb) +
+          "</div></div>" +
+          '<div class="citem"><b>Customer file - ' +
+          esc(cf.name) +
+          ", " +
+          cf.age +
+          "</b>" +
+          esc(cf.occ) +
+          " · " +
+          esc(cf.complaint) +
+          "<br>" +
+          esc(cf.lifestyle) +
+          "<br>" +
+          esc(cf.shoes) +
+          "<br>" +
+          esc(cf.arch) +
+          '</div></div><div class="mact"><button type="button" class="btn btn-p" id="m-again">New case</button><button type="button" class="btn-g" id="m-menu">Menu</button></div></div>';
+        root.appendChild(back);
+        $("m-again").onclick = function () {
+          newGame();
+          render();
+        };
+        $("m-menu").onclick = function () {
+          G = null;
+          show("title");
+          root.innerHTML = "";
+        };
+        return;
+      }
+      if (G.modal === "suggest" || G.modal === "accuse") {
+        var isA = G.modal === "accuse";
+        function mk(list, cls, sel, key) {
+          var cap = isA ? list.length + " cards - all of them" : list.length + " left";
+          var html = '<div class="pl ' + cls + '">' + key + ' <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted)">(' + cap + ")</span></div><div class=\"picks\">";
+          if (!list.length) html += '<div style="font-size:.8rem;color:var(--muted)">None left</div>';
+          list.forEach(function (c) {
+            var m = G.notebook[c.id];
+            var tag = isA && m !== "unknown" ? '<span class="pn">' + esc(m === "mine" ? "your card" : m === "seen" ? "shown to you" : m === "ruledout" ? "clue ruled out" : m === "cleared" ? "you crossed off" : "maybe") + "</span>" : "";
+            html += '<button type="button" class="pick ' + cls + (sel === c.id ? " on" : "") + '" data-note="' + esc(m) + '" data-k="' + cls + '" data-id="' + c.id + '">' + esc(c.short) + tag + "</button>";
+          });
+          return html + "</div>";
+        }
+        var back2 = document.createElement("div");
+        back2.className = "backdrop";
+        back2.innerHTML =
+          '<div class="modal"><h2>' +
+          (isA ? "Final Accusation" : "Make a Suggestion") +
+          "</h2><p>" +
+          (isA ? "Name the full 3-Step System. Every card is listed - including ones you crossed off by hand - so a stray notebook tap can never hide the answer. Wrong ends the case." : "Cards you hold, cards shown to you and cards a wall note ruled out are hidden. Your own hand-marked guesses are still listed.") +
+          "</p>" +
+          mk(isA ? STRENGTHENERS : available(STRENGTHENERS), "s", G.pickS, "Strengthener") +
+          mk(isA ? MAINTAINERS : available(MAINTAINERS), "m", G.pickM, "Maintainer") +
+          mk(isA ? RELAXERS : available(RELAXERS), "r", G.pickR, "Relaxer") +
+          '<div class="mact"><button type="button" class="btn-g" id="m-cancel">Cancel</button><button type="button" class="' +
+          (isA ? "btn-d" : "btn btn-p") +
+          '" id="m-go" ' +
+          (!(G.pickS && G.pickM && G.pickR) ? "disabled" : "") +
+          ">" +
+          (isA ? "File Accusation" : "Suggest") +
+          "</button></div></div>";
+        root.appendChild(back2);
+        root.querySelectorAll(".pick").forEach(function (b) {
+          b.onclick = function () {
+            if (b.getAttribute("data-k") === "s") G.pickS = b.getAttribute("data-id");
+            if (b.getAttribute("data-k") === "m") G.pickM = b.getAttribute("data-id");
+            if (b.getAttribute("data-k") === "r") G.pickR = b.getAttribute("data-id");
+            sfx.ui();
+            render();
+          };
+        });
+        $("m-cancel").onclick = function () {
+          G.modal = null;
+          render();
+        };
+        $("m-go").onclick = function () {
+          if (isA) submitAccuse();
+          else submitSuggest();
+        };
+      } else if (G.modal === "show") {
+        var back3 = document.createElement("div");
+        back3.className = "backdrop";
+        var choices = G.showChoices
+          .map(function (id) {
+            var c = BY[id];
+            return '<button type="button" class="hcard ' + catClass(c.cat) + '" style="cursor:pointer;width:100%;text-align:left" data-id="' + id + '"><div class="cat">' + esc(c.cat) + '</div><div class="name">' + esc(c.name) + "</div></button>";
+          })
+          .join("");
+        back3.innerHTML = '<div class="modal"><h2>Show a Card</h2><p>Choose one card to show privately.</p><div class="stack">' + choices + "</div></div>";
+        root.appendChild(back3);
+        root.querySelectorAll("[data-id]").forEach(function (b) {
+          b.onclick = function () {
+            humanShow(b.getAttribute("data-id"));
+          };
+        });
+      } else if (G.flashCard) {
+        var c = BY[G.flashCard.id];
+        root.innerHTML =
+          '<div class="flash"><div class="hcard ' +
+          catClass(c.cat) +
+          '" style="max-width:20rem;width:100%;box-shadow:0 12px 40px rgba(15,36,48,.18)"><div style="font-size:.65rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">' +
+          esc(G.flashCard.from) +
+          ' showed you</div><div class="cat">' +
+          esc(c.cat) +
+          '</div><div class="name">' +
+          esc(c.name) +
+          '</div><div class="blurb">' +
+          esc(c.blurb) +
+          "</div></div></div>";
+      }
+    }
+
+    function start() {
+      sfx.ui();
+      newGame();
+      render();
+    }
+    $("btn-start").onclick = start;
+    $("btn-start2").onclick = start;
+    $("btn-howto").onclick = function () {
+      sfx.ui();
+      show("howto");
+    };
+    $("btn-back").onclick = function () {
+      show("title");
+    };
+    $("btn-new").onclick = function () {
+      sfx.ui();
+      newGame();
+      render();
+    };
+    $("btn-menu").onclick = function () {
+      if (aiTimer) clearTimeout(aiTimer);
+      G = null;
+      show("title");
+      $("modal-root").innerHTML = "";
+    };
+
+    window.__FITCLUE_OK = true;
+    window.__FITCLUE = {
+      get: function () {
+        return G;
+      },
+      newGame: newGame,
+      render: render,
+      setSpeed: function (v) {
+        SPEED = v;
+      },
+      data: { BY: BY, ALL: ALL, S: STRENGTHENERS, M: MAINTAINERS, R: RELAXERS, CASES: CASES, ROOM_CELL: ROOM_CELL },
+      act: { roll: roll, moveTo: moveTo, openSuggest: openSuggest, submitSuggest: submitSuggest, submitAccuse: submitAccuse, endTurn: endTurn, humanShow: humanShow, cycleNote: cycleNote, reachable: reachable, dist: dist, isRoom: isRoom },
+    };
+  } catch (err) {
+    var el = document.getElementById("boot-error");
+    if (el) {
+      el.classList.remove("hidden");
+      el.textContent = "Fit Clue failed to load: " + err.message;
+    }
+    console.error(err);
+  }
+})();
+
+</script>
+</body>
+</html>
