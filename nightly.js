@@ -151,6 +151,27 @@
     return !!rec;
   }
 
+  /* Fold local ticks, the shared tick log, and form responses into one map.
+     A missing source (the request failed) leaves the other sources in place. */
+  function mergeRecorded(local, tickStore, formStore) {
+    var done = {};
+    [local, tickStore, formStore].forEach(function (src) {
+      if (!src) return;
+      Object.keys(src).forEach(function (id) {
+        if (src[id]) done[id] = true;
+      });
+    });
+    return done;
+  }
+
+  /* Supply is posted to the shared log on the period start date, not on the
+     Thursday it is due. Any one of these records means it was submitted. */
+  function supplyIsRecorded(localDone, dayStore, periodStartStore) {
+    return !!(localDone
+      || (dayStore && dayStore.supply)
+      || (periodStartStore && periodStartStore.supply));
+  }
+
   /* `recorded` is a map of task id -> anything truthy (a tick or a form row).
      Options:
        includeWorkshop — Saturday recap, only when form responses were readable
@@ -189,6 +210,8 @@
     supplyDueOn: supplyDueOn,
     requiredItemsForDay: requiredItemsForDay,
     missedItems: missedItems,
+    mergeRecorded: mergeRecorded,
+    supplyIsRecorded: supplyIsRecorded,
     dmMessage: dmMessage
   };
 });

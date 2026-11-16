@@ -3313,6 +3313,10 @@ function fetchWithTimeout(url, ms){
   const timer = setTimeout(() => ctrl.abort(), ms);
   return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(timer));
 }
+async function readJsonOk(res){
+  if(!res || !res.ok) return null;
+  try{ return await res.json(); }catch(e){ return null; }
+}
 function missedAckKey(store, iso){ return "wg-ops-missed-ack-" + store + "-" + iso; }
 function supplyDoneFor(storeName, iso){
   const p = salesPeriodOn(iso);
@@ -3322,35 +3326,42 @@ function supplyDoneFor(storeName, iso){
   }catch(e){ return false; }
 }
 async function fetchDayRecords(storeName, iso){
-  const done = {};
   const local = localDayFor(storeName, iso);
-  Object.keys(local).forEach(id => { if(local[id]) done[id] = true; });
+  let tickStore = null;
+  let formStore = null;
   let includeWorkshop = false;
-  if(!syncOn()) return { done: done, includeWorkshop: includeWorkshop };
-  const sep = CONFIG.sync.url.includes("?") ? "&" : "?";
-  try{
-    const [r, rf] = await Promise.all([
-      fetchWithTimeout(CONFIG.sync.url + sep + "date=" + encodeURIComponent(iso), 4000),
+  if(syncOn()){
+    const sep = CONFIG.sync.url.includes("?") ? "&" : "?";
+    /* Each read fails on its own. A tick timeout must not throw away a form
+       response that already came back, or a real submission looks missed. */
+    const [ticks, forms] = await Promise.all([
+      fetchWithTimeout(CONFIG.sync.url + sep + "date=" + encodeURIComponent(iso), 4000).catch(() => null),
       fetchWithTimeout(CONFIG.sync.url + sep + "forms=1&from=" + iso + "&to=" + iso, 4000).catch(() => null)
     ]);
-    if(r && r.ok){
-      const j = await r.json();
-      const stores = canonStores((j && j.stores) || {});
-      const rec = stores[storeName] || {};
-      Object.keys(rec).forEach(id => { if(rec[id]) done[id] = true; });
+    const j = await readJsonOk(ticks);
+    if(j) tickStore = (canonStores(j.stores || {}))[storeName] || {};
+    const jf = await readJsonOk(forms);
+    if(jf && jf.ok){
+      if(Array.isArray(jf.tasks) && jf.tasks.indexOf("workshop") >= 0) includeWorkshop = true;
+      const days = jf.days || {};
+      formStore = (canonStores(days[iso] || {}))[storeName] || {};
     }
-    if(rf && rf.ok){
-      const jf = await rf.json();
-      if(jf && jf.ok && Array.isArray(jf.tasks) && jf.tasks.indexOf("workshop") >= 0){
-        includeWorkshop = true;
-      }
-      const days = (jf && jf.days) || {};
-      const dayStores = canonStores(days[iso] || {});
-      const rec = dayStores[storeName] || {};
-      Object.keys(rec).forEach(id => { if(rec[id]) done[id] = true; });
-    }
-  }catch(e){}
+  }
+  const done = Nightly.mergeRecorded(local, tickStore, formStore);
   return { done: done, includeWorkshop: includeWorkshop };
+}
+/* Supply ticks are stored on the period's start date, not on the Thursday
+   they are due, so another tablet's submission is not in yesterday's row. */
+async function sharedSupplyOn(storeName, iso){
+  if(!syncOn() || !iso) return false;
+  const sep = CONFIG.sync.url.includes("?") ? "&" : "?";
+  try{
+    const r = await fetchWithTimeout(CONFIG.sync.url + sep + "date=" + encodeURIComponent(iso), 4000);
+    const j = await readJsonOk(r);
+    if(!j) return false;
+    const rec = (canonStores(j.stores || {}))[storeName] || {};
+    return !!rec.supply;
+  }catch(e){ return false; }
 }
 async function showMissedNotice(){
   if(!active || !nightlyReady()) return;
@@ -3366,10 +3377,17 @@ async function showMissedNotice(){
   try{ if(localStorage.getItem(ackKey) === "1") return; }catch(e){}
 
   const period = salesPeriodOn(prev);
+  const supplyDue = !!(period && Nightly.supplyDueOn(prev, period.start));
+  let supplyDone = Nightly.supplyIsRecorded(supplyDoneFor(storeName, prev), got.done, null);
+  if(supplyDue && !supplyDone && period && period.start !== prev){
+    const onPeriodStart = await sharedSupplyOn(storeName, period.start);
+    if(!active || active.name !== storeName) return;
+    supplyDone = Nightly.supplyIsRecorded(false, null, onPeriodStart ? { supply: true } : null);
+  }
   const missed = Nightly.missedItems(prev, got.done, {
     includeWorkshop: got.includeWorkshop,
-    supplyDue: !!(period && Nightly.supplyDueOn(prev, period.start)),
-    supplyDone: supplyDoneFor(storeName, prev) || !!got.done.supply
+    supplyDue: supplyDue,
+    supplyDone: supplyDone
   });
   if(!missed.length) return;
 

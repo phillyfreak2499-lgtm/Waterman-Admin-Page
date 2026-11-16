@@ -157,6 +157,35 @@ test("supply order is missed only on its due date, and only if it was not marked
   );
 });
 
+test("a failed tick read does not throw away form responses", () => {
+  const done = N.mergeRecorded(
+    { bankAM: { at: "local" } },
+    null,
+    { opening: { src: "form" }, closing: { src: "form" } }
+  );
+  assert.deepEqual(Object.keys(done).sort(), ["bankAM", "closing", "opening"]);
+  const missed = N.missedItems("2026-11-16", done, {});
+  assert.deepEqual(missed.map((item) => item.id), ["eod", "bankPM"]);
+});
+
+test("supply submitted on the period start date is not missed on the due date", () => {
+  assert.equal(N.supplyIsRecorded(false, {}, { supply: { at: "2026-08-30T18:00:00.000Z", by: "AB" } }), true);
+  assert.equal(N.supplyIsRecorded(true, null, null), true);
+  assert.equal(N.supplyIsRecorded(false, { supply: { at: "x" } }, null), true);
+  assert.equal(N.supplyIsRecorded(false, {}, {}), false);
+  assert.equal(N.supplyIsRecorded(false, { supply: null }, { supply: "" }), false);
+
+  const due = "2026-09-03";
+  assert.equal(N.supplyDueOn(due, "2026-08-30"), true);
+  const missed = N.missedItems(due, {
+    opening: 1, bankAM: 1, eod: 1, closing: 1, bankPM: 1
+  }, {
+    supplyDue: true,
+    supplyDone: N.supplyIsRecorded(false, {}, { supply: { by: "AB" } })
+  });
+  assert.deepEqual(missed, []);
+});
+
 test("the DM line names the district when we have one, and never sends anything", () => {
   const west = N.dmMessage("West", 3);
   assert.equal(
