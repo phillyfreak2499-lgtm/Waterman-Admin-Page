@@ -15,7 +15,7 @@
    employee never has to pick their store twice.
    ===================================================================== */
 
-const BUILD = "2026-08-31-e";
+const BUILD = "2026-11-16-a";
 
 const CONFIG = {
   // Set to false to let anyone straight in without a code.
@@ -351,8 +351,12 @@ function say(msg){
   toastTimer = setTimeout(() => t.classList.remove("on"), 4200);
 }
 const KEY = "wg-ops-store";
+const SESSION_AT_KEY = "wg-ops-session-at";
+const NIGHT_OUT_KEY = "wg-ops-night-out";
 let selected = null;   // store object, pending PIN
 let active = null;     // store object, unlocked
+let roleSessionAt = null;  // when Company View or Admin was opened
+let cutoffTimer = null;
 
 /* ---- daily check-off state: per store, per calendar day, on this tablet ---- */
 function dayKey(){ return "wg-ops-done-" + active.name + "-" + todayISO(); }
@@ -648,9 +652,14 @@ function tryPin(){
   else { $("pinErr").textContent = "That code doesn't match " + selected.name + ". Check with your manager."; }
 }
 
-function unlock(s){
+function unlock(s, opts){
+  opts = opts || {};
   active = s;
-  try{ localStorage.setItem(KEY, s.name); }catch(e){}
+  try{
+    localStorage.setItem(KEY, s.name);
+    if(!opts.resume) localStorage.setItem(SESSION_AT_KEY, new Date().toISOString());
+  }catch(e){}
+  clearNightOut();
   $("gate").style.display = "none";
   $("app").classList.add("on");
   render();
@@ -660,11 +669,17 @@ function unlock(s){
     if(mine && mine.text) $("noteText").value = mine.text;
   }catch(e){}
   loadPushed().then(() => { renderPushed(); renderSupply(); renderMeeting(); renderBrief(); renderSatPath(); maybeSupplyPopup(); maybeMeetPopup(); });
+  armCutoffTimer();
+  showMissedNotice();
 }
 
 function relock(){
   active = null; selected = null;
-  try{ localStorage.removeItem(KEY); }catch(e){}
+  try{
+    localStorage.removeItem(KEY);
+    localStorage.removeItem(SESSION_AT_KEY);
+  }catch(e){}
+  if(cutoffTimer){ clearTimeout(cutoffTimer); cutoffTimer = null; }
   $("app").classList.remove("on");
   $("gate").style.display = "flex";
   $("pinRow").classList.add("hidden");
@@ -880,6 +895,8 @@ function lastNightNoteSync(){
 }
 
 function tick(){
+  enforceNightlyLogout();
+  if(!active) return;
   const d = new Date();
   const hh = d.getHours();
   const day = d.getDay();
@@ -1416,6 +1433,7 @@ function openDist(){
   distScope = "all";
   distPeriod = "day";
   distView = "stores";
+  noteRoleSession();
   $("dist").classList.add("on");
   syncScopeButtons();
   renderView();
@@ -1430,7 +1448,10 @@ function renderView(){
   if(distView === "tasks") return renderTasks();
   return renderDist();
 }
-function closeDist(){ $("dist").classList.remove("on"); }
+function closeDist(){
+  $("dist").classList.remove("on");
+  if(!$("admin").classList.contains("on")) roleSessionAt = null;
+}
 
 let distScope = "all";
 let distPeriod = "day";
@@ -2862,8 +2883,11 @@ const ROTATES = {
 };
 
 let adminNote = "";
-function openAdmin(){ adminNote = ""; $("admin").classList.add("on"); renderAdmin(); }
-function closeAdmin(){ $("admin").classList.remove("on"); }
+function openAdmin(){ adminNote = ""; noteRoleSession(); $("admin").classList.add("on"); renderAdmin(); }
+function closeAdmin(){
+  $("admin").classList.remove("on");
+  if(!$("dist").classList.contains("on")) roleSessionAt = null;
+}
 
 async function renderAdmin(){
   const host = $("adminContent");
@@ -3190,13 +3214,223 @@ $("scopeSel").addEventListener("click", e => {
   renderView();
 });
 
-/* remember the store on this tablet */
-/* The tablet stays signed in to its store. Who is working is asked at the first tick of
-   the day, so ticks carry the right initials without anyone typing a code twice. */
+/* ================= 9:00 PM CENTRAL =================
+   Sessions live on the device (the store name, or an open Company / Admin view).
+   There is nothing on a server to revoke. At 9:00 PM America/Chicago the page
+   drops back to the gate. The next store sign-in, if yesterday's required work
+   is incomplete, asks them to message their DM. It does not send that message. */
+function nightlyReady(){
+  return typeof Nightly === "object" && Nightly && typeof Nightly.sessionExpired === "function";
+}
+function readSessionStart(){
+  try{
+    const raw = localStorage.getItem(SESSION_AT_KEY);
+    if(!raw) return null;
+    const d = new Date(raw);
+    return isNaN(d.getTime()) ? null : d;
+  }catch(e){ return null; }
+}
+function sessionStillValid(now){
+  if(!nightlyReady()) return true;
+  const started = readSessionStart();
+  if(!started) return false;
+  return !Nightly.sessionExpired(now || new Date(), started);
+}
+function paintNightOut(){
+  const el = $("nightOut");
+  if(!el) return;
+  let on = false;
+  try{ on = sessionStorage.getItem(NIGHT_OUT_KEY) === "1"; }catch(e){}
+  el.hidden = !on;
+}
+function showNightOut(){
+  try{ sessionStorage.setItem(NIGHT_OUT_KEY, "1"); }catch(e){}
+  paintNightOut();
+}
+function clearNightOut(){
+  try{ sessionStorage.removeItem(NIGHT_OUT_KEY); }catch(e){}
+  paintNightOut();
+}
+function noteRoleSession(){
+  if(!roleSessionAt) roleSessionAt = new Date();
+  armCutoffTimer();
+}
+function closeRoleSurfaces(){
+  if($("dist")) $("dist").classList.remove("on");
+  if($("admin")) $("admin").classList.remove("on");
+  roleSessionAt = null;
+  closeViewer();
+  closeSched();
+  const who = $("whoAsk"); if(who) who.classList.remove("on");
+  closeSupplyAsk();
+  closeMeetAsk();
+  const missed = $("missedAsk"); if(missed) missed.classList.remove("on");
+}
+function armCutoffTimer(){
+  if(cutoffTimer){ clearTimeout(cutoffTimer); cutoffTimer = null; }
+  if(!nightlyReady()) return;
+  const now = new Date();
+  let wait = null;
+  if(active){
+    const started = readSessionStart();
+    if(started){
+      const ms = Nightly.msUntilCutoff(now, started);
+      if(ms >= 0) wait = ms;
+    }
+  }
+  const distOn = $("dist") && $("dist").classList.contains("on");
+  const adminOn = $("admin") && $("admin").classList.contains("on");
+  if(roleSessionAt && (distOn || adminOn)){
+    const ms = Nightly.msUntilCutoff(now, roleSessionAt);
+    if(ms >= 0) wait = wait === null ? ms : Math.min(wait, ms);
+  }
+  if(wait === null) return;
+  const delay = Math.min(Math.max(0, wait), 6 * 60 * 60 * 1000);
+  cutoffTimer = setTimeout(enforceNightlyLogout, delay);
+}
+function enforceNightlyLogout(){
+  if(!nightlyReady()) return;
+  const now = new Date();
+  let kicked = false;
+  if(active && !sessionStillValid(now)){
+    relock();
+    kicked = true;
+  }
+  const distOn = $("dist") && $("dist").classList.contains("on");
+  const adminOn = $("admin") && $("admin").classList.contains("on");
+  if((distOn || adminOn) && roleSessionAt && Nightly.sessionExpired(now, roleSessionAt)){
+    kicked = true;
+  }
+  if(kicked){
+    closeRoleSurfaces();
+    showNightOut();
+  }
+  armCutoffTimer();
+}
+function fetchWithTimeout(url, ms){
+  if(typeof AbortController === "undefined") return fetch(url);
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(timer));
+}
+async function readJsonOk(res){
+  if(!res || !res.ok) return null;
+  try{ return await res.json(); }catch(e){ return null; }
+}
+function missedAckKey(store, iso){ return "wg-ops-missed-ack-" + store + "-" + iso; }
+function supplyDoneFor(storeName, iso){
+  const p = salesPeriodOn(iso);
+  if(!p) return false;
+  try{
+    return !!JSON.parse(localStorage.getItem("wg-ops-supply-" + storeName + "-" + p.year + "-" + p.n) || "null");
+  }catch(e){ return false; }
+}
+async function fetchDayRecords(storeName, iso){
+  const local = localDayFor(storeName, iso);
+  let tickStore = null;
+  let formStore = null;
+  let includeWorkshop = false;
+  if(syncOn()){
+    const sep = CONFIG.sync.url.includes("?") ? "&" : "?";
+    /* Each read fails on its own. A tick timeout must not throw away a form
+       response that already came back, or a real submission looks missed. */
+    const [ticks, forms] = await Promise.all([
+      fetchWithTimeout(CONFIG.sync.url + sep + "date=" + encodeURIComponent(iso), 4000).catch(() => null),
+      fetchWithTimeout(CONFIG.sync.url + sep + "forms=1&from=" + iso + "&to=" + iso, 4000).catch(() => null)
+    ]);
+    const j = await readJsonOk(ticks);
+    if(j) tickStore = (canonStores(j.stores || {}))[storeName] || {};
+    const jf = await readJsonOk(forms);
+    if(jf && jf.ok){
+      if(Array.isArray(jf.tasks) && jf.tasks.indexOf("workshop") >= 0) includeWorkshop = true;
+      const days = jf.days || {};
+      formStore = (canonStores(days[iso] || {}))[storeName] || {};
+    }
+  }
+  const done = Nightly.mergeRecorded(local, tickStore, formStore);
+  return { done: done, includeWorkshop: includeWorkshop };
+}
+/* Supply ticks are stored on the period's start date, not on the Thursday
+   they are due, so another tablet's submission is not in yesterday's row. */
+async function sharedSupplyOn(storeName, iso){
+  if(!syncOn() || !iso) return false;
+  const sep = CONFIG.sync.url.includes("?") ? "&" : "?";
+  try{
+    const r = await fetchWithTimeout(CONFIG.sync.url + sep + "date=" + encodeURIComponent(iso), 4000);
+    const j = await readJsonOk(r);
+    if(!j) return false;
+    const rec = (canonStores(j.stores || {}))[storeName] || {};
+    return !!rec.supply;
+  }catch(e){ return false; }
+}
+async function showMissedNotice(){
+  if(!active || !nightlyReady()) return;
+  const storeName = active.name;
+  const district = active.district;
+  const prev = Nightly.previousChicagoDay(new Date());
+  if(Nightly.weekdayOfISO(prev) === 0) return;
+  const ackKey = missedAckKey(storeName, prev);
+  try{ if(localStorage.getItem(ackKey) === "1") return; }catch(e){}
+
+  const got = await fetchDayRecords(storeName, prev);
+  if(!active || active.name !== storeName) return;
+  try{ if(localStorage.getItem(ackKey) === "1") return; }catch(e){}
+
+  const period = salesPeriodOn(prev);
+  const supplyDue = !!(period && Nightly.supplyDueOn(prev, period.start));
+  let supplyDone = Nightly.supplyIsRecorded(supplyDoneFor(storeName, prev), got.done, null);
+  if(supplyDue && !supplyDone && period && period.start !== prev){
+    const onPeriodStart = await sharedSupplyOn(storeName, period.start);
+    if(!active || active.name !== storeName) return;
+    supplyDone = Nightly.supplyIsRecorded(false, null, onPeriodStart ? { supply: true } : null);
+  }
+  const missed = Nightly.missedItems(prev, got.done, {
+    includeWorkshop: got.includeWorkshop,
+    supplyDue: supplyDue,
+    supplyDone: supplyDone
+  });
+  if(!missed.length) return;
+
+  const el = $("missedAsk");
+  if(!el) return;
+  $("missedAskFlag").textContent = "From yesterday";
+  $("missedAskTitle").textContent = missed.length === 1
+    ? "You missed something yesterday"
+    : "You missed " + missed.length + " things yesterday";
+  $("missedAskWhen").textContent = prettyISO(prev) + " at " + storeName + ".";
+  const list = $("missedAskList");
+  list.innerHTML = "";
+  missed.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = item.label;
+    list.appendChild(li);
+  });
+  $("missedAskAsk").textContent = Nightly.dmMessage(district, missed.length);
+  el.dataset.ack = ackKey;
+  el.classList.add("on");
+}
+function ackMissed(){
+  const el = $("missedAsk");
+  if(!el) return;
+  if(el.dataset.ack){ try{ localStorage.setItem(el.dataset.ack, "1"); }catch(e){} }
+  el.classList.remove("on");
+}
+if($("missedAskOk")) $("missedAskOk").addEventListener("click", ackMissed);
+
+/* The tablet stays signed in to its store until 9:00 PM Central, or until someone
+   hits "Change store". Who is working is asked at the first tick of the day. */
+paintNightOut();
 try{
   const saved = localStorage.getItem(KEY);
   const s = STORES.find(x => x.name === saved);
-  if(s) unlock(s);
+  if(s && sessionStillValid(new Date())) unlock(s, { resume: true });
+  else if(s){
+    try{
+      localStorage.removeItem(KEY);
+      localStorage.removeItem(SESSION_AT_KEY);
+    }catch(err){}
+    showNightOut();
+  }
 }catch(e){}
 
 loadSettings();
@@ -3221,3 +3455,8 @@ window.addEventListener("beforeinstallprompt", e => {
   if(b) b.style.display = "";
 });
 setInterval(tick, 30000);
+document.addEventListener("visibilitychange", () => {
+  if(document.visibilityState === "visible") enforceNightlyLogout();
+});
+window.addEventListener("pageshow", () => enforceNightlyLogout());
+window.addEventListener("focus", () => enforceNightlyLogout());
