@@ -15,7 +15,7 @@
    employee never has to pick their store twice.
    ===================================================================== */
 
-const BUILD = "2026-11-23-b";
+const BUILD = "2026-11-23-c";
 
 const CONFIG = {
   // Set to false to let anyone straight in without a code.
@@ -113,8 +113,8 @@ const STORES = [
   {name:"Waxahachie",    district:"West", code:"WAX"},
   {name:"Arlington",     district:"West", code:"ARL"},
   {name:"Southlake",     district:"West", code:"SLK"},
-  {name:"Fort Worth - Alliance", district:"West", code:"ALL", workbookStore:"Alliance"},
-  {name:"Fort Worth - Hulen",    district:"West", code:"FTW", workbookStore:"Hulen"},
+  {name:"Fort Worth - Alliance", district:"West", code:"ALL"},
+  {name:"Fort Worth - Hulen",    district:"West", code:"FTW"},
   {name:"Plano",         district:"East", code:"PLN"},
   {name:"Rockwall",      district:"East", code:"RKW"},
   {name:"Temple",        district:"East", code:"TMP"},
@@ -122,6 +122,20 @@ const STORES = [
   {name:"College Station",district:"East",code:"CST"},
   {name:"Waco",          district:"East", code:"WCO"}
 ];
+
+const STORE_CONTACT_SHEET_IDS = {
+  WAX: "1N98Kw_xvSQPx1WwlpvQZVqnJB0psJ4OVSDf53go94SA",
+  ARL: "19FEpSvEk41Kp83SR0DGXptREasgPtfQ4RTFNeWFn2PI",
+  SLK: "10OLUTkSypcQiX6nMGJAqv1EreNjGjrxeSx1RQ2RKTj0",
+  ALL: "12HiqgykFx_7e_RE0H87-vc7R4Nc3oS_qzjyF9uFZyPE",
+  FTW: "1dJLYZl6T6sjgk_RnJc4TJQagEuyh8iBzSuUTWkA6D8E",
+  PLN: "1iKgyD7uRAf3k9piACF-T6tsi35Me7FAtcViMXTq-p2k",
+  RKW: "18zerqyJgzc5zAFl-YcToYQSL1fXyGhQzm2KxEVoQkX8",
+  TMP: "11fMLTnAzX1FX9B8gxhZ5wZz7HYS-ACmtxcUq4M4P1Io",
+  ALN: "1qTHR1vc08N9m4bSLtQyr3DrDS2fvZ2fOwHZnkfRJSeY",
+  CST: "11VwvUemdXvmIo9Dkoh_xnQsCdvCaOWbMiwovSiNYHqc",
+  WCO: "1JGI7EWfQE7J4tDgeh7OjQzkSjHPVWW8RkHaXbZHouuk"
+};
 
 /* These two stores were renamed in Aug 2026. Everything already in the shared log,
    and every schedule tab, still says the old name — so anything read back gets mapped
@@ -783,16 +797,12 @@ function tileTag(m){
 }
 
 function storeContactsTile(store){
-  const workbook = (store.workbookStore || store.name) + " - Contacts and Passwords";
-  const search = new URL("https://drive.google.com/drive/search");
-  search.searchParams.set("q", 'type:spreadsheet title:"' + workbook + '"');
-  const chooser = new URL("https://accounts.google.com/AccountChooser");
-  chooser.searchParams.set("continue", search.href);
+  const url = "https://docs.google.com/spreadsheets/d/" + STORE_CONTACT_SHEET_IDS[store.code] + "/edit";
   return tileFor({
     key: "storeContacts", tag: "Reference", title: "Store Contacts & Passwords",
-    desc: "Choose your store’s Google account, then open “" + workbook + "” in Drive.",
-    externalHint: "Opens Google’s account chooser in a new tab."
-  }, chooser.href);
+    desc: "Open the " + store.name + " contacts and passwords sheet with your store’s Google account.",
+    externalHint: "Opens your store’s workbook in Google Sheets in a new tab."
+  }, url);
 }
 
 function render(){

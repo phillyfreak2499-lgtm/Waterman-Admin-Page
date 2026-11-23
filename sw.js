@@ -6,7 +6,7 @@
  *
  * Bump CACHE when you deploy and want tablets to pick the new file up immediately.
  */
-const CACHE = 'ops-deck-2026-11-23-b';
+const CACHE = 'ops-deck-2026-11-23-c';
 const SHELL = [
   './',
   './index.html',
