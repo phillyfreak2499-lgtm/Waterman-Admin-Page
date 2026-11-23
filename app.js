@@ -15,7 +15,7 @@
    employee never has to pick their store twice.
    ===================================================================== */
 
-const BUILD = "2026-11-23-a";
+const BUILD = "2026-11-23-b";
 
 const CONFIG = {
   // Set to false to let anyone straight in without a code.
@@ -2202,7 +2202,9 @@ async function loadPushed(){
     const sep = CONFIG.sync.url.includes("?") ? "&" : "?";
     const r = await fetch(CONFIG.sync.url + sep + "tasks=1");
     const j = await r.json();
-    PUSHED = (j && j.tasks) || [];
+    PUSHED = (j && Array.isArray(j.tasks) ? j.tasks : []).map(task => ({
+      ...task, due: Nightly.taskDueISO(task.due)
+    }));
   }catch(e){ PUSHED = []; }
 }
 
@@ -2262,9 +2264,10 @@ function renderPushed(){
 
   const list = document.createElement("div");
   list.className = "pushed";
+  const today = Nightly.chicagoISO(new Date());
   mine.forEach(t => {
     const done = (t.done && t.done[active.name]) || pushDoneLocally(t.id);
-    const overdue = !done && t.due && t.due < todayISO();
+    const overdue = !done && t.due && t.due < today;
 
     const item = document.createElement("div");
     item.className = "push-item" + (done ? " done" : "") + (overdue ? " overdue" : "");

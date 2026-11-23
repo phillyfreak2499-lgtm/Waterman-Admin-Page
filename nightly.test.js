@@ -3,6 +3,16 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const N = require("./nightly.js");
 
+test("manager task due dates preserve calendar days and convert Sheets timestamps to Chicago", () => {
+  assert.equal(N.taskDueISO("Wed Nov 25 2026 00:00:00 GMT-0600 (Central Standard Time)"), "2026-11-25");
+  assert.equal(N.taskDueISO("2026-11-25"), "2026-11-25");
+  assert.equal(N.taskDueISO("2026-11-25T04:30:00.000Z"), "2026-11-24");
+  assert.equal(N.taskDueISO("2026-07-15T05:00:00.000Z"), "2026-07-15");
+  for (const value of [null, undefined, "", "   ", "invalid", "2026-02-30"]) {
+    assert.equal(N.taskDueISO(value), "");
+  }
+});
+
 test("9pm cutoff uses CDT in summer (UTC-5) and CST in winter (UTC-6)", () => {
   // 3:00 PM CDT = 20:00 UTC. Cutoff is 9:00 PM CDT = 02:00 UTC next day.
   assert.equal(

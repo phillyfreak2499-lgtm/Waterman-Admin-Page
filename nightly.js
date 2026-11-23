@@ -64,6 +64,19 @@
     return p.year + "-" + pad(p.month) + "-" + pad(p.day);
   }
 
+  // A date-only form entry is already a calendar day. A Sheets date cell
+  // arrives as an Apps Script timestamp and needs the Chicago calendar day.
+  function taskDueISO(value) {
+    if (typeof value !== "string" || !value.trim()) return "";
+    var due = value.trim();
+    var date = new Date(due);
+    if (!Number.isFinite(date.getTime())) return "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(due)) {
+      return date.toISOString().slice(0, 10) === due ? due : "";
+    }
+    return chicagoISO(date);
+  }
+
   function addDaysISO(iso, days) {
     var parts = String(iso).split("-").map(Number);
     var dt = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
@@ -199,6 +212,7 @@
     DAILY_FIVE: DAILY_FIVE,
     chicagoParts: chicagoParts,
     chicagoISO: chicagoISO,
+    taskDueISO: taskDueISO,
     addDaysISO: addDaysISO,
     previousChicagoDay: previousChicagoDay,
     weekdayOfISO: weekdayOfISO,
