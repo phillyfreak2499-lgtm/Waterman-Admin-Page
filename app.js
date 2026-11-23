@@ -15,7 +15,7 @@
    employee never has to pick their store twice.
    ===================================================================== */
 
-const BUILD = "2026-11-16-a";
+const BUILD = "2026-11-23-a";
 
 const CONFIG = {
   // Set to false to let anyone straight in without a code.
@@ -113,8 +113,8 @@ const STORES = [
   {name:"Waxahachie",    district:"West", code:"WAX"},
   {name:"Arlington",     district:"West", code:"ARL"},
   {name:"Southlake",     district:"West", code:"SLK"},
-  {name:"Fort Worth - Alliance", district:"West", code:"ALL"},
-  {name:"Fort Worth - Hulen",    district:"West", code:"FTW"},
+  {name:"Fort Worth - Alliance", district:"West", code:"ALL", workbookStore:"Alliance"},
+  {name:"Fort Worth - Hulen",    district:"West", code:"FTW", workbookStore:"Hulen"},
   {name:"Plano",         district:"East", code:"PLN"},
   {name:"Rockwall",      district:"East", code:"RKW"},
   {name:"Temple",        district:"East", code:"TMP"},
@@ -285,6 +285,7 @@ function meetSeenKey(){
 }
 
 const ICONS = {
+  storeContacts:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="15" height="18" rx="2"/><path d="M3 7h4M3 12h4M3 17h4"/><circle cx="12.5" cy="9" r="2"/><path d="M9 16a3.5 3.5 0 0 1 7 0"/></svg>',
   opening:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>',
   closing:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
   eod:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>',
@@ -680,6 +681,7 @@ function relock(){
     localStorage.removeItem(SESSION_AT_KEY);
   }catch(e){}
   if(cutoffTimer){ clearTimeout(cutoffTimer); cutoffTimer = null; }
+  $("deckWeekly").replaceChildren();
   $("app").classList.remove("on");
   $("gate").style.display = "flex";
   $("pinRow").classList.add("hidden");
@@ -688,8 +690,7 @@ function relock(){
 
 const TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg>';
 
-function tileFor(m){
-  const href = m.internal ? "" : linkFor(m.key);
+function tileFor(m, href = m.internal ? "" : linkFor(m.key)){
   const unset = !href && !m.internal;
   const mine = TASKS.filter(t => t.module === m.key);
   const done = loadDone();
@@ -724,7 +725,7 @@ function tileFor(m){
     const badge = document.createElement("span");
     badge.className = "opens-out";
     badge.textContent = "Opens in Google";
-    badge.title = "Google Sheets won't run inside another page while they're editable, so this one opens in its own tab.";
+    badge.title = m.externalHint || "Google Sheets won't run inside another page while they're editable, so this one opens in its own tab.";
     main.querySelector(".tile-top").appendChild(badge);
   }
   wrap.appendChild(main);
@@ -781,6 +782,19 @@ function tileTag(m){
   return "Due " + fmtPeriodEnd(due);
 }
 
+function storeContactsTile(store){
+  const workbook = (store.workbookStore || store.name) + " - Contacts and Passwords";
+  const search = new URL("https://drive.google.com/drive/search");
+  search.searchParams.set("q", 'type:spreadsheet title:"' + workbook + '"');
+  const chooser = new URL("https://accounts.google.com/AccountChooser");
+  chooser.searchParams.set("continue", search.href);
+  return tileFor({
+    key: "storeContacts", tag: "Reference", title: "Store Contacts & Passwords",
+    desc: "Choose your store’s Google account, then open “" + workbook + "” in Drive.",
+    externalHint: "Opens Google’s account chooser in a new tab."
+  }, chooser.href);
+}
+
 function render(){
   const w = getWho();
   const el = $("whoami");
@@ -809,6 +823,7 @@ function render(){
       (m.group === "daily" ? $("deckDaily") : $("deckWeekly")).appendChild(tileFor(m));
     });
   });
+  safe("store contacts", () => $("deckWeekly").appendChild(storeContactsTile(active)));
   safe("status band", tick);
 }
 
