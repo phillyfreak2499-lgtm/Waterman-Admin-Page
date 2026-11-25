@@ -3345,6 +3345,11 @@ async function readJsonOk(res){
   if(!res || !res.ok) return null;
   try{ return await res.json(); }catch(e){ return null; }
 }
+/* Period 13 roster: these stores were closed Thu Nov 26, 2026.
+   Scope the exception to this reminder, not schedules or task due dates. */
+const MISSED_NOTICE_CLOSED_STORES = {
+  "2026-11-26": new Set(["WAX", "ARL", "SLK", "ALL", "FTW", "PLN", "RKW", "TMP", "ALN", "CST", "WCO"])
+};
 function missedAckKey(store, iso){ return "wg-ops-missed-ack-" + store + "-" + iso; }
 function supplyDoneFor(storeName, iso){
   const p = salesPeriodOn(iso);
@@ -3396,7 +3401,7 @@ async function showMissedNotice(){
   const storeName = active.name;
   const district = active.district;
   const prev = Nightly.previousChicagoDay(new Date());
-  if(Nightly.weekdayOfISO(prev) === 0) return;
+  if(Nightly.weekdayOfISO(prev) === 0 || MISSED_NOTICE_CLOSED_STORES[prev]?.has(active.code)) return;
   const ackKey = missedAckKey(storeName, prev);
   try{ if(localStorage.getItem(ackKey) === "1") return; }catch(e){}
 
